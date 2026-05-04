@@ -11,7 +11,7 @@
 
 CREATE TABLE Account 
     ( 
-     id_account           INTEGER  NOT NULL , 
+     id_account           SERIAL  NOT NULL , 
      "name"                 VARCHAR (255)  NOT NULL , 
      current_balance      NUMERIC (20,2)  NOT NULL , 
      Currency_id_currency INTEGER  NOT NULL , 
@@ -24,7 +24,7 @@ ALTER TABLE Account
 
 CREATE TABLE Budget 
     ( 
-     id_budget              INTEGER  NOT NULL , 
+     id_budget              SERIAL  NOT NULL , 
      "limit"                  NUMERIC (20,2)  NOT NULL , 
      "start_date"             DATE  NOT NULL , 
      "end"                  DATE  NOT NULL , 
@@ -39,7 +39,7 @@ ALTER TABLE Budget
 
 CREATE TABLE Categories 
     ( 
-     id_category INTEGER  NOT NULL , 
+     id_category SERIAL  NOT NULL , 
      "name"        VARCHAR (200)  NOT NULL , 
      "type"        VARCHAR (100)  NOT NULL 
     ) 
@@ -50,7 +50,7 @@ ALTER TABLE Categories
 
 CREATE TABLE Currency 
     ( 
-     id_currency   INTEGER  NOT NULL , 
+     id_currency   SERIAL  NOT NULL , 
      code          CHAR (3)  NOT NULL , 
      "name"          VARCHAR (100)  NOT NULL , 
      exchange_rate NUMERIC (10,4)  NOT NULL 
@@ -62,7 +62,7 @@ ALTER TABLE Currency
 
 CREATE TABLE InflationHistory 
     ( 
-     id_inflation INTEGER  NOT NULL , 
+     id_inflation SERIAL  NOT NULL , 
      rate         NUMERIC (5,2)  NOT NULL , 
      "date"       DATE  NOT NULL 
     ) 
@@ -73,7 +73,7 @@ ALTER TABLE InflationHistory
 
 CREATE TABLE Notification 
     ( 
-     id_notification INTEGER  NOT NULL , 
+     id_notification SERIAL  NOT NULL , 
      "message"         VARCHAR (400)  NOT NULL , 
      "date"          TIMESTAMP (0)  NOT NULL , 
      is_read         CHAR (1)  NOT NULL , 
@@ -96,7 +96,7 @@ ALTER TABLE Relation_14
 
 CREATE TABLE SavingGoal 
     ( 
-     id_saving_goal       INTEGER  NOT NULL , 
+     id_saving_goal       SERIAL  NOT NULL , 
      "name"                 VARCHAR (200)  NOT NULL , 
      "target"               NUMERIC (20,2)  NOT NULL , 
      current_amount       NUMERIC (20,2)  NOT NULL , 
@@ -111,7 +111,7 @@ ALTER TABLE SavingGoal
 
 CREATE TABLE Scheduled_Transaction 
     ( 
-     id_schedule_transaction INTEGER  NOT NULL , 
+     id_schedule_transaction SERIAL  NOT NULL , 
      frequency               VARCHAR (50)  NOT NULL , 
      next_date               DATE  NOT NULL , 
      amount                  NUMERIC (20,2)  NOT NULL , 
@@ -126,7 +126,7 @@ ALTER TABLE Scheduled_Transaction
 
 CREATE TABLE Transaction 
     ( 
-     id_transaction         INTEGER  NOT NULL , 
+     id_transaction         SERIAL  NOT NULL , 
      amount                 NUMERIC (20,2)  NOT NULL , 
      transaction_date       TIMESTAMP (0)  NOT NULL , 
      "description"            VARCHAR (400) , 
@@ -142,7 +142,7 @@ ALTER TABLE Transaction
 
 CREATE TABLE "User" 
     ( 
-     id_user  INTEGER  NOT NULL , 
+     id_user  SERIAL  NOT NULL , 
      email    VARCHAR (255)  NOT NULL , 
      "password" VARCHAR (255)  NOT NULL , 
      "name"     VARCHAR (255)  NOT NULL 
@@ -154,7 +154,7 @@ ALTER TABLE "User"
 
 CREATE TABLE UserGroup 
     ( 
-     id_group INTEGER  NOT NULL , 
+     id_group SERIAL  NOT NULL , 
      "name"     VARCHAR (200)  NOT NULL
     ) 
 ;
@@ -391,14 +391,15 @@ ALTER TABLE Transaction
 -- ERRORS                                   3
 -- WARNINGS                                 0
 
-INSERT INTO "Currency" (id_currency, code, "name", exchange_rate)
-VALUES (1, 'PLN', 'Złoty', 1.000)
+INSERT INTO Currency (id_currency, code, "name", exchange_rate)
+VALUES (1, 'PLN', 'Złoty', 1.000);
 
+SELECT setval('currency_id_currency_seq', (SELECT MAX(id_currency) FROM Currency));
 
 CREATE OR REPLACE FUNCTION create_def_acc()
 RETURNS TRIGGER AS $$
 BEGIN
-    INSERT INTO "Account" (name, current_balance, "Currency_id_currency", "User_id_user")
+    INSERT INTO Account (name, current_balance, Currency_id_currency, User_id_user)
     VALUES ('Konto Główne', 0.00, 1, NEW.id_user);
     RETURN NEW;
 END;

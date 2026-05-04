@@ -1,10 +1,11 @@
-import sqlalchemy
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker, declarative_base
 
 DB_URL = "postgresql://admin:password123@localhost:5432/finance_app"
 
-engine = sqlalchemy.create_engine(DB_URL)
-SessionLocal = sqlalchemy.orm.sessionmaker(autocommit=False, autoflush=False, bind=engine)
-Base = sqlalchemy.ext.declarative.declarative_base()
+engine = create_engine(DB_URL)
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+Base = declarative_base()
 
 def get_db():
     db = SessionLocal()

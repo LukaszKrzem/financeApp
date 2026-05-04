@@ -1,3 +1,7 @@
+# ! Important !
+# If something does not work with connection (Error 500)
+# Please check if port 5432 is not used by other database before changing code
+# ! Important !
 services:
   db:
     container_name: finance_db
@@ -8,16 +12,18 @@ services:
       POSTGRES_DB: finance_app
       PGDATA: /var/lib/postgresql/data/pgdata
     volumes:
-      - db_data:/var/lib/postgresql/data
-      - ./db/init:/docker-entrypoint-initdb.d
+      - db_data:/var/lib/postgresql/data # Storage for database data
+      - ./db/init:/docker-entrypoint-initdb.d # Any sql file in init folder will run automatically on container start
     ports:
       - "5432:5432"
-    restart: unless-stopped
+    restart: unless-stopped # Restart the container unless it is explicitly stopped
+    # To make sure db is ready before we try to connect to it 
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U admin -d finance_app" ]
       interval: 10s
       timeout: 5s
       retries: 5
 
+# To save database data even if container is removed
 volumes:
   db_data:

@@ -15,7 +15,12 @@ class UserOut(pydantic.BaseModel):
     class Config:
         from_attributes = True
 
-# DTO for user login
+# DTO for user login | kinda pointless rn after using OAuth2
 class UserLogin(pydantic.BaseModel):
     email: pydantic.EmailStr
     password: str
+
+class TokenResponse(pydantic.BaseModel):
+    access_token: str
+    token_type: str
+    user: UserOut

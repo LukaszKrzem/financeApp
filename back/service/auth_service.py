@@ -9,9 +9,10 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 # For now left it here maybe later move to some config file idk
 SECRET_KEY = "e7c845b2069818804c7c640e02927236d933e14f6b2803b8782046808791c13d"
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 60
+ACCESS_TOKEN_EXPIRE_MINUTES = 60 # change it to less if you want to test token expiration
 
-# Sets up password hashing using Argon2
+# Sets up password hashing using Argon2 # 
+# Used Argon2 coz Bcrypt generated some errors with length and i could not bother to fix that so unlucky we use Argon2 
 pwd_context = CryptContext(schemes=["argon2"], deprecated="auto")
 
 # To hash a password 

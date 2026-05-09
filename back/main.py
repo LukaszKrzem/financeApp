@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from routers import user_router
 
 # ! Important !
@@ -9,8 +10,16 @@ from routers import user_router
 # ! Important !
 
 # To create app. title and version kinda pointelss but you can see in docs
-app = FastAPI(title="Finance App API",version="0.1")
+app = FastAPI(title="Finance App API", version="0.1")
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 app.include_router(user_router.router)
+
 
 # For testing if app is alive, can be removed later
 @app.get("/")

@@ -1,3 +1,5 @@
+import database
+import structure
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from routers import user_router
@@ -10,7 +12,16 @@ from routers import user_router
 # ! Important !
 
 # To create app. title and version kinda pointelss but you can see in docs
+database.Base.metadata.create_all(bind=database.engine)
 app = FastAPI(title="Finance App API", version="0.1")
+
+origins = [
+    "http://localhost:5173",
+    "http://localhost:5174",
+    "http://127.0.0.1:3000",
+]
+
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],

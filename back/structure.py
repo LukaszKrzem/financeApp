@@ -16,7 +16,7 @@ class User(database.Base):
     name = sqlalchemy.Column(sqlalchemy.String(255), nullable=False)
 
 class Account(database.Base):
-    __tablename__ = "Account"
+    __tablename__ = "account"
     id_account = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, index=True)
     name = sqlalchemy.Column(sqlalchemy.String(255), nullable=False)
     current_balance = sqlalchemy.Column(sqlalchemy.Numeric(20, 2), nullable=False)

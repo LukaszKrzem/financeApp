@@ -1,0 +1,23 @@
+stages:
+  - test
+
+test:
+  stage: test
+  image: python:3.12
+
+  services:
+    - name: postgres:15
+      alias: postgres
+
+  variables:
+    POSTGRES_DB: finance_app
+    POSTGRES_USER: admin
+    POSTGRES_PASSWORD: password123
+    POSTGRES_HOST_AUTH_METHOD: trust
+    DATABASE_URL: postgresql://admin:password123@postgres:5432/finance_app
+
+  before_script:
+    - pip install -r requirements.txt
+
+  script:
+    - pytest -q

@@ -9,6 +9,7 @@ click==8.3.3
 colorama==0.4.6
 ecdsa==0.19.2
 fastapi==0.136.1
+freezegun==1.5.5
 greenlet==3.5.0
 h11==0.16.0
 idna==3.13
@@ -23,6 +24,7 @@ pydantic==2.13.3
 pydantic_core==2.46.3
 Pygments==2.20.0
 pytest==9.0.3
+python-dateutil==2.9.0.post0
 python-jose==3.5.0
 python-multipart==0.0.27
 rsa==4.9.1

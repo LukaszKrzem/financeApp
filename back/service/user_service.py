@@ -1,7 +1,9 @@
 import back.dto.user_dto
+import sqlalchemy.exc
 import sqlalchemy.orm
 import back.structure
 from back.service import auth_service
+from fastapi import HTTPException
 
 
 # Used in registration and login
@@ -19,7 +21,14 @@ def create_user(user_data: back.dto.user_dto.UserCreate):
     
 
 def add_user(db: sqlalchemy.orm.Session, new_user: back.structure.User):
-    db.add(new_user)
-    db.commit()
-    db.refresh(new_user)
-    return 0
+    try:
+        db.add(new_user)
+        db.commit()
+        db.refresh(new_user)
+        return new_user
+    except sqlalchemy.exc.SQLAlchemyError as e:
+        db.rollback()
+        raise HTTPException(
+            status_code=500,
+            detail="Database error while creating user"
+        )

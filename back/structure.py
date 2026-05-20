@@ -1,21 +1,21 @@
 import sqlalchemy
-import database
+import back.database
 
-class Currency(database.Base):
+class Currency(back.database.Base):
     __tablename__ = "Currency"
     id_currency = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, index=True)
     code = sqlalchemy.Column(sqlalchemy.CHAR(3), nullable=False)
     name = sqlalchemy.Column(sqlalchemy.String(100), nullable=False)
     exchange_rate = sqlalchemy.Column(sqlalchemy.Numeric(10, 4), nullable=False)
 
-class User(database.Base):
+class User(back.database.Base):
     __tablename__ = "User"
     id_user = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, index=True)
     email = sqlalchemy.Column(sqlalchemy.String(255), nullable=False, unique=True)
     password = sqlalchemy.Column(sqlalchemy.String(255), nullable=False)
     name = sqlalchemy.Column(sqlalchemy.String(255), nullable=False)
 
-class Account(database.Base):
+class Account(back.database.Base):
     __tablename__ = "account"
     id_account = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, index=True)
     name = sqlalchemy.Column(sqlalchemy.String(255), nullable=False)

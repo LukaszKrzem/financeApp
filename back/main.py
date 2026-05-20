@@ -1,8 +1,8 @@
-import database
-import structure
+import back.database
+import back.structure
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from routers import user_router
+from back.routers import user_router
 
 # ! Important !
 # If final app we need to add to app docs_url=None, redoc_url=None, openapi_url=None
@@ -12,7 +12,7 @@ from routers import user_router
 # ! Important !
 
 # To create app. title and version kinda pointelss but you can see in docs
-database.Base.metadata.create_all(bind=database.engine)
+back.database.Base.metadata.create_all(bind=back.database.engine)
 app = FastAPI(title="Finance App API", version="0.1")
 
 origins = [

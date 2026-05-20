@@ -29,7 +29,7 @@ def register(
             detail="Podany email jest już używany",
         )
     new_user = user_service.create_user(user_data)
-    add_user = user_service.add_user(new_user)
+    add_user = user_service.add_user(db, new_user)
     token = auth_service.create_access_token({"sub": new_user.email})
     return {"access_token": token, "token_type": "bearer", "user": new_user}
 

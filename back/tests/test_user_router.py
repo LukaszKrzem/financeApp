@@ -1,3 +1,5 @@
+import pytest
+
 def test_register_success(client):
     response = client.post("/register", json={
         "email": "alice@gmail.com",

@@ -1,4 +1,3 @@
-import pytest
 from back.service import user_service
 from back.dto.user_dto import UserCreate
 
@@ -45,4 +44,4 @@ def test_add_user_duplicate(db_session):
     with pytest.raises(Exception):
         user_service.add_user(db_session, user2)
 
-
+    

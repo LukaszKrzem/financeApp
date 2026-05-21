@@ -1,5 +1,6 @@
 import back.database
 import back.structure
+from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from back.routers import user_router
@@ -11,9 +12,16 @@ from back.routers import user_router
 # Don't disable too early tho super good for testing
 # ! Important !
 
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    back.database.Base.metadata.create_all(bind=back.database.engine)
+    yield
+
+
+app = FastAPI(title="Finance App API", version="0.1", lifespan=lifespan)
+
 # To create app. title and version kinda pointelss but you can see in docs
-back.database.Base.metadata.create_all(bind=back.database.engine)
-app = FastAPI(title="Finance App API", version="0.1")
+# back.database.Base.metadata.create_all(bind=back.database.engine)
 
 origins = [
     "http://localhost:5173",

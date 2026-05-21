@@ -1,4 +1,4 @@
-import back.database
+from back.database import get_db
 import back.dto.user_dto
 import sqlalchemy.orm
 from back.dependencies import get_current_user
@@ -20,7 +20,7 @@ class UserLogin(BaseModel):
 @router.post("/register", response_model=back.dto.user_dto.TokenResponse)
 def register(
     user_data: back.dto.user_dto.UserCreate,
-    db: sqlalchemy.orm.Session = Depends(back.database.get_db),
+    db: sqlalchemy.orm.Session = Depends(get_db),
 ):
     existing_user = user_service.get_user_by_email(db, user_data.email)
     if existing_user:
@@ -38,7 +38,7 @@ def register(
 @router.post("/login", response_model=back.dto.user_dto.TokenResponse)
 def login(
     form_data: UserLogin,
-    db: sqlalchemy.orm.Session = Depends(back.database.get_db),
+    db: sqlalchemy.orm.Session = Depends(get_db),
 ):
     user = user_service.get_user_by_email(db, form_data.email)
     if not user or not auth_service.verify_password(form_data.password, user.password):

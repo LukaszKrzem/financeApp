@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import "./App.css";
 
 import Home from "./pages/Home";
@@ -22,45 +23,47 @@ function App() {
   };
 
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route
-          path="/"
-          element={token ? <Navigate to="/dashboard" replace /> : <Home />}
-        />
-        <Route
-          path="/login"
-          element={
-            token ? (
-              <Navigate to="/dashboard" replace />
-            ) : (
-              <Login onLogin={handleLogin} apiUrl={API_URL} />
-            )
-          }
-        />
-        <Route
-          path="/register"
-          element={
-            token ? (
-              <Navigate to="/dashboard" replace />
-            ) : (
-              <Register apiUrl={API_URL} onRegistration={handleLogin} />
-            )
-          }
-        />
-        <Route
-          path="/dashboard"
-          element={
-            token ? (
-              <Dashboard onLogout={handleLogout} />
-            ) : (
-              <Navigate to="/" replace />
-            )
-          }
-        />
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
-    </BrowserRouter>
+    <TooltipProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route
+            path="/"
+            element={token ? <Navigate to="/dashboard" replace /> : <Home />}
+          />
+          <Route
+            path="/login"
+            element={
+              token ? (
+                <Navigate to="/dashboard" replace />
+              ) : (
+                <Login onLogin={handleLogin} apiUrl={API_URL} />
+              )
+            }
+          />
+          <Route
+            path="/register"
+            element={
+              token ? (
+                <Navigate to="/dashboard" replace />
+              ) : (
+                <Register apiUrl={API_URL} onRegistration={handleLogin} />
+              )
+            }
+          />
+          <Route
+            path="/dashboard"
+            element={
+              token ? (
+                <Dashboard onLogout={handleLogout} />
+              ) : (
+                <Navigate to="/" replace />
+              )
+            }
+          />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </BrowserRouter>
+    </TooltipProvider>
   );
 }
 

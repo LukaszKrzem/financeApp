@@ -14,11 +14,24 @@ def get_user_accounts(
     db: sqlalchemy.orm.Session = Depends(get_db),
     current_user = Depends(get_current_user)
 ):
-    accounts = db.query(structure.Account).filter(
+    results = db.query(structure.Account, structure.Currency).join(
+        structure.Currency,
+        structure.Account.Currency_id_currency == structure.Currency.id_currency
+    ).filter(
         structure.Account.User_id_user == current_user.id_user
     ).all()
 
-    return accounts
+    accounts_with_currency = []
+    for account, currency in results:
+        accounts_with_currency.append({
+            "id_account": account.id_account,
+            "name": account.name,
+            "current_balance": account.current_balance,
+            "Currency_id_currency": account.Currency_id_currency,
+            "currency_code": currency.code
+        })
+
+    return accounts_with_currency
 
 from fastapi import HTTPException, status
 

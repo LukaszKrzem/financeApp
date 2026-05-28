@@ -27,6 +27,8 @@ export function AddTransactionDialog() {
   const [error, setError] = useState(null);
 
   const token = localStorage.getItem("token");
+  const selectedAccount = accounts.find(acc => acc.id_account.toString() === accountId);
+  const currencyDisplay = selectedAccount?.currency_code || "PLN";
 
   useEffect(() => {
     const fetchAccounts = async () => {
@@ -107,10 +109,19 @@ export function AddTransactionDialog() {
             </SelectContent>
           </Select>
 
-          <Input
-            type="number" step="0.01" placeholder="Amount"
-            value={amount} onChange={(e) => setAmount(e.target.value)} required
-          />
+          <div className="relative">
+            <Input
+              id="amount"
+              type="number"
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
+              className="pr-12"
+              required
+            />
+            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground pointer-events-none">
+              {currencyDisplay}
+            </span>
+          </div>
           <Input
             type="text" placeholder="Description"
             value={description} onChange={(e) => setDescription(e.target.value)}

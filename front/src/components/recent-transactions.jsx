@@ -1,3 +1,5 @@
+import { useState, useEffect } from "react";
+
 import {
   IconShoppingCart,
   IconCar,
@@ -18,7 +20,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
-
+/*
 const transactions = [
   {
     id: 1,
@@ -93,8 +95,49 @@ const transactions = [
     color: "var(--primary)",
   },
 ];
-
+*/
 export function RecentTransactions() {
+  const [dbTransactions, setDbTransactions] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchTransactions = async () => {
+      const token = localStorage.getItem("token");
+      if (!token) return;
+
+      try {
+        const response = await fetch("http://localhost:8000/transactions/", {
+          headers: {
+            "Authorization": `Bearer ${token}`
+          }
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setDbTransactions(data);
+        } else {
+          console.error("Failed to fetch transactions");
+        }
+      } catch (error) {
+        console.error("Error fetching transactions:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTransactions();
+  }, []);
+
+  const getIconForType = (type) => {
+    if (type === "expense") return IconShoppingCart;
+    if (type === "income") return IconArrowUp;
+    return IconShoppingCart;
+  };
+
+  if (loading) {
+    return <div className="p-6 text-center text-muted-foreground">Ładowanie transakcji...</div>;
+  }
+
   return (
     <Card className="border-border/50">
       <CardHeader>
@@ -104,65 +147,72 @@ export function RecentTransactions() {
       <CardContent className="p-0">
         <ScrollArea className="h-[360px]">
           <div className="space-y-1 px-6 pb-6">
-            {transactions.map((transaction) => {
-              const Icon = transaction.icon;
-              const isIncome = transaction.amount > 0;
-              return (
-                <div
-                  key={transaction.id}
-                  className="flex items-center gap-3 rounded-lg p-2 transition-colors hover:bg-secondary/50"
-                >
-                  <div
-                    className="flex size-10 shrink-0 items-center justify-center rounded-lg"
-                    style={{
-                      backgroundColor: `color-mix(in oklch, ${transaction.color} 15%, transparent)`,
-                    }}
-                  >
-                    <Icon
-                      className="size-5"
-                      style={{ color: transaction.color }}
-                    />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <span className="font-medium truncate">
-                        {transaction.name}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <span>{transaction.category}</span>
-                      <span>•</span>
-                      <span>{transaction.date}</span>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span
-                      className={`font-semibold tabular-nums ${
-                        isIncome ? "text-primary" : "text-foreground"
-                      }`}
+            {dbTransactions.length === 0 ? (
+               <div className="text-center py-4 text-sm text-muted-foreground">Brak transakcji do wyświetlenia.</div>
+            ) : (
+                dbTransactions.map((transaction) => {
+                  const Icon = getIconForType(transaction.type);
+                  const isIncome = transaction.type === "income";
+                  const displayName = transaction.description || "Transakcja bez nazwy";
+                  const displayDate = new Date(transaction.date).toLocaleDateString();
+
+                  return (
+                    <div
+                      key={transaction.id_transaction}
+                      className="flex items-center gap-3 rounded-lg p-2 transition-colors hover:bg-secondary/50"
                     >
-                      {isIncome ? "+" : ""}$
-                      {Math.abs(transaction.amount).toFixed(2)}
-                    </span>
-                    {isIncome ? (
-                      <Badge
-                        variant="outline"
-                        className="border-primary/30 text-primary text-xs"
+                      <div
+                        className="flex size-10 shrink-0 items-center justify-center rounded-lg"
+                        style={{
+                          backgroundColor: `color-mix(in oklch, var(--primary) 15%, transparent)`,
+                        }}
                       >
-                        <IconArrowDown className="size-3 rotate-180" />
-                      </Badge>
-                    ) : (
-                      <Badge
-                        variant="outline"
-                        className="border-destructive/30 text-destructive text-xs"
-                      >
-                        <IconArrowUp className="size-3 rotate-180" />
-                      </Badge>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
+                        <Icon
+                          className="size-5"
+                          style={{ color: isIncome ? "var(--primary)" : "var(--destructive)" }}
+                        />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <span className="font-medium truncate">
+                            {displayName}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                          <span>Konto: {transaction.Account_id_account}</span>
+                          <span>•</span>
+                          <span>{displayDate}</span>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span
+                          className={`font-semibold tabular-nums ${
+                            isIncome ? "text-primary" : "text-foreground"
+                          }`}
+                        >
+                          {isIncome ? "+" : "-"}$
+                          {Math.abs(transaction.amount).toFixed(2)}
+                        </span>
+                        {isIncome ? (
+                          <Badge
+                            variant="outline"
+                            className="border-primary/30 text-primary text-xs"
+                          >
+                            <IconArrowDown className="size-3 rotate-180" />
+                          </Badge>
+                        ) : (
+                          <Badge
+                            variant="outline"
+                            className="border-destructive/30 text-destructive text-xs"
+                          >
+                            <IconArrowUp className="size-3 rotate-180" />
+                          </Badge>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })
+            )}
           </div>
         </ScrollArea>
       </CardContent>

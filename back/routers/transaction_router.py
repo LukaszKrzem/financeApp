@@ -66,28 +66,23 @@ def get_user_transactions(
     db: sqlalchemy.orm.Session = Depends(get_db),
     current_user = Depends(get_current_user)
 ):
-    results = db.query(structure.Transaction, structure.Category).join(
-        structure.Account,
-        structure.Transaction.Account_id_account == structure.Account.id_account
-    ).outerjoin(
+    results = db.query(structure.Transaction, structure.Category).outerjoin(
         structure.Category,
         structure.Transaction.Category_id_category == structure.Category.id_category
     ).filter(
+        structure.Transaction.Account_id_account == structure.Account.id_account,
         structure.Account.User_id_user == current_user.id_user
-    ).order_by(
-        structure.Transaction.date.desc()
-    ).all()
+    ).order_by(structure.Transaction.date.desc()).all()
 
-    transactions_with_category = []
-    for trans, category in results:
-        transactions_with_category.append({
+    transactions_with_data = []
+    for trans, cat in results:
+        transactions_with_data.append({
             "id_transaction": trans.id_transaction,
             "amount": trans.amount,
             "date": trans.date,
             "description": trans.description,
             "type": trans.type,
             "Account_id_account": trans.Account_id_account,
-            "category_name": category.name if category else "Other"
+            "category_name": cat.name if cat else "Other"
         })
-
-    return transactions_with_category
+    return transactions_with_data

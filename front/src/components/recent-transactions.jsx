@@ -55,7 +55,8 @@ export function RecentTransactions() {
 
   const getIconForCategory = (categoryName) => {
     const name = (categoryName || "").toLowerCase();
-
+    console.log("Sprawdzam kategorię:", name);
+    if (name.includes("other")) return IconBuildingStore;
     if (name.includes("transport")) return IconCar;
     if (name.includes("food")) return IconCoffee;
     if (name.includes("shopping")) return IconShoppingCart;
@@ -67,7 +68,7 @@ export function RecentTransactions() {
   };
 
   if (loading) {
-    return <div className="p-6 text-center text-muted-foreground">Ładowanie transakcji...</div>;
+    return <div className="p-6 text-center text-muted-foreground">Loading transactions...</div>;
   }
 
   return (
@@ -80,14 +81,14 @@ export function RecentTransactions() {
         <ScrollArea className="h-[360px]">
           <div className="space-y-1 px-6 pb-6">
             {dbTransactions.length === 0 ? (
-               <div className="text-center py-4 text-sm text-muted-foreground">Brak transakcji do wyświetlenia.</div>
+               <div className="text-center py-4 text-sm text-muted-foreground">No transactions to display.</div>
             ) : (
                 dbTransactions.map((transaction) => {
                   const typeLower = transaction.type.toLowerCase();
                   const isIncome = typeLower === "income";
                   const parsedAmount = parseFloat(transaction.amount);
 
-                  const catName = transaction.category_name || "Inne";
+                  const catName = transaction.category_name || "Other";
                   const Icon = getIconForCategory(catName, typeLower);
 
                   const displayName = transaction.description || catName;

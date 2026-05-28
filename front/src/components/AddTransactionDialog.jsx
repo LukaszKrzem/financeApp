@@ -130,6 +130,7 @@ export function AddTransactionDialog() {
 
           <div className="relative">
             <Input
+              placeholder="Amount"
               id="amount"
               type="number"
               value={amount}

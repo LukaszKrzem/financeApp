@@ -9,6 +9,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { IconBell, IconPlus } from "@tabler/icons-react"
+import { AddTransactionDialog } from "@/components/AddTransactionDialog";
 
 export function SiteHeader() {
   return (
@@ -36,10 +37,7 @@ export function SiteHeader() {
             <IconBell className="size-4" />
             <span className="absolute -top-0.5 -right-0.5 size-2 rounded-full bg-primary" />
           </Button>
-          <Button size="sm" className="gap-1.5">
-            <IconPlus className="size-4" />
-            <span className="hidden sm:inline">Add Expense</span>
-          </Button>
+          <AddTransactionDialog />
         </div>
       </div>
     </header>

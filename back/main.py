@@ -1,8 +1,10 @@
-import back.database
-import back.structure
 from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+
+import back.database
+import back.structure
 from back.routers import user_router
 
 # ! Important !
@@ -11,6 +13,7 @@ from back.routers import user_router
 # Don't remove this comment until final version or docs are disabled
 # Don't disable too early tho super good for testing
 # ! Important !
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):

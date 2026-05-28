@@ -1,10 +1,11 @@
-from back.database import get_db
-import back.dto.user_dto
 import sqlalchemy.orm
-from back.dependencies import get_current_user
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from pydantic import BaseModel, EmailStr
+
+import back.dto.user_dto
+from back.database import get_db
+from back.dependencies import get_current_user
 from back.service import auth_service, user_service
 
 # To group user endpoints
@@ -43,7 +44,7 @@ def login(
     user = user_service.get_user_by_email(db, form_data.email)
     if not user or not auth_service.verify_password(form_data.password, user.password):
         raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN, detail="Niepoprawny email lub hasło"
+            status_code=status.HTTP_403_FORBIDDEN, detail="Invalid email or password"
         )
     token = auth_service.create_access_token({"sub": user.email})
     return {"access_token": token, "token_type": "bearer", "user": user}

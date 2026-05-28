@@ -1,9 +1,22 @@
-import * as React from "react"
+import * as React from "react";
+import {
+  IconChartPie,
+  IconCreditCard,
+  IconCurrencyDollar,
+  IconHelp,
+  IconLayoutDashboard,
+  IconReceipt,
+  IconSearch,
+  IconSettings,
+  IconTags,
+  IconTarget,
+  IconWallet,
+} from "@tabler/icons-react";
 
-import { NavDocuments } from "@/components/nav-documents"
-import { NavMain } from "@/components/nav-main"
-import { NavSecondary } from "@/components/nav-secondary"
-import { NavUser } from "@/components/nav-user"
+import { NavDocuments } from "@/components/nav-documents";
+import { NavMain } from "@/components/nav-main";
+import { NavSecondary } from "@/components/nav-secondary";
+import { NavUser } from "@/components/nav-user";
 import {
   Sidebar,
   SidebarContent,
@@ -12,166 +25,90 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from "@/components/ui/sidebar"
-import { LayoutDashboardIcon, ListIcon, ChartBarIcon, FolderIcon, UsersIcon, CameraIcon, FileTextIcon, Settings2Icon, CircleHelpIcon, SearchIcon, DatabaseIcon, FileChartColumnIcon, FileIcon, CommandIcon } from "lucide-react"
+} from "@/components/ui/sidebar";
 
 const data = {
   user: {
-    name: "shadcn",
-    email: "m@example.com",
+    name: "Alex Johnson",
+    email: "alex@example.com",
     avatar: "/avatars/shadcn.jpg",
   },
   navMain: [
     {
-      title: "Dashboard",
+      title: "Overview",
       url: "#",
-      icon: (
-        <LayoutDashboardIcon />
-      ),
+      icon: IconLayoutDashboard,
     },
     {
-      title: "Lifecycle",
+      title: "Transactions",
       url: "#",
-      icon: (
-        <ListIcon />
-      ),
+      icon: IconReceipt,
     },
     {
       title: "Analytics",
       url: "#",
-      icon: (
-        <ChartBarIcon />
-      ),
+      icon: IconChartPie,
     },
     {
-      title: "Projects",
+      title: "Budgets",
       url: "#",
-      icon: (
-        <FolderIcon />
-      ),
+      icon: IconTarget,
     },
     {
-      title: "Team",
+      title: "Accounts",
       url: "#",
-      icon: (
-        <UsersIcon />
-      ),
-    },
-  ],
-  navClouds: [
-    {
-      title: "Capture",
-      icon: (
-        <CameraIcon />
-      ),
-      isActive: true,
-      url: "#",
-      items: [
-        {
-          title: "Active Proposals",
-          url: "#",
-        },
-        {
-          title: "Archived",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Proposal",
-      icon: (
-        <FileTextIcon />
-      ),
-      url: "#",
-      items: [
-        {
-          title: "Active Proposals",
-          url: "#",
-        },
-        {
-          title: "Archived",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Prompts",
-      icon: (
-        <FileTextIcon />
-      ),
-      url: "#",
-      items: [
-        {
-          title: "Active Proposals",
-          url: "#",
-        },
-        {
-          title: "Archived",
-          url: "#",
-        },
-      ],
+      icon: IconCreditCard,
     },
   ],
   navSecondary: [
     {
       title: "Settings",
       url: "#",
-      icon: (
-        <Settings2Icon />
-      ),
+      icon: IconSettings,
     },
     {
-      title: "Get Help",
+      title: "Help",
       url: "#",
-      icon: (
-        <CircleHelpIcon />
-      ),
+      icon: IconHelp,
     },
     {
       title: "Search",
       url: "#",
-      icon: (
-        <SearchIcon />
-      ),
+      icon: IconSearch,
     },
   ],
   documents: [
     {
-      name: "Data Library",
+      name: "Categories",
       url: "#",
-      icon: (
-        <DatabaseIcon />
-      ),
+      icon: IconTags,
     },
     {
-      name: "Reports",
+      name: "Wallets",
       url: "#",
-      icon: (
-        <FileChartColumnIcon />
-      ),
+      icon: IconWallet,
     },
     {
-      name: "Word Assistant",
+      name: "Subscriptions",
       url: "#",
-      icon: (
-        <FileIcon />
-      ),
+      icon: IconCurrencyDollar,
     },
   ],
-}
+};
 
-export function AppSidebar({
-  ...props
-}) {
+export function AppSidebar(props) {
   return (
     <Sidebar collapsible="offcanvas" {...props}>
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild className="data-[slot=sidebar-menu-button]:p-1.5!">
+            <SidebarMenuButton
+              asChild
+              className="data-[slot=sidebar-menu-button]:p-1.5!"
+            >
               <a href="#">
-                <CommandIcon className="size-5!" />
-                <span className="text-base font-semibold">Acme Inc.</span>
+                <IconWallet className="size-5! text-primary" />
+                <span className="text-base font-semibold">SpendWise</span>
               </a>
             </SidebarMenuButton>
           </SidebarMenuItem>
@@ -183,7 +120,7 @@ export function AppSidebar({
         <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={data.user} />
+        <NavUser user={data.user} onLogout={props.onLogout} />
       </SidebarFooter>
     </Sidebar>
   );

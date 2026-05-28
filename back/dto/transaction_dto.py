@@ -18,6 +18,7 @@ class TransactionOut(pydantic.BaseModel):
     description: Optional[str]
     type: TransactionType
     Account_id_account: int
+    category_name: Optional[str] = None
 
     class Config:
         from_attributes = True

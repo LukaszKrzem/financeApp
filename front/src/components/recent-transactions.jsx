@@ -20,82 +20,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
-/*
-const transactions = [
-  {
-    id: 1,
-    name: "Amazon",
-    category: "Shopping",
-    amount: -89.99,
-    date: "Today",
-    icon: IconShoppingCart,
-    color: "var(--chart-1)",
-  },
-  {
-    id: 2,
-    name: "Salary Deposit",
-    category: "Income",
-    amount: 7250.0,
-    date: "Yesterday",
-    icon: IconArrowUp,
-    color: "var(--primary)",
-  },
-  {
-    id: 3,
-    name: "Uber",
-    category: "Transport",
-    amount: -24.5,
-    date: "Yesterday",
-    icon: IconCar,
-    color: "var(--chart-2)",
-  },
-  {
-    id: 4,
-    name: "Starbucks",
-    category: "Food & Dining",
-    amount: -6.75,
-    date: "May 23",
-    icon: IconCoffee,
-    color: "var(--chart-4)",
-  },
-  {
-    id: 5,
-    name: "Whole Foods",
-    category: "Groceries",
-    amount: -156.32,
-    date: "May 22",
-    icon: IconBuildingStore,
-    color: "var(--chart-3)",
-  },
-  {
-    id: 6,
-    name: "Steam",
-    category: "Entertainment",
-    amount: -59.99,
-    date: "May 21",
-    icon: IconDeviceGamepad2,
-    color: "var(--chart-5)",
-  },
-  {
-    id: 7,
-    name: "Electric Bill",
-    category: "Utilities",
-    amount: -142.0,
-    date: "May 20",
-    icon: IconPlug,
-    color: "var(--muted-foreground)",
-  },
-  {
-    id: 8,
-    name: "Freelance Payment",
-    category: "Income",
-    amount: 850.0,
-    date: "May 19",
-    icon: IconArrowUp,
-    color: "var(--primary)",
-  },
-];
-*/
+
 export function RecentTransactions() {
   const [dbTransactions, setDbTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -128,10 +53,17 @@ export function RecentTransactions() {
     fetchTransactions();
   }, []);
 
-  const getIconForType = (type) => {
-    if (type === "expense") return IconShoppingCart;
-    if (type === "income") return IconArrowUp;
-    return IconShoppingCart;
+  const getIconForCategory = (categoryName) => {
+    const name = (categoryName || "").toLowerCase();
+
+    if (name.includes("transport")) return IconCar;
+    if (name.includes("food")) return IconCoffee;
+    if (name.includes("shopping")) return IconShoppingCart;
+    if (name.includes("entertainment")) return IconDeviceGamepad2;
+    if (name.includes("utilities")) return IconPlug;
+    if (name.includes("salary")) return IconArrowUp;
+
+    return IconBuildingStore;
   };
 
   if (loading) {
@@ -151,9 +83,14 @@ export function RecentTransactions() {
                <div className="text-center py-4 text-sm text-muted-foreground">Brak transakcji do wyświetlenia.</div>
             ) : (
                 dbTransactions.map((transaction) => {
-                  const Icon = getIconForType(transaction.type);
-                  const isIncome = transaction.type === "income";
-                  const displayName = transaction.description || "Transakcja bez nazwy";
+                  const typeLower = transaction.type.toLowerCase();
+                  const isIncome = typeLower === "income";
+                  const parsedAmount = parseFloat(transaction.amount);
+
+                  const catName = transaction.category_name || "Inne";
+                  const Icon = getIconForCategory(catName, typeLower);
+
+                  const displayName = transaction.description || catName;
                   const displayDate = new Date(transaction.date).toLocaleDateString();
 
                   return (
@@ -169,7 +106,6 @@ export function RecentTransactions() {
                       >
                         <Icon
                           className="size-5"
-                          style={{ color: isIncome ? "var(--primary)" : "var(--destructive)" }}
                         />
                       </div>
                       <div className="flex-1 min-w-0">
@@ -179,7 +115,7 @@ export function RecentTransactions() {
                           </span>
                         </div>
                         <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                          <span>Konto: {transaction.Account_id_account}</span>
+                          <span>{catName}</span>
                           <span>•</span>
                           <span>{displayDate}</span>
                         </div>
@@ -191,7 +127,7 @@ export function RecentTransactions() {
                           }`}
                         >
                           {isIncome ? "+" : "-"}$
-                          {Math.abs(transaction.amount).toFixed(2)}
+                          {Math.abs(parsedAmount).toFixed(2)}
                         </span>
                         {isIncome ? (
                           <Badge

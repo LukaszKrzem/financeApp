@@ -22,6 +22,8 @@ export function AddTransactionDialog() {
   const [type, setType] = useState("EXPENSE");
   const [description, setDescription] = useState("");
   const [accountId, setAccountId] = useState("");
+  const [categories, setCategories] = useState([]);
+  const [categoryId, setCategoryId] = useState("");
 
   const [accounts, setAccounts] = useState([]);
   const [error, setError] = useState(null);
@@ -51,9 +53,26 @@ export function AddTransactionDialog() {
         console.error("Failed to fetch accounts:", error);
       }
     };
+    const fetchCategories = async () => {
+      try {
+        const response = await fetch("http://localhost:8000/categories/", {
+          headers: { "Authorization": `Bearer ${token}` }
+        });
+        if (response.ok) {
+          const data = await response.json();
+          setCategories(data);
+          if (data.length > 0) {
+            setCategoryId(data[0].id_category.toString());
+          }
+        }
+      } catch (error) {
+        console.error("Failed to fetch categories:", error);
+      }
+    };
 
     if (token) {
       fetchAccounts();
+      fetchCategories();
     }
   }, [token]);
 
@@ -73,7 +92,7 @@ export function AddTransactionDialog() {
           type: type,
           description: description,
           Account_id_account: parseInt(accountId),
-          Category_id_category: null
+          Category_id_category: categoryId ? parseInt(categoryId) : null
         }),
       });
 
@@ -126,7 +145,20 @@ export function AddTransactionDialog() {
             type="text" placeholder="Description"
             value={description} onChange={(e) => setDescription(e.target.value)}
           />
-
+          <div className="grid gap-2">
+            <select
+              value={categoryId}
+              onChange={(e) => setCategoryId(e.target.value)}
+              className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              <option value="" disabled>Choose category</option>
+              {categories.map((cat) => (
+                <option key={cat.id_category} value={cat.id_category}>
+                  {cat.name}
+                </option>
+              ))}
+            </select>
+          </div>
           <Select value={accountId} onValueChange={setAccountId} required>
             <SelectTrigger><SelectValue placeholder="Select Account" /></SelectTrigger>
             <SelectContent>

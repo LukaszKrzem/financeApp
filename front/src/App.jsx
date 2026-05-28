@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import "./App.css";
@@ -7,11 +7,14 @@ import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
+import { set } from "zod";
 
 const API_URL = "http://localhost:8000";
 
 function App() {
   const [token, setToken] = useState(localStorage.getItem("token"));
+  const [loading, setLoading] = useState(false);
+  const [user, setUser] = useState(null);
 
   const handleLogin = (newToken) => {
     localStorage.setItem("token", newToken);
@@ -22,6 +25,42 @@ function App() {
     setToken(null);
   };
 
+  useEffect(() => {
+    const fetchUser = async () => {
+      if (!token) {
+        setUser(null);
+        setLoading(false);
+        return;
+      }
+      try {
+        const response = await fetch(`${API_URL}/me`, {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        });
+        if (response.ok) {
+          const userData = await response.json();
+          setUser(userData); //if token is invalid
+        } else {
+          handleLogout();
+        }
+      } catch (error) {
+        console.error("Failed to fetch user data", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchUser();
+  }, [token]);
+  if (loading) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        Ładowanie aplikacji...
+      </div>
+    );
+  }
   return (
     <TooltipProvider>
       <BrowserRouter>
@@ -54,7 +93,7 @@ function App() {
             path="/dashboard"
             element={
               token ? (
-                <Dashboard onLogout={handleLogout} />
+                <Dashboard onLogout={handleLogout} user={user} />
               ) : (
                 <Navigate to="/" replace />
               )

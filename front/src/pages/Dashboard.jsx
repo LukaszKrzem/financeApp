@@ -6,7 +6,7 @@ import { SpendingCategories } from "@/components/spending-categories";
 import { RecentTransactions } from "@/components/recent-transactions";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 
-export default function Dashboard({ onLogout }) {
+export default function Dashboard({ user, onLogout }) {
   return (
     <SidebarProvider
       style={{
@@ -14,7 +14,7 @@ export default function Dashboard({ onLogout }) {
         "--header-height": "calc(var(--spacing) * 12)",
       }}
     >
-      <AppSidebar variant="inset" onLogout={onLogout} />
+      <AppSidebar variant="inset" onLogout={onLogout} user={user} />
       <SidebarInset>
         <SiteHeader />
         <div className="flex flex-1 flex-col">

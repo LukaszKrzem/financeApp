@@ -21,6 +21,6 @@ class UserLogin(pydantic.BaseModel):
     password: str
 
 class TokenResponse(pydantic.BaseModel):
-    access_token: str
+    token: str
     token_type: str
     user: UserOut

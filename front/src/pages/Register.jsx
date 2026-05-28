@@ -34,7 +34,7 @@ export function Register({ apiUrl, onRegistration }) {
       if (!response.ok) {
         throw new Error(data.detail || "registration error");
       }
-      onRegistration(data.access_token);
+      onRegistration(data.token);
       navigate("/login");
     } catch (err) {
       setError(err.message);

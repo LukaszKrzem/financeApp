@@ -26,7 +26,7 @@ export function AddTransactionDialog() {
   const [accounts, setAccounts] = useState([]);
   const [error, setError] = useState(null);
 
-  const token = localStorage.getItem("access_token");
+  const token = localStorage.getItem("token");
 
   useEffect(() => {
     const fetchAccounts = async () => {

@@ -37,8 +37,8 @@ export function Login({ apiUrl, onLogin }) {
         throw new Error(data.detail || "login error");
       }
 
-      onLogin(data.access_token);
-      console.log(data.access_token);
+      onLogin(data.token);
+      console.log(data.token);
     } catch (err) {
       console.log("dupa");
       setError(err.message);

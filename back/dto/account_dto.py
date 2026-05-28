@@ -7,3 +7,8 @@ class AccountOut(pydantic.BaseModel):
 
     class Config:
         from_attributes = True
+
+class AccountCreate(pydantic.BaseModel):
+    name: str
+    current_balance: float
+    Currency_id_currency: int

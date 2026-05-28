@@ -1,4 +1,5 @@
 import sqlalchemy.orm
+from back import structure
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from pydantic import BaseModel, EmailStr
@@ -31,8 +32,21 @@ def register(
         )
     new_user = user_service.create_user(user_data)
     add_user = user_service.add_user(db, new_user)
+
+    default_currency = db.query(structure.Currency).first()
+
+    if default_currency:
+        default_account = structure.Account(
+            name="Main Account",
+            current_balance=0.00,
+            Currency_id_currency=default_currency.id_currency,
+            User_id_user=add_user.id_user
+        )
+        db.add(default_account)
+        db.commit()
+
     token = auth_service.create_access_token({"sub": new_user.email})
-    return {"access_token": token, "token_type": "bearer", "user": new_user}
+    return {"token": token, "token_type": "bearer", "user": new_user}
 
 
 # Endpoint for user login. Returns message and user info if successful
@@ -47,7 +61,7 @@ def login(
             status_code=status.HTTP_403_FORBIDDEN, detail="Invalid email or password"
         )
     token = auth_service.create_access_token({"sub": user.email})
-    return {"access_token": token, "token_type": "bearer", "user": user}
+    return {"token": token, "token_type": "bearer", "user": user}
 
 
 # Endpoint to get current user info based on the provided JWT token. Used for getting user info

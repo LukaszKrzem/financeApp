@@ -19,3 +19,34 @@ def get_user_accounts(
     ).all()
 
     return accounts
+
+from fastapi import HTTPException, status
+
+@router.post("/", response_model=account_dto.AccountOut)
+def create_account(
+    account_data: account_dto.AccountCreate,
+    db: sqlalchemy.orm.Session = Depends(get_db),
+    current_user = Depends(get_current_user)
+):
+    currency = db.query(structure.Currency).filter(
+        structure.Currency.id_currency == account_data.Currency_id_currency
+    ).first()
+
+    if not currency:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Selected currency not found."
+        )
+
+    new_account = structure.Account(
+        name=account_data.name,
+        current_balance=account_data.current_balance,
+        Currency_id_currency=account_data.Currency_id_currency,
+        User_id_user=current_user.id_user
+    )
+
+    db.add(new_account)
+    db.commit()
+    db.refresh(new_account)
+
+    return new_account

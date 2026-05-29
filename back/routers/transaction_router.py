@@ -35,7 +35,8 @@ def create_transaction(
         description=transaction_data.description,
         type=transaction_data.type,
         Account_id_account=transaction_data.Account_id_account,
-        Category_id_category=transaction_data.Category_id_category
+        Category_id_category=transaction_data.Category_id_category,
+        Currency_id_currency=account.Currency_id_currency
     )
 
     db.add(new_transaction)
@@ -44,7 +45,9 @@ def create_transaction(
 
     return new_transaction
 
-
+# ??? Not sure 
+# Idk why we need this if it gets overriten just underneath
+'''
 @router.get("/", response_model=List[transaction_dto.TransactionOut])
 def get_transactions(
     db: sqlalchemy.orm.Session = Depends(get_db),
@@ -60,19 +63,20 @@ def get_transactions(
     return transactions
 
 from typing import List
-
+'''
 @router.get("/", response_model=List[transaction_dto.TransactionOut])
 def get_user_transactions(
     db: sqlalchemy.orm.Session = Depends(get_db),
     current_user = Depends(get_current_user)
 ):
-    results = db.query(structure.Transaction, structure.Category).outerjoin(
-        structure.Category,
-        structure.Transaction.Category_id_category == structure.Category.id_category
-    ).filter(
-        structure.Transaction.Account_id_account == structure.Account.id_account,
-        structure.Account.User_id_user == current_user.id_user
-    ).order_by(structure.Transaction.date.desc()).all()
+    results = (
+        db.query(structure.Transaction, structure.Category)
+        .join(structure.Account, structure.Transaction.Account_id_account == structure.Account.id_account)
+        .outerjoin(structure.Category, structure.Transaction.Category_id_category == structure.Category.id_category)
+        .filter(structure.Account.User_id_user == current_user.id_user)
+        .order_by(structure.Transaction.date.desc())
+        .all()
+    ) # Fixed it to include join correctly
 
     transactions_with_data = []
     for trans, cat in results:

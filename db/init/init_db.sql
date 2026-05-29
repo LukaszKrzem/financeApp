@@ -400,7 +400,7 @@ CREATE OR REPLACE FUNCTION create_def_acc()
 RETURNS TRIGGER AS $$
 BEGIN
     INSERT INTO Account (name, current_balance, Currency_id_currency, User_id_user)
-    VALUES ('Konto Główne', 0.00, 1, NEW.id_user);
+    VALUES ('Main Account', 0.00, 1, NEW.id_user);
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
@@ -409,3 +409,9 @@ CREATE TRIGGER trg_create_def_acc
 AFTER INSERT ON "User"
 FOR EACH ROW
 EXECUTE FUNCTION create_def_acc();
+
+
+INSERT INTO categories (name, "type") VALUES 
+('Jedzenie i Kawiarnie', 'EXPENSE');
+
+SELECT setval('categories_id_category_seq', (SELECT MAX(id_category) FROM categories));

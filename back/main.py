@@ -5,10 +5,13 @@ from fastapi.middleware.cors import CORSMiddleware
 
 import back.database
 import back.structure
-from back.routers import scheduled_router, user_router
-from back.routers import account_router
-from back.routers import transaction_router
-from back.routers import category_router
+from back.routers import (
+    account_router,
+    category_router,
+    scheduled_router,
+    transaction_router,
+    user_router,
+)
 
 # ! Important !
 # If final app we need to add to app docs_url=None, redoc_url=None, openapi_url=None
@@ -20,14 +23,14 @@ from back.routers import category_router
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    back.database.Base.metadata.create_all(bind=back.database.engine)
+    # since we use neon following line has to be commented
+    # if you wanna use local db uncomment it
+    # back.database.Base.metadata.create_all(bind=back.database.engine)
     yield
 
 
 app = FastAPI(title="Finance App API", version="0.1", lifespan=lifespan)
 
-# To create app. title and version kinda pointelss but you can see in docs
-# back.database.Base.metadata.create_all(bind=back.database.engine)
 
 origins = [
     "http://localhost:5173",
@@ -48,6 +51,7 @@ app.include_router(account_router.router)
 app.include_router(transaction_router.router)
 app.include_router(category_router.router)
 app.include_router(scheduled_router.router)
+
 
 # For testing if app is alive, can be removed later
 @app.get("/")

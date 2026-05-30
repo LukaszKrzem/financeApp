@@ -16,7 +16,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-export function AddTransactionDialog() {
+export function AddTransactionDialog({ user, token }) {
   const [open, setOpen] = useState(false);
   const [amount, setAmount] = useState("");
   const [type, setType] = useState("EXPENSE");
@@ -28,8 +28,9 @@ export function AddTransactionDialog() {
   const [accounts, setAccounts] = useState([]);
   const [error, setError] = useState(null);
 
-  const token = localStorage.getItem("token");
-  const selectedAccount = accounts.find(acc => acc.id_account.toString() === accountId);
+  const selectedAccount = accounts.find(
+    (acc) => acc.id_account.toString() === accountId,
+  );
   const currencyDisplay = selectedAccount?.currency_code || "PLN";
 
   useEffect(() => {
@@ -37,8 +38,8 @@ export function AddTransactionDialog() {
       try {
         const response = await fetch("http://localhost:8000/accounts/", {
           headers: {
-            "Authorization": `Bearer ${token}`
-          }
+            Authorization: `Bearer ${token}`,
+          },
         });
 
         if (response.ok) {
@@ -56,7 +57,7 @@ export function AddTransactionDialog() {
     const fetchCategories = async () => {
       try {
         const response = await fetch("http://localhost:8000/categories/", {
-          headers: { "Authorization": `Bearer ${token}` }
+          headers: { Authorization: `Bearer ${token}` },
         });
         if (response.ok) {
           const data = await response.json();
@@ -74,7 +75,7 @@ export function AddTransactionDialog() {
       fetchAccounts();
       fetchCategories();
     }
-  }, [token]);
+  }, [token, open]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -85,14 +86,14 @@ export function AddTransactionDialog() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
           amount: parseFloat(amount),
           type: type,
           description: description,
           Account_id_account: parseInt(accountId),
-          Category_id_category: categoryId ? parseInt(categoryId) : null
+          Category_id_category: categoryId ? parseInt(categoryId) : null,
         }),
       });
 
@@ -104,7 +105,6 @@ export function AddTransactionDialog() {
       setAmount("");
       setDescription("");
       setOpen(false);
-
     } catch (err) {
       setError(err.message);
     }
@@ -121,7 +121,9 @@ export function AddTransactionDialog() {
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4 mt-4">
           <Select value={type} onValueChange={setType}>
-            <SelectTrigger><SelectValue placeholder="Type" /></SelectTrigger>
+            <SelectTrigger>
+              <SelectValue placeholder="Type" />
+            </SelectTrigger>
             <SelectContent>
               <SelectItem value="EXPENSE">Expense</SelectItem>
               <SelectItem value="INCOME">Income</SelectItem>
@@ -143,8 +145,10 @@ export function AddTransactionDialog() {
             </span>
           </div>
           <Input
-            type="text" placeholder="Description"
-            value={description} onChange={(e) => setDescription(e.target.value)}
+            type="text"
+            placeholder="Description"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
           />
           <div className="grid gap-2">
             <select
@@ -152,7 +156,9 @@ export function AddTransactionDialog() {
               onChange={(e) => setCategoryId(e.target.value)}
               className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
             >
-              <option value="" disabled>Choose category</option>
+              <option value="" disabled>
+                Choose category
+              </option>
               {categories.map((cat) => (
                 <option key={cat.id_category} value={cat.id_category}>
                   {cat.name}
@@ -161,10 +167,15 @@ export function AddTransactionDialog() {
             </select>
           </div>
           <Select value={accountId} onValueChange={setAccountId} required>
-            <SelectTrigger><SelectValue placeholder="Select Account" /></SelectTrigger>
+            <SelectTrigger>
+              <SelectValue placeholder="Select Account" />
+            </SelectTrigger>
             <SelectContent>
               {accounts.map((acc) => (
-                <SelectItem key={acc.id_account} value={acc.id_account.toString()}>
+                <SelectItem
+                  key={acc.id_account}
+                  value={acc.id_account.toString()}
+                >
                   {acc.name}
                 </SelectItem>
               ))}
@@ -172,7 +183,9 @@ export function AddTransactionDialog() {
           </Select>
 
           {error && <p className="text-red-500 text-sm">{error}</p>}
-          <Button type="submit" className="w-full">Save</Button>
+          <Button type="submit" className="w-full">
+            Save
+          </Button>
         </form>
       </DialogContent>
     </Dialog>

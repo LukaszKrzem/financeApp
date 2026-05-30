@@ -43,6 +43,7 @@ function App() {
         if (response.ok) {
           const userData = await response.json();
           setUser(userData); //if token is invalid
+          console.log(userData);
         } else {
           handleLogout();
         }
@@ -93,7 +94,7 @@ function App() {
             path="/dashboard"
             element={
               token ? (
-                <Dashboard onLogout={handleLogout} user={user} />
+                <Dashboard onLogout={handleLogout} user={user} token={token} />
               ) : (
                 <Navigate to="/" replace />
               )

@@ -5,10 +5,12 @@ from fastapi.middleware.cors import CORSMiddleware
 
 import back.database
 import back.structure
-from back.routers import user_router
-from back.routers import account_router
-from back.routers import transaction_router
-from back.routers import category_router
+from back.routers import (
+    account_router,
+    category_router,
+    transaction_router,
+    user_router,
+)
 
 # ! Important !
 # If final app we need to add to app docs_url=None, redoc_url=None, openapi_url=None

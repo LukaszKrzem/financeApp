@@ -1,17 +1,17 @@
-import { Button } from '@/components/ui/button'
-import { Separator } from '@/components/ui/separator'
-import { SidebarTrigger } from '@/components/ui/sidebar'
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
+import { SidebarTrigger } from "@/components/ui/sidebar";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
-import { IconBell, IconPlus } from "@tabler/icons-react"
+} from "@/components/ui/select";
+import { IconBell, IconPlus } from "@tabler/icons-react";
 import { AddTransactionDialog } from "@/components/AddTransactionDialog";
 
-export function SiteHeader() {
+export function SiteHeader({ user, token }) {
   return (
     <header className="flex h-(--header-height) shrink-0 items-center gap-2 border-b transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-(--header-height)">
       <div className="flex w-full items-center gap-1 px-4 lg:gap-2 lg:px-6">
@@ -37,9 +37,9 @@ export function SiteHeader() {
             <IconBell className="size-4" />
             <span className="absolute -top-0.5 -right-0.5 size-2 rounded-full bg-primary" />
           </Button>
-          <AddTransactionDialog />
+          {user && <AddTransactionDialog user={user} token={token} />}
         </div>
       </div>
     </header>
-  )
+  );
 }

@@ -13,7 +13,7 @@ import back.database
 
 
 class Currency(back.database.Base):
-    __tablename__ = "Currency"
+    __tablename__ = "currency"
     id_currency = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, index=True)
     code = sqlalchemy.Column(sqlalchemy.CHAR(3), nullable=False)
     name = sqlalchemy.Column(sqlalchemy.String(100), nullable=False)
@@ -29,14 +29,14 @@ class User(back.database.Base):
 
 
 class Account(back.database.Base):
-    __tablename__ = "Account"
+    __tablename__ = "account"
     id_account = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, index=True)
     name = sqlalchemy.Column(sqlalchemy.String(255), nullable=False)
     current_balance = sqlalchemy.Column(sqlalchemy.Numeric(20, 2), nullable=False)
     Currency_id_currency = sqlalchemy.Column(
         "currency_id_currency",
         sqlalchemy.Integer,
-        sqlalchemy.ForeignKey("Currency.id_currency"),
+        sqlalchemy.ForeignKey("currency.id_currency"),
         nullable=False,
     )
     User_id_user = sqlalchemy.Column(
@@ -56,11 +56,11 @@ class Category(back.database.Base):
     __tablename__ = "categories"
     id_category = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, index=True)
     name = sqlalchemy.Column(sqlalchemy.String(100), nullable=False)
-    # type = sqlalchemy.Column("type", Enum(TransactionType), nullable=False)
+    type = sqlalchemy.Column("type", Enum(TransactionType), nullable=False)
 
 
 class Transaction(back.database.Base):
-    __tablename__ = "Transaction"
+    __tablename__ = "transaction"
     id_transaction = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, index=True)
     amount = sqlalchemy.Column(sqlalchemy.Numeric(20, 2), nullable=False)
     date = sqlalchemy.Column(
@@ -105,13 +105,35 @@ class Transaction(back.database.Base):
         else:
             self.is_income = "T" if value == "INCOME" else "F"
 
+
 class ScheduledTransaction(back.database.Base):
     __tablename__ = "scheduled_transaction"
-    id_schedule_transaction = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, index=True)
-    frequency = sqlalchemy.Column(sqlalchemy.String(50), nullable=False)  # set it to some values like lets have 4 options: DAILY, WEEKLY, MONTHLY, YEARLY  
+    id_schedule_transaction = sqlalchemy.Column(
+        sqlalchemy.Integer, primary_key=True, index=True
+    )
+    frequency = sqlalchemy.Column(
+        sqlalchemy.String(50), nullable=False
+    )  # set it to some values like lets have 4 options: DAILY, WEEKLY, MONTHLY, YEARLY
     next_date = sqlalchemy.Column(sqlalchemy.Date, nullable=False)
-    amount = sqlalchemy.Column(sqlalchemy.Numeric(20, 2), nullable=False) # here it can be negative (idk)
+    amount = sqlalchemy.Column(
+        sqlalchemy.Numeric(20, 2), nullable=False
+    )  # here it can be negative (idk)
     description = sqlalchemy.Column(sqlalchemy.String(255), nullable=True)
-    Account_id_account = sqlalchemy.Column("account_id_account", sqlalchemy.Integer, sqlalchemy.ForeignKey("account.id_account"), nullable=False)
-    Currency_id_currency = sqlalchemy.Column("currency_id_currency", sqlalchemy.Integer, sqlalchemy.ForeignKey("currency.id_currency"), nullable=False)
-    Category_id_category = sqlalchemy.Column("categories_id_category", sqlalchemy.Integer, sqlalchemy.ForeignKey("categories.id_category"), nullable=False)
+    Account_id_account = sqlalchemy.Column(
+        "account_id_account",
+        sqlalchemy.Integer,
+        sqlalchemy.ForeignKey("account.id_account"),
+        nullable=False,
+    )
+    Currency_id_currency = sqlalchemy.Column(
+        "currency_id_currency",
+        sqlalchemy.Integer,
+        sqlalchemy.ForeignKey("currency.id_currency"),
+        nullable=False,
+    )
+    Category_id_category = sqlalchemy.Column(
+        "categories_id_category",
+        sqlalchemy.Integer,
+        sqlalchemy.ForeignKey("categories.id_category"),
+        nullable=False,
+    )

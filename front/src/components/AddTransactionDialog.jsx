@@ -36,7 +36,7 @@ export function AddTransactionDialog({ user, token }) {
   useEffect(() => {
     const fetchAccounts = async () => {
       try {
-        const response = await fetch("http://localhost:8000/accounts/", {
+        const response = await fetch("http://localhost:8000/accounts", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -49,6 +49,7 @@ export function AddTransactionDialog({ user, token }) {
           if (data.length > 0) {
             setAccountId(data[0].id_account.toString());
           }
+          console.log("Accounts:", data);
         }
       } catch (error) {
         console.error("Failed to fetch accounts:", error);
@@ -56,7 +57,7 @@ export function AddTransactionDialog({ user, token }) {
     };
     const fetchCategories = async () => {
       try {
-        const response = await fetch("http://localhost:8000/categories/", {
+        const response = await fetch("http://localhost:8000/categories", {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (response.ok) {

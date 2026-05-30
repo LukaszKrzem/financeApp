@@ -37,7 +37,7 @@ export function SiteHeader({ user, token }) {
             <IconBell className="size-4" />
             <span className="absolute -top-0.5 -right-0.5 size-2 rounded-full bg-primary" />
           </Button>
-          {user && <AddTransactionDialog user={user} token={token} />}
+          {token && <AddTransactionDialog user={user} token={token} />}
         </div>
       </div>
     </header>

@@ -5,12 +5,10 @@ from fastapi.middleware.cors import CORSMiddleware
 
 import back.database
 import back.structure
-from back.routers import (
-    account_router,
-    category_router,
-    transaction_router,
-    user_router,
-)
+from back.routers import scheduled_router, user_router
+from back.routers import account_router
+from back.routers import transaction_router
+from back.routers import category_router
 
 # ! Important !
 # If final app we need to add to app docs_url=None, redoc_url=None, openapi_url=None
@@ -49,7 +47,7 @@ app.include_router(user_router.router)
 app.include_router(account_router.router)
 app.include_router(transaction_router.router)
 app.include_router(category_router.router)
-
+app.include_router(scheduled_router.router)
 
 # For testing if app is alive, can be removed later
 @app.get("/")

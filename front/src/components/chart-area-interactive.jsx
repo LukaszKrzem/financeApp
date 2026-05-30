@@ -24,18 +24,6 @@ import {
 } from "@/components/ui/select";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { useMemo } from "react";
-const chartData = [
-  { date: "2026-01-01", spending: 3200, income: 6800 },
-  { date: "2026-01-15", spending: 2100, income: 0 },
-  { date: "2026-02-01", spending: 2850, income: 6900 },
-  { date: "2026-02-15", spending: 1950, income: 0 },
-  { date: "2026-03-01", spending: 4100, income: 7100 },
-  { date: "2026-03-15", spending: 2300, income: 0 },
-  { date: "2026-04-01", spending: 4520, income: 6440 },
-  { date: "2026-04-15", spending: 2800, income: 0 },
-  { date: "2026-05-01", spending: 3200, income: 7250 },
-  { date: "2026-05-15", spending: 1692, income: 0 },
-];
 
 const chartConfig = {
   spending: {
@@ -57,29 +45,68 @@ export function ChartAreaInteractive({ transactions }) {
       setTimeRange("3m");
     }
   }, [isMobile]);
-  const processedData = useMemo(() => {
-    if (!transactions || transactions.length === 0) return [];
+  const getLocalDateString = (date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  };
+  const chartData = React.useMemo(() => {
+    const endDate = new Date();
+    endDate.setHours(23, 59, 59, 999);
+
+    const startDate = new Date(endDate);
+    let monthsToSubtract = 5;
+    if (timeRange === "3m") monthsToSubtract = 3;
+    if (timeRange === "1m") monthsToSubtract = 1;
+    startDate.setMonth(startDate.getMonth() - monthsToSubtract);
+    startDate.setHours(0, 0, 0, 0);
+
     const grouped = {};
-    transactions.forEach((transaction) => {
-      const rawDate = transaction.date;
-      if (!rawDate) return;
-      const dateObj = new Date(rawDate);
-      const dateStr = dateObj.toISOString().split("T")[0];
-      if (!grouped[dateStr]) {
-        grouped[dateStr] = { date: dateStr, spending: 0, income: 0 };
-      }
-      if (transaction.is_income) {
-        grouped[dateStr].income += transaction.amount;
+    if (transactions && transactions.length > 0) {
+      transactions.forEach((tx) => {
+        const rawDate = tx.transaction_date || tx.date;
+        if (!rawDate) return;
+
+        const txDate = new Date(rawDate);
+        if (txDate >= startDate && txDate <= endDate) {
+          const dateStr = getLocalDateString(txDate);
+
+          if (!grouped[dateStr]) {
+            grouped[dateStr] = { date: dateStr, spending: 0, income: 0 };
+          }
+
+          const amount = parseFloat(tx.amount) || 0;
+          if (
+            tx.type === "INCOME" ||
+            tx.is_income === "T" ||
+            tx.is_income === "Y"
+          ) {
+            grouped[dateStr].income += amount;
+          } else {
+            grouped[dateStr].spending += amount;
+          }
+        }
+      });
+    }
+
+    const filledData = [];
+    let currentDate = new Date(startDate);
+
+    while (currentDate <= endDate) {
+      const dateStr = getLocalDateString(currentDate);
+      if (grouped[dateStr]) {
+        filledData.push(grouped[dateStr]);
       } else {
-        grouped[dateStr].spending += transaction.amount;
+        filledData.push({ date: dateStr, spending: 0, income: 0 });
       }
-    });
-    return Object.values(grouped).sort(
-      (a, b) => new Date(a.date) - new Date(b.date),
-    );
+      currentDate.setDate(currentDate.getDate() + 1);
+    }
+
+    return filledData;
   }, [transactions]);
 
-  const filteredData = processedData.filter((item) => {
+  const filteredData = chartData.filter((item) => {
     const date = new Date(item.date);
     const referenceDate = new Date("2026-05-25");
     let monthsToSubtract = 5;

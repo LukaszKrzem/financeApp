@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends
 import sqlalchemy.orm
+import sqlalchemy
 from typing import List
 
 from back.database import get_db
@@ -14,6 +15,15 @@ def get_user_accounts(
     db: sqlalchemy.orm.Session = Depends(get_db),
     current_user = Depends(get_current_user)
 ):
+    try:
+        db.execute(
+            sqlalchemy.text("CALL catch_up_scheduled_transactions(:user_id)"),
+            {"user_id": current_user.id_user}
+        )
+        db.commit()
+    except Exception as e:
+        db.rollback()
+        print(f"Error with starting procedure: {e}")
     results = db.query(structure.Account, structure.Currency).join(
         structure.Currency,
         structure.Account.Currency_id_currency == structure.Currency.id_currency

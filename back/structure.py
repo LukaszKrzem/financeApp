@@ -65,3 +65,14 @@ class Transaction(back.database.Base):
             self.is_income = "T" if value == TransactionType.INCOME else "F"
         else:
             self.is_income = "T" if value == "INCOME" else "F"
+
+class ScheduledTransaction(back.database.Base):
+    __tablename__ = "scheduled_transaction"
+    id_schedule_transaction = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, index=True)
+    frequency = sqlalchemy.Column(sqlalchemy.String(50), nullable=False)  # set it to some values like lets have 4 options: DAILY, WEEKLY, MONTHLY, YEARLY  
+    next_date = sqlalchemy.Column(sqlalchemy.Date, nullable=False)
+    amount = sqlalchemy.Column(sqlalchemy.Numeric(20, 2), nullable=False) # here it can be negative (idk)
+    description = sqlalchemy.Column(sqlalchemy.String(255), nullable=True)
+    Account_id_account = sqlalchemy.Column("account_id_account", sqlalchemy.Integer, sqlalchemy.ForeignKey("account.id_account"), nullable=False)
+    Currency_id_currency = sqlalchemy.Column("currency_id_currency", sqlalchemy.Integer, sqlalchemy.ForeignKey("currency.id_currency"), nullable=False)
+    Category_id_category = sqlalchemy.Column("categories_id_category", sqlalchemy.Integer, sqlalchemy.ForeignKey("categories.id_category"), nullable=False)

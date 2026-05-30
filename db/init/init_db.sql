@@ -415,3 +415,70 @@ INSERT INTO categories (name, "type") VALUES
 ('Jedzenie i Kawiarnie', 'EXPENSE');
 
 SELECT setval('categories_id_category_seq', (SELECT MAX(id_category) FROM categories));
+
+-- automatic transactions logic
+-- imo only logical step is to change structure and add description it does not create any issues so i think its fine
+ALTER TABLE scheduled_transaction ADD COLUMN description VARCHAR(255);
+
+CREATE OR REPLACE PROCEDURE catch_up_scheduled_transactions(p_user_id INT)
+LANGUAGE plpgsql AS $$
+DECLARE
+    r_sched RECORD;
+    v_is_income CHAR(1);
+    v_acc_rate NUMERIC(10,4);
+    v_sched_rate NUMERIC(10,4);
+    v_converted_amount NUMERIC(20,2);
+    v_current_next_date DATE;
+    v_final_description VARCHAR(255);
+BEGIN
+    FOR r_sched IN 
+        SELECT st.* FROM scheduled_transaction st
+        JOIN account a ON st.account_id_account = a.id_account
+        WHERE a.user_id_user = p_user_id AND st.next_date <= CURRENT_DATE
+    LOOP
+        IF r_sched.amount >= 0 THEN
+            v_is_income := 'T';
+        ELSE
+            v_is_income := 'F';
+        END IF;
+        IF r_sched.description IS NOT NULL AND r_sched.description <> '' THEN
+            v_final_description := r_sched.description;
+        ELSE
+            v_final_description := 'Automatic payment (' || r_sched.frequency || ')';
+        END IF;
+        SELECT exchange_rate INTO v_acc_rate FROM currency WHERE id_currency = (SELECT currency_id_currency FROM account WHERE id_account = r_sched.account_id_account);
+        SELECT exchange_rate INTO v_sched_rate FROM currency WHERE id_currency = r_sched.currency_id_currency;
+        v_converted_amount := r_sched.amount * (v_sched_rate / v_acc_rate);
+        v_current_next_date := r_sched.next_date;
+        WHILE v_current_next_date <= CURRENT_DATE LOOP            
+            INSERT INTO Transaction (amount, transaction_date, description, is_income, Account_id_account, Categories_id_category, Currency_id_currency)
+            VALUES (
+                ABS(r_sched.amount), 
+                v_current_next_date,
+                v_final_description,
+                v_is_income,
+                r_sched.account_id_account,
+                r_sched.categories_id_category,
+                r_sched.currency_id_currency
+            );
+            UPDATE Account 
+            SET current_balance = current_balance + v_converted_amount 
+            WHERE id_account = r_sched.account_id_account;
+            IF UPPER(r_sched.frequency) = 'DAILY' THEN
+                v_current_next_date := v_current_next_date + INTERVAL '1 day';
+            ELSIF UPPER(r_sched.frequency) = 'WEEKLY' THEN
+                v_current_next_date := v_current_next_date + INTERVAL '1 week';
+            ELSIF UPPER(r_sched.frequency) = 'MONTHLY' THEN
+                v_current_next_date := v_current_next_date + INTERVAL '1 month';
+            ELSIF UPPER(r_sched.frequency) = 'YEARLY' THEN
+                v_current_next_date := v_current_next_date + INTERVAL '1 year';
+            ELSE
+                v_current_next_date := v_current_next_date + INTERVAL '1 month';
+            END IF;
+        END LOOP;
+        UPDATE scheduled_transaction 
+        SET next_date = v_current_next_date
+        WHERE id_schedule_transaction = r_sched.id_schedule_transaction;
+    END LOOP;
+END;
+$$;

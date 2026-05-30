@@ -16,7 +16,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-export function AddTransactionDialog({ user, token }) {
+export function AddTransactionDialog({ user, token, setRefreshing }) {
   const [open, setOpen] = useState(false);
   const [amount, setAmount] = useState("");
   const [type, setType] = useState("EXPENSE");
@@ -106,6 +106,7 @@ export function AddTransactionDialog({ user, token }) {
       setAmount("");
       setDescription("");
       setOpen(false);
+      setRefreshing(token + 1);
     } catch (err) {
       setError(err.message);
     }

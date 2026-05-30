@@ -23,7 +23,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-
+import { useMemo } from "react";
 const chartData = [
   { date: "2026-01-01", spending: 3200, income: 6800 },
   { date: "2026-01-15", spending: 2100, income: 0 },
@@ -48,7 +48,7 @@ const chartConfig = {
   },
 };
 
-export function ChartAreaInteractive() {
+export function ChartAreaInteractive({ transactions }) {
   const isMobile = useIsMobile();
   const [timeRange, setTimeRange] = React.useState("5m");
 
@@ -57,8 +57,29 @@ export function ChartAreaInteractive() {
       setTimeRange("3m");
     }
   }, [isMobile]);
+  const processedData = useMemo(() => {
+    if (!transactions || transactions.length === 0) return [];
+    const grouped = {};
+    transactions.forEach((transaction) => {
+      const rawDate = transaction.date;
+      if (!rawDate) return;
+      const dateObj = new Date(rawDate);
+      const dateStr = dateObj.toISOString().split("T")[0];
+      if (!grouped[dateStr]) {
+        grouped[dateStr] = { date: dateStr, spending: 0, income: 0 };
+      }
+      if (transaction.is_income) {
+        grouped[dateStr].income += transaction.amount;
+      } else {
+        grouped[dateStr].spending += transaction.amount;
+      }
+    });
+    return Object.values(grouped).sort(
+      (a, b) => new Date(a.date) - new Date(b.date),
+    );
+  }, [transactions]);
 
-  const filteredData = chartData.filter((item) => {
+  const filteredData = processedData.filter((item) => {
     const date = new Date(item.date);
     const referenceDate = new Date("2026-05-25");
     let monthsToSubtract = 5;

@@ -11,7 +11,7 @@ import {
 import { IconBell, IconPlus } from "@tabler/icons-react";
 import { AddTransactionDialog } from "@/components/AddTransactionDialog";
 
-export function SiteHeader({ user, token }) {
+export function SiteHeader({ user, token, setRefreshing }) {
   return (
     <header className="flex h-(--header-height) shrink-0 items-center gap-2 border-b transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-(--header-height)">
       <div className="flex w-full items-center gap-1 px-4 lg:gap-2 lg:px-6">
@@ -37,7 +37,13 @@ export function SiteHeader({ user, token }) {
             <IconBell className="size-4" />
             <span className="absolute -top-0.5 -right-0.5 size-2 rounded-full bg-primary" />
           </Button>
-          {token && <AddTransactionDialog user={user} token={token} />}
+          {token && (
+            <AddTransactionDialog
+              user={user}
+              token={token}
+              setRefreshing={setRefreshing}
+            />
+          )}
         </div>
       </div>
     </header>

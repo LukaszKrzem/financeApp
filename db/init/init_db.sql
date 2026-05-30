@@ -482,3 +482,114 @@ BEGIN
     END LOOP;
 END;
 $$;
+
+-- to add cascade delete to scheduled transactions, so when account is deleted, scheduled transactions are also deleted
+ALTER TABLE Scheduled_Transaction 
+    DROP CONSTRAINT IF EXISTS Scheduled_Transaction_Account_FK;
+
+ALTER TABLE Scheduled_Transaction 
+    ADD CONSTRAINT Scheduled_Transaction_Account_FK FOREIGN KEY ( Account_id_account ) 
+    REFERENCES Account ( id_account ) 
+    ON DELETE CASCADE;
+
+-- view for budget 
+CREATE OR REPLACE VIEW v_budget_analytics AS
+SELECT 
+    b.id_budget,
+    b.limit,
+    b.start_date,
+    b.end,
+    b.user_id_user,
+    b.categories_id_category,
+    c.name AS category_name,
+    b.currency_id_currency,
+    curr.code AS currency_code,
+    
+    -- Sum of expenses
+    COALESCE( -- to make sure we dont get null
+        (
+            SELECT SUM(t.amount) 
+            FROM transaction t
+            JOIN account a ON t.account_id_account = a.id_account
+            WHERE a.user_id_user = b.user_id_user
+              AND t.categories_id_category = b.categories_id_category
+              AND t.is_income = 'F'
+              AND t.transaction_date >= b.start_date::timestamp
+              AND t.transaction_date <= b.end::timestamp
+        ), 0.00
+    ) AS current_spent,
+    -- calculate procent of buget used to make job of my frontend easier coz it requiers some work
+    ROUND((COALESCE( 
+        (
+            SELECT SUM(t.amount) 
+            FROM transaction t
+            JOIN account a ON t.account_id_account = a.id_account
+            WHERE a.user_id_user = b.user_id_user
+              AND t.categories_id_category = b.categories_id_category
+              AND t.is_income = 'F'
+              AND t.transaction_date >= b.start_date::timestamp
+              AND t.transaction_date <= b.end::timestamp
+        ), 0.00
+    ) / b.limit) * 100, 2)::float AS percent_used 
+
+FROM budget b
+JOIN categories c ON b.categories_id_category = c.id_category
+JOIN currency curr ON b.currency_id_currency = curr.id_currency;
+
+--notif logic 
+
+CREATE OR REPLACE FUNCTION check_budget_overflow()
+RETURNS TRIGGER AS $$
+DECLARE
+    v_user_id INT;
+    v_budget_id INT;
+    v_budget_limit NUMERIC(20, 2);
+    v_current_spent NUMERIC(20, 2);
+BEGIN
+    IF NEW.is_income = 'F' THEN
+        SELECT user_id_user INTO v_user_id 
+        FROM account 
+        WHERE id_account = NEW.account_id_account;
+        SELECT id_budget, "limit" INTO v_budget_id, v_budget_limit
+        FROM budget
+        WHERE user_id_user = v_user_id
+          AND categories_id_category = NEW.categories_id_category
+          AND NEW.transaction_date >= start_date::timestamp
+          AND NEW.transaction_date <= "end"::timestamp;
+
+        IF v_budget_id IS NOT NULL THEN
+            SELECT COALESCE(SUM(amount), 0.00) INTO v_current_spent
+            FROM transaction t
+            JOIN account a ON t.account_id_account = a.id_account
+            WHERE a.user_id_user = v_user_id
+              AND t.categories_id_category = NEW.categories_id_category
+              AND t.is_income = 'F'
+              AND t.transaction_date >= (SELECT start_date FROM budget WHERE id_budget = v_budget_id)::timestamp
+              AND t.transaction_date <= (SELECT "end" FROM budget WHERE id_budget = v_budget_id)::timestamp;
+            IF v_current_spent > v_budget_limit THEN
+                INSERT INTO notification (message, "date", is_read, user_id_user)
+                VALUES (
+                    'Limit surpassed. Current spending is: ' || v_current_spent || ' while limit is: ' || v_budget_limit || ' (Procentage used: ' || ROUND((v_current_spent / v_budget_limit) * 100, 2) || '%)',
+                    NOW(),
+                    'F', 
+                    v_user_id
+                );
+            END IF;
+        END IF;
+    END IF;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS trg_check_budget_overflow ON transaction;
+CREATE TRIGGER trg_check_budget_overflow
+AFTER INSERT ON transaction
+FOR EACH ROW
+EXECUTE FUNCTION check_budget_overflow();
+
+-- saving goals logic and fixes
+
+ALTER TABLE SavingGoal ADD COLUMN start_date DATE DEFAULT CURRENT_DATE NOT NULL;
+
+

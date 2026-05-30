@@ -7,10 +7,12 @@ import back.database
 import back.structure
 from back.routers import (
     account_router,
+    budget_router,
     category_router,
     scheduled_router,
     transaction_router,
     user_router,
+    notification_router,
 )
 
 # ! Important !
@@ -51,7 +53,8 @@ app.include_router(account_router.router)
 app.include_router(transaction_router.router)
 app.include_router(category_router.router)
 app.include_router(scheduled_router.router)
-
+app.include_router(budget_router.router)
+app.include_router(notification_router.router)
 
 # For testing if app is alive, can be removed later
 @app.get("/")

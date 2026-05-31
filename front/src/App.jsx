@@ -7,6 +7,7 @@ import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
+import Budgets from "./pages/Budgets";
 import { set } from "zod";
 
 const API_URL = "http://localhost:8000";
@@ -95,6 +96,16 @@ function App() {
             element={
               token ? (
                 <Dashboard onLogout={handleLogout} user={user} token={token} />
+              ) : (
+                <Navigate to="/" replace />
+              )
+            }
+          />
+          <Route
+            path="/budgets"
+            element={
+              token ? (
+                <Budgets onLogout={handleLogout} user={user} token={token} />
               ) : (
                 <Navigate to="/" replace />
               )

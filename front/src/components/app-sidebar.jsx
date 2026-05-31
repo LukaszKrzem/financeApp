@@ -36,7 +36,7 @@ const data = {
   navMain: [
     {
       title: "Overview",
-      url: "#",
+      url: "/dashboard",
       icon: IconLayoutDashboard,
     },
     {
@@ -51,7 +51,7 @@ const data = {
     },
     {
       title: "Budgets",
-      url: "#",
+      url: "/budgets",
       icon: IconTarget,
     },
     {

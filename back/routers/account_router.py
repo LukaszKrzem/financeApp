@@ -80,4 +80,10 @@ def create_account(
     db.commit()
     db.refresh(new_account)
 
-    return new_account
+    return {
+        "id_account": new_account.id_account,
+        "name": new_account.name,
+        "current_balance": new_account.current_balance,
+        "Currency_id_currency": new_account.Currency_id_currency,
+        "currency_code": currency.code,
+    }

@@ -56,7 +56,7 @@ const data = {
     },
     {
       title: "Accounts",
-      url: "#",
+      url: "/accounts",
       icon: IconCreditCard,
     },
   ],

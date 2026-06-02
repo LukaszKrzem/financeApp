@@ -24,6 +24,7 @@ export function AddTransactionDialog({ user, token, setRefreshing }) {
   const [accountId, setAccountId] = useState("");
   const [categories, setCategories] = useState([]);
   const [categoryId, setCategoryId] = useState("");
+  const [transactionFrequency, setTransactionFrequency] = useState("");
 
   const [accounts, setAccounts] = useState([]);
   const [error, setError] = useState(null);
@@ -55,7 +56,9 @@ export function AddTransactionDialog({ user, token, setRefreshing }) {
         console.error("Failed to fetch accounts:", error);
       }
     };
+
     const fetchCategories = async () => {
+      setTransactionFrequency("not_scheduled");
       try {
         const response = await fetch("http://localhost:8000/categories", {
           headers: { Authorization: `Bearer ${token}` },
@@ -81,34 +84,70 @@ export function AddTransactionDialog({ user, token, setRefreshing }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
+    if (transactionFrequency == "not_scheduled") {
+      try {
+        const response = await fetch("http://localhost:8000/transactions/", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            amount: parseFloat(amount),
+            type: type,
+            description: description,
+            Account_id_account: parseInt(accountId),
+            Category_id_category: categoryId ? parseInt(categoryId) : null,
+          }),
+        });
 
-    try {
-      const response = await fetch("http://localhost:8000/transactions/", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          amount: parseFloat(amount),
-          type: type,
-          description: description,
-          Account_id_account: parseInt(accountId),
-          Category_id_category: categoryId ? parseInt(categoryId) : null,
-        }),
-      });
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.detail || "Error adding transaction");
+        }
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.detail || "Error adding transaction");
+        setAmount("");
+        setDescription("");
+        setOpen(false);
+        setRefreshing(token + 1);
+      } catch (err) {
+        setError(err.message);
       }
+    } else {
+      try {
+        console.log(transactionFrequency);
+        const response = await fetch(
+          "http://localhost:8000/scheduled-transactions/",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({
+              amount: parseFloat(amount),
+              type: type,
+              description: description,
+              Account_id_account: parseInt(accountId),
+              Category_id_category: categoryId ? parseInt(categoryId) : null,
+              frequency: transactionFrequency,
+              next_date: new Date("2317-10-10").toISOString(),
+            }),
+          },
+        );
 
-      setAmount("");
-      setDescription("");
-      setOpen(false);
-      setRefreshing(token + 1);
-    } catch (err) {
-      setError(err.message);
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.detail || "Error adding transaction");
+        }
+
+        setAmount("");
+        setDescription("");
+        setOpen(false);
+        setRefreshing(token + 1);
+      } catch (err) {
+        setError(err.message);
+      }
     }
   };
 
@@ -168,21 +207,39 @@ export function AddTransactionDialog({ user, token, setRefreshing }) {
               ))}
             </select>
           </div>
-          <Select value={accountId} onValueChange={setAccountId} required>
-            <SelectTrigger>
-              <SelectValue placeholder="Select Account" />
-            </SelectTrigger>
-            <SelectContent>
-              {accounts.map((acc) => (
-                <SelectItem
-                  key={acc.id_account}
-                  value={acc.id_account.toString()}
-                >
-                  {acc.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <div className="flex justify-between">
+            <Select value={accountId} onValueChange={setAccountId} required>
+              <SelectTrigger>
+                <SelectValue placeholder="Select Account" />
+              </SelectTrigger>
+              <SelectContent>
+                {accounts.map((acc) => (
+                  <SelectItem
+                    key={acc.id_account}
+                    value={acc.id_account.toString()}
+                  >
+                    {acc.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Select
+              value={transactionFrequency}
+              onValueChange={setTransactionFrequency}
+              required
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select Transaction Frequency" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="not_scheduled">Not scheduled</SelectItem>
+                <SelectItem value="DAILY">Daily</SelectItem>
+                <SelectItem value="WEEKLY">Weekly</SelectItem>
+                <SelectItem value="MONTHLY">Monthly</SelectItem>
+                <SelectItem value="YEARLY">Yearly</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
 
           {error && <p className="text-red-500 text-sm">{error}</p>}
           <Button type="submit" className="w-full">

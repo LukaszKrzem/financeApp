@@ -11,50 +11,54 @@ import {
 } from "@/components/ui/select";
 import { IconBell, IconPlus, IconX } from "@tabler/icons-react";
 import { AddTransactionDialog } from "@/components/AddTransactionDialog";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { no } from "zod/locales";
-
-
 
 export function SiteHeader({ user, token, setRefreshing }) {
   const [notifications, setNotifications] = useState([]);
 
-  const fetchNotifications = async () => {
-    if (!token) return;
-    try {
-      const response = await fetch("http://localhost:8000/notifications", {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      if (response.ok) {
-        const data = await response.json();
-        setNotifications(data);
-      }
-    } catch (error) {
-      console.error("Error fetching notifications:", error);
-    }
-  };
   useEffect(() => {
-    fetchNotifications();
+    const fetchNotifications = async () => {
+      if (!token) return;
+      try {
+        const response = await fetch("http://localhost:8000/notifications", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        if (response.ok) {
+          const data = await response.json();
+          setNotifications(data);
+        }
+      } catch (error) {
+        console.error("Error fetching notifications:", error);
+      }
+    };
     const interval = setInterval(fetchNotifications, 30000);
     return () => clearInterval(interval);
   }, [token]);
 
   const handleMarkAsRead = async (id) => {
     try {
-      const response = await fetch(`http://localhost:8000/notifications/${id}/read`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
+      const response = await fetch(
+        `http://localhost:8000/notifications/${id}/read`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
         },
-      });
+      );
       if (response.ok) {
         setNotifications((prev) =>
-          prev.filter((n) => n.id_notification !== id)
+          prev.filter((n) => n.id_notification !== id),
         );
       }
     } catch (error) {
@@ -93,11 +97,15 @@ export function SiteHeader({ user, token, setRefreshing }) {
             </PopoverTrigger>
             <PopoverContent className="w-80 p-0 mr-4" align="end">
               <div className="p-3 border-b bg-muted/20">
-                <h4 className="font-semibold text-sm">Notifications ({notifications.length})</h4>
+                <h4 className="font-semibold text-sm">
+                  Notifications ({notifications.length})
+                </h4>
               </div>
               <div className="max-h-64 overflow-y-auto">
                 {notifications.length === 0 ? (
-                  <p className="p-4 text-xs text-muted-foreground text-center">No new notifications</p>
+                  <p className="p-4 text-xs text-muted-foreground text-center">
+                    No new notifications
+                  </p>
                 ) : (
                   <div className="flex flex-col">
                     {notifications.map((item) => (
@@ -110,7 +118,11 @@ export function SiteHeader({ user, token, setRefreshing }) {
                             {item.message}
                           </p>
                           <span className="text-[10px] text-muted-foreground">
-                            {new Date(item.date).toLocaleTimeString("pl-PL", { hour: '2-digit', minute: '2-digit' })} - {new Date(item.date).toLocaleDateString("pl-PL")}
+                            {new Date(item.date).toLocaleTimeString("pl-PL", {
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            })}{" "}
+                            - {new Date(item.date).toLocaleDateString("pl-PL")}
                           </span>
                         </div>
                         <Button
@@ -134,6 +146,9 @@ export function SiteHeader({ user, token, setRefreshing }) {
               user={user}
               token={token}
               setRefreshing={setRefreshing}
+              accountId={accountId}
+              categoryId={categoryId}
+              accounts={accounts}
             />
           )}
         </div>

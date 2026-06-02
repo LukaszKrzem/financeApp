@@ -11,6 +11,11 @@ export default function Dashboard({ user, onLogout, token }) {
   const [transactions, setTransactions] = useState([]);
   const [refreshing, setRefreshing] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [accounts, setAccounts] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [accountId, setAccountId] = useState("");
+  const [categoryId, setCategoryId] = useState("");
+
   useEffect(() => {
     const fetchTransactions = async () => {
       if (!token) return;
@@ -34,8 +39,50 @@ export default function Dashboard({ user, onLogout, token }) {
         setLoading(false);
       }
     };
+    const fetchAccounts = async () => {
+      try {
+        const response = await fetch("http://localhost:8000/accounts", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
 
-    fetchTransactions();
+        if (response.ok) {
+          const data = await response.json();
+          setAccounts(data);
+
+          if (data.length > 0) {
+            setAccountId(data[0].id_account.toString());
+          }
+          console.log("Accounts:", data);
+        }
+      } catch (error) {
+        console.error("Failed to fetch accounts:", error);
+      }
+    };
+
+    const fetchCategories = async () => {
+      try {
+        const response = await fetch("http://localhost:8000/categories", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (response.ok) {
+          const data = await response.json();
+          setCategories(data);
+          if (data.length > 0) {
+            setCategoryId(data[0].id_category.toString());
+          }
+        }
+      } catch (error) {
+        console.error("Failed to fetch categories:", error);
+      }
+    };
+
+    if (token) {
+      fetchAccounts();
+      fetchCategories();
+      fetchTransactions();
+    }
   }, [token, refreshing]);
 
   return (

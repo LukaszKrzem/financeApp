@@ -18,7 +18,14 @@ import {
 } from "@/components/ui/popover";
 import { no } from "zod/locales";
 
-export function SiteHeader({ user, token, setRefreshing }) {
+export function SiteHeader({
+  user,
+  token,
+  setRefreshing,
+  accountId,
+  categoryId,
+  accounts,
+}) {
   const [notifications, setNotifications] = useState([]);
 
   useEffect(() => {

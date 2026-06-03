@@ -106,17 +106,14 @@ export function ChartAreaInteractive({ transactions }) {
     return filledData;
   }, [transactions]);
 
+  const startDate = new Date();
+  let monthsToSubtract = 5;
+  if (timeRange === "3m") monthsToSubtract = 3;
+  if (timeRange === "1m") monthsToSubtract = 1;
+  startDate.setMonth(startDate.getMonth() - monthsToSubtract);
+
   const filteredData = chartData.filter((item) => {
     const date = new Date(item.date);
-    const referenceDate = new Date("2026-05-25");
-    let monthsToSubtract = 5;
-    if (timeRange === "3m") {
-      monthsToSubtract = 3;
-    } else if (timeRange === "1m") {
-      monthsToSubtract = 1;
-    }
-    const startDate = new Date(referenceDate);
-    startDate.setMonth(startDate.getMonth() - monthsToSubtract);
     return date >= startDate;
   });
 

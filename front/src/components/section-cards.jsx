@@ -64,7 +64,7 @@ export function SectionCards({ transactions = [], budgets = [] }) {
 
   return (
     <div className="grid grid-cols-1 gap-4 px-4 lg:px-6 @xl/main:grid-cols-2 @5xl/main:grid-cols-4">
-      <Card className="@container/card border-border/50 bg-card">
+      <Card className="@container/card border-border/50 bg-card overflow-hidden">
         <CardHeader>
           <CardDescription className="flex items-center gap-2">
             <span className="flex size-8 items-center justify-center rounded-lg bg-primary/10">
@@ -72,10 +72,10 @@ export function SectionCards({ transactions = [], budgets = [] }) {
             </span>
             Total Spent
           </CardDescription>
-          <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
+          <CardTitle className="whitespace-nowrap text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
             {formatMoney(totals.spent)}
           </CardTitle>
-          <CardAction>
+          <CardAction className="min-w-0">
             <Badge
               variant="outline"
               className="text-destructive border-destructive/30"
@@ -91,7 +91,7 @@ export function SectionCards({ transactions = [], budgets = [] }) {
           </div>
         </CardFooter>
       </Card>
-      <Card className="@container/card border-border/50 bg-card">
+      <Card className="@container/card border-border/50 bg-card overflow-hidden">
         <CardHeader>
           <CardDescription className="flex items-center gap-2">
             <span className="flex size-8 items-center justify-center rounded-lg bg-chart-2/10">
@@ -99,10 +99,10 @@ export function SectionCards({ transactions = [], budgets = [] }) {
             </span>
             Income
           </CardDescription>
-          <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
+          <CardTitle className="whitespace-nowrap text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
             {formatMoney(totals.income)}
           </CardTitle>
-          <CardAction>
+          <CardAction className="min-w-0">
             <Badge variant="outline" className="text-primary border-primary/30">
               <IconTrendingUp className="size-3" />
               Income
@@ -115,7 +115,7 @@ export function SectionCards({ transactions = [], budgets = [] }) {
           </div>
         </CardFooter>
       </Card>
-      <Card className="@container/card border-border/50 bg-card">
+      <Card className="@container/card border-border/50 bg-card overflow-hidden">
         <CardHeader>
           <CardDescription className="flex items-center gap-2">
             <span className="flex size-8 items-center justify-center rounded-lg bg-chart-3/10">
@@ -123,10 +123,10 @@ export function SectionCards({ transactions = [], budgets = [] }) {
             </span>
             Savings
           </CardDescription>
-          <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
+          <CardTitle className="whitespace-nowrap text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
             {formatMoney(savings)}
           </CardTitle>
-          <CardAction>
+          <CardAction className="min-w-0">
             <Badge
               variant="outline"
               className={
@@ -146,7 +146,7 @@ export function SectionCards({ transactions = [], budgets = [] }) {
           </div>
         </CardFooter>
       </Card>
-      <Card className="@container/card border-border/50 bg-card">
+      <Card className="@container/card border-border/50 bg-card overflow-hidden">
         <CardHeader>
           <CardDescription className="flex items-center gap-2">
             <span className="flex size-8 items-center justify-center rounded-lg bg-chart-4/10">
@@ -154,10 +154,10 @@ export function SectionCards({ transactions = [], budgets = [] }) {
             </span>
             Budget Left
           </CardDescription>
-          <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
+          <CardTitle className="whitespace-nowrap text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
             {formatMoney(budgetLeft)}
           </CardTitle>
-          <CardAction>
+          <CardAction className="min-w-0">
             <Badge
               variant="outline"
               className={

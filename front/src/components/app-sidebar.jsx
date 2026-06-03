@@ -1,4 +1,3 @@
-import * as React from "react";
 import {
   IconChartPie,
   IconCreditCard,
@@ -53,6 +52,11 @@ const data = {
       title: "Budgets",
       url: "/budgets",
       icon: IconTarget,
+    },
+    {
+      title: "Savings Goals",
+      url: "/savings-goals",
+      icon: IconWallet,
     },
     {
       title: "Accounts",

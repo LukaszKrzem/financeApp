@@ -9,7 +9,7 @@ import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
 import Budgets from "./pages/Budgets";
 import Accounts from "./pages/Accounts";
-import { set } from "zod";
+import SavingsGoals from "./pages/SavingsGoals";
 
 const API_URL = "http://localhost:8000";
 
@@ -178,6 +178,20 @@ function App() {
                   user={user}
                   token={token}
                   accounts={accounts}
+                />
+              ) : (
+                <Navigate to="/" replace />
+              )
+            }
+          />
+          <Route
+            path="/savings-goals"
+            element={
+              token ? (
+                <SavingsGoals
+                  onLogout={handleLogout}
+                  user={user}
+                  token={token}
                 />
               ) : (
                 <Navigate to="/" replace />

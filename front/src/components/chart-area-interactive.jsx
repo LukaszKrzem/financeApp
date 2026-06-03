@@ -228,6 +228,7 @@ export function ChartAreaInteractive({ transactions }) {
                 <ChartTooltipContent
                   labelFormatter={(value) => {
                     return new Date(value).toLocaleDateString("en-US", {
+                      day: "numeric",
                       month: "long",
                       year: "numeric",
                     });

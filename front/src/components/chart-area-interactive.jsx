@@ -210,6 +210,7 @@ export function ChartAreaInteractive({ transactions }) {
               tickFormatter={(value) => {
                 const date = new Date(value);
                 return date.toLocaleDateString("en-US", {
+                  day: "numeric",
                   month: "short",
                 });
               }}
@@ -218,8 +219,8 @@ export function ChartAreaInteractive({ transactions }) {
               tickLine={false}
               axisLine={false}
               tickMargin={8}
-              tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`}
-              width={45}
+              tickFormatter={(value) => `$${(value).toFixed(0)}`}
+              width={55}
             />
             <ChartTooltip
               cursor={false}

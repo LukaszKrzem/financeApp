@@ -24,6 +24,21 @@ export default function Dashboard({
   // const [categoryId, setCategoryId] = useState("");
 
   useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await fetch("http://localhost:8000/categories", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (response.ok) {
+          const data = await response.json();
+          setCategories(data);
+          console.log("Categories:", data);
+        }
+      } catch (error) {
+        console.error("Failed to fetch categories:", error);
+      }
+    };
+
     const fetchTransactions = async () => {
       if (!token) return;
 
@@ -47,48 +62,9 @@ export default function Dashboard({
         setLoading(false);
       }
     };
-    const fetchAccounts = async () => {
-      try {
-        const response = await fetch("http://localhost:8000/accounts", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        if (response.ok) {
-          const data = await response.json();
-          setAccounts(data);
-
-          // if (data.length > 0) {
-          //   setAccountId(data[0].id_account.toString());
-          // }
-          console.log("Accounts:", data);
-        }
-      } catch (error) {
-        console.error("Failed to fetch accounts:", error);
-      }
-    };
-
-    const fetchCategories = async () => {
-      try {
-        const response = await fetch("http://localhost:8000/categories", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        if (response.ok) {
-          const data = await response.json();
-          setCategories(data);
-          // if (data.length > 0) {
-          //   setCategoryId(data[0].id_category.toString());
-          // }
-        }
-      } catch (error) {
-        console.error("Failed to fetch categories:", error);
-      }
-    };
 
     if (token) {
-      //fetchAccounts();
-      // fetchCategories();
+      fetchCategories();
       fetchTransactions();
     }
   }, [token, refreshing]);

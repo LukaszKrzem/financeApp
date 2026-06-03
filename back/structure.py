@@ -4,7 +4,7 @@
 
 
 import enum
-from datetime import datetime
+from datetime import date, datetime
 
 import sqlalchemy
 from sqlalchemy import Enum
@@ -164,6 +164,28 @@ class BudgetAnalytics(back.database.Base):
     currency_code = sqlalchemy.Column(sqlalchemy.String)
     current_spent = sqlalchemy.Column(sqlalchemy.Numeric(20, 2))
     percent_used = sqlalchemy.Column(sqlalchemy.Float)
+
+class SavingsGoal(back.database.Base):
+    __tablename__ = "savinggoal"
+
+    id_saving_goal = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, index=True)
+    name = sqlalchemy.Column(sqlalchemy.String(200), nullable=False)
+    target = sqlalchemy.Column(sqlalchemy.Numeric(20, 2), nullable=False)
+    current_amount = sqlalchemy.Column(sqlalchemy.Numeric(20, 2), nullable=False)
+    start_date = sqlalchemy.Column(sqlalchemy.Date, nullable=False, default=date.today)
+    time_limit = sqlalchemy.Column(sqlalchemy.Date, nullable=True)
+    User_id_user = sqlalchemy.Column(
+        "user_id_user",
+        sqlalchemy.Integer,
+        sqlalchemy.ForeignKey("User.id_user", ondelete="CASCADE"),
+        nullable=False,
+    )
+    Currency_id_currency = sqlalchemy.Column(
+        "currency_id_currency",
+        sqlalchemy.Integer,
+        sqlalchemy.ForeignKey("currency.id_currency"),
+        nullable=False,
+    )
 
 class Notification(back.database.Base):
     __tablename__ = "notification"

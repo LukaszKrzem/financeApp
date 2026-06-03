@@ -100,7 +100,7 @@ def get_user_transactions(
                 "date": trans.date,
                 "description": trans.description,
                 "type": trans.type,
-                "frequency": trans.frequency,
+                # "frequency": trans.frequency,
                 "Account_id_account": trans.Account_id_account,
                 "category_name": cat.name if cat else "Other",
             }

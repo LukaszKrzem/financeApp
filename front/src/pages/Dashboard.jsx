@@ -13,8 +13,8 @@ export default function Dashboard({ user, onLogout, token }) {
   const [loading, setLoading] = useState(false);
   const [accounts, setAccounts] = useState([]);
   const [categories, setCategories] = useState([]);
-  const [accountId, setAccountId] = useState("");
-  const [categoryId, setCategoryId] = useState("");
+  // const [accountId, setAccountId] = useState("");
+  // const [categoryId, setCategoryId] = useState("");
 
   useEffect(() => {
     const fetchTransactions = async () => {
@@ -30,6 +30,7 @@ export default function Dashboard({ user, onLogout, token }) {
         if (response.ok) {
           const data = await response.json();
           setTransactions(data);
+          console.log("Transactions:", data);
         } else {
           console.error("Failed to fetch transactions");
         }
@@ -51,9 +52,9 @@ export default function Dashboard({ user, onLogout, token }) {
           const data = await response.json();
           setAccounts(data);
 
-          if (data.length > 0) {
-            setAccountId(data[0].id_account.toString());
-          }
+          // if (data.length > 0) {
+          //   setAccountId(data[0].id_account.toString());
+          // }
           console.log("Accounts:", data);
         }
       } catch (error) {
@@ -69,9 +70,9 @@ export default function Dashboard({ user, onLogout, token }) {
         if (response.ok) {
           const data = await response.json();
           setCategories(data);
-          if (data.length > 0) {
-            setCategoryId(data[0].id_category.toString());
-          }
+          // if (data.length > 0) {
+          //   setCategoryId(data[0].id_category.toString());
+          // }
         }
       } catch (error) {
         console.error("Failed to fetch categories:", error);
@@ -94,7 +95,13 @@ export default function Dashboard({ user, onLogout, token }) {
     >
       <AppSidebar variant="inset" onLogout={onLogout} user={user} />
       <SidebarInset>
-        <SiteHeader user={user} token={token} setRefreshing={setRefreshing} />
+        <SiteHeader
+          user={user}
+          token={token}
+          setRefreshing={setRefreshing}
+          categories={categories}
+          accounts={accounts}
+        />
         <div className="flex flex-1 flex-col">
           <div className="@container/main flex flex-1 flex-col gap-2">
             <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">

@@ -22,8 +22,7 @@ export function SiteHeader({
   user,
   token,
   setRefreshing,
-  accountId,
-  categoryId,
+  categories,
   accounts,
 }) {
   const [notifications, setNotifications] = useState([]);
@@ -153,8 +152,7 @@ export function SiteHeader({
               user={user}
               token={token}
               setRefreshing={setRefreshing}
-              accountId={accountId}
-              categoryId={categoryId}
+              categories={categories}
               accounts={accounts}
             />
           )}

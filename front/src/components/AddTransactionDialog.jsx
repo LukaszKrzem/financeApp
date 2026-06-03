@@ -16,70 +16,74 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-export function AddTransactionDialog({ user, token, setRefreshing }) {
+export function AddTransactionDialog({
+  user,
+  token,
+  setRefreshing,
+  accounts,
+  categories,
+}) {
   const [open, setOpen] = useState(false);
   const [amount, setAmount] = useState("");
   const [type, setType] = useState("EXPENSE");
   const [description, setDescription] = useState("");
   const [accountId, setAccountId] = useState("");
-  const [categories, setCategories] = useState([]);
   const [categoryId, setCategoryId] = useState("");
   const [transactionFrequency, setTransactionFrequency] = useState("");
-
-  const [accounts, setAccounts] = useState([]);
   const [error, setError] = useState(null);
 
-  const selectedAccount = accounts.find(
-    (acc) => acc.id_account.toString() === accountId,
-  );
+  const selectedAccount =
+    accounts.length > 0
+      ? accounts.find((acc) => acc.id_account.toString() === accountId)
+      : null;
   const currencyDisplay = selectedAccount?.currency_code || "PLN";
 
-  useEffect(() => {
-    const fetchAccounts = async () => {
-      try {
-        const response = await fetch("http://localhost:8000/accounts", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+  // useEffect(() => {
+  //   const fetchAccounts = async () => {
+  //     try {
+  //       const response = await fetch("http://localhost:8000/accounts", {
+  //         headers: {
+  //           Authorization: `Bearer ${token}`,
+  //         },
+  //       });
 
-        if (response.ok) {
-          const data = await response.json();
-          setAccounts(data);
+  //       if (response.ok) {
+  //         const data = await response.json();
+  //         setAccounts(data);
 
-          if (data.length > 0) {
-            setAccountId(data[0].id_account.toString());
-          }
-          console.log("Accounts:", data);
-        }
-      } catch (error) {
-        console.error("Failed to fetch accounts:", error);
-      }
-    };
+  //         if (data.length > 0) {
+  //           setAccountId(data[0].id_account.toString());
+  //         }
+  //         console.log("Accounts:", data);
+  //       }
+  //     } catch (error) {
+  //       console.error("Failed to fetch accounts:", error);
+  //     }
+  //   };
 
-    const fetchCategories = async () => {
-      setTransactionFrequency("not_scheduled");
-      try {
-        const response = await fetch("http://localhost:8000/categories", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        if (response.ok) {
-          const data = await response.json();
-          setCategories(data);
-          if (data.length > 0) {
-            setCategoryId(data[0].id_category.toString());
-          }
-        }
-      } catch (error) {
-        console.error("Failed to fetch categories:", error);
-      }
-    };
+  //   const fetchCategories = async () => {
+  //     setTransactionFrequency("not_scheduled");
+  //     try {
+  //       const response = await fetch("http://localhost:8000/categories", {
+  //         headers: { Authorization: `Bearer ${token}` },
+  //       });
+  //       if (response.ok) {
+  //         const data = await response.json();
+  //         setCategories(data);
+  //         if (data.length > 0) {
+  //           setCategoryId(data[0].id_category.toString());
+  //         }
+  //       }
+  //     } catch (error) {
+  //       console.error("Failed to fetch categories:", error);
+  //     }
+  //   };
 
-    if (token) {
-      fetchAccounts();
-      fetchCategories();
-    }
-  }, [token, open]);
+  //   if (token) {
+  //     fetchAccounts();
+  //     fetchCategories();
+  //   }
+  // }, [token, open]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();

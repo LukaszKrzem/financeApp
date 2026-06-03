@@ -1,5 +1,6 @@
 import { Cell, Pie, PieChart, ResponsiveContainer } from "recharts";
 import {
+  IconBuildingStore,
   IconShoppingCart,
   IconCar,
   IconHome,
@@ -16,38 +17,74 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 
-const categories = [
-  {
-    name: "Shopping",
-    value: 1250,
-    color: "var(--chart-1)",
-    icon: IconShoppingCart,
-  },
-  { name: "Transport", value: 480, color: "var(--chart-2)", icon: IconCar },
-  { name: "Housing", value: 1800, color: "var(--chart-3)", icon: IconHome },
-  {
-    name: "Food & Dining",
-    value: 720,
-    color: "var(--chart-4)",
-    icon: IconToolsKitchen2,
-  },
-  {
-    name: "Entertainment",
-    value: 340,
-    color: "var(--chart-5)",
-    icon: IconMovie,
-  },
-  {
-    name: "Healthcare",
-    value: 302,
-    color: "var(--primary)",
-    icon: IconHeartbeat,
-  },
+const chartColors = [
+  "var(--chart-1)",
+  "var(--chart-2)",
+  "var(--chart-3)",
+  "var(--chart-4)",
+  "var(--chart-5)",
+  "var(--primary)",
 ];
 
-const total = categories.reduce((acc, cat) => acc + cat.value, 0);
+const getIconForCategory = (categoryName) => {
+  const name = categoryName.toLowerCase();
 
-export function SpendingCategories() {
+  if (name.includes("food") || name.includes("jedzenie")) {
+    return IconToolsKitchen2;
+  }
+  if (name.includes("transport") || name.includes("car")) {
+    return IconCar;
+  }
+  if (name.includes("home") || name.includes("housing")) {
+    return IconHome;
+  }
+  if (name.includes("shopping") || name.includes("sklep")) {
+    return IconShoppingCart;
+  }
+  if (name.includes("entertainment") || name.includes("movie")) {
+    return IconMovie;
+  }
+  if (name.includes("health")) {
+    return IconHeartbeat;
+  }
+
+  return IconBuildingStore;
+};
+
+const isExpenseTransaction = (transaction) =>
+  transaction.type === "EXPENSE" ||
+  transaction.is_income === "F" ||
+  transaction.is_income === "N";
+
+const formatMoney = (value) =>
+  new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "PLN",
+    maximumFractionDigits: 0,
+  }).format(value);
+
+export function SpendingCategories({ transactions = [] }) {
+  const categories = transactions
+    .filter(isExpenseTransaction)
+    .reduce((summary, transaction) => {
+      const categoryName = transaction.category_name || "Other";
+      const amount = Number(transaction.amount) || 0;
+
+      summary[categoryName] = (summary[categoryName] || 0) + amount;
+      return summary;
+    }, {});
+
+  const categoryData = Object.entries(categories)
+    .map(([name, value], index) => ({
+      name,
+      value,
+      color: chartColors[index % chartColors.length],
+      icon: getIconForCategory(name),
+    }))
+    .sort((a, b) => b.value - a.value);
+
+  const total = categoryData.reduce((acc, cat) => acc + cat.value, 0);
+
   return (
     <Card className="border-border/50">
       <CardHeader>
@@ -55,71 +92,77 @@ export function SpendingCategories() {
         <CardDescription>This month&apos;s breakdown</CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="flex flex-col gap-6 lg:flex-row lg:items-center">
-          <div className="mx-auto h-[180px] w-[180px] lg:mx-0">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={categories}
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={55}
-                  outerRadius={80}
-                  paddingAngle={2}
-                  dataKey="value"
-                  strokeWidth={0}
-                >
-                  {categories.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} />
-                  ))}
-                </Pie>
-              </PieChart>
-            </ResponsiveContainer>
+        {categoryData.length === 0 ? (
+          <div className="py-12 text-center text-sm text-muted-foreground">
+            No expenses to display yet.
           </div>
-          <div className="flex-1 space-y-3">
-            {categories.map((category) => {
-              const Icon = category.icon;
-              const percentage = ((category.value / total) * 100).toFixed(1);
-              return (
-                <div key={category.name} className="flex items-center gap-3">
-                  <div
-                    className="flex size-8 items-center justify-center rounded-lg"
-                    style={{
-                      backgroundColor: `color-mix(in oklch, ${category.color} 20%, transparent)`,
-                    }}
+        ) : (
+          <div className="flex flex-col gap-6 lg:flex-row lg:items-center">
+            <div className="mx-auto h-[180px] w-[180px] lg:mx-0">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={categoryData}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={55}
+                    outerRadius={80}
+                    paddingAngle={2}
+                    dataKey="value"
+                    strokeWidth={0}
                   >
-                    <Icon
-                      className="size-4"
-                      style={{ color: category.color }}
-                    />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium truncate">
-                        {category.name}
-                      </span>
-                      <span className="text-sm text-muted-foreground ml-2">
-                        {percentage}%
-                      </span>
-                    </div>
-                    <div className="mt-1 h-1.5 w-full rounded-full bg-secondary">
-                      <div
-                        className="h-full rounded-full transition-all"
-                        style={{
-                          width: `${percentage}%`,
-                          backgroundColor: category.color,
-                        }}
+                    {categoryData.map((entry) => (
+                      <Cell key={entry.name} fill={entry.color} />
+                    ))}
+                  </Pie>
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+            <div className="flex-1 space-y-3">
+              {categoryData.map((category) => {
+                const Icon = category.icon;
+                const percentage = ((category.value / total) * 100).toFixed(1);
+                return (
+                  <div key={category.name} className="flex items-center gap-3">
+                    <div
+                      className="flex size-8 items-center justify-center rounded-lg"
+                      style={{
+                        backgroundColor: `color-mix(in oklch, ${category.color} 20%, transparent)`,
+                      }}
+                    >
+                      <Icon
+                        className="size-4"
+                        style={{ color: category.color }}
                       />
                     </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-medium truncate">
+                          {category.name}
+                        </span>
+                        <span className="text-sm text-muted-foreground ml-2">
+                          {percentage}%
+                        </span>
+                      </div>
+                      <div className="mt-1 h-1.5 w-full rounded-full bg-secondary">
+                        <div
+                          className="h-full rounded-full transition-all"
+                          style={{
+                            width: `${percentage}%`,
+                            backgroundColor: category.color,
+                          }}
+                        />
+                      </div>
+                    </div>
+                    <span className="text-sm font-medium tabular-nums w-16 text-right">
+                      {formatMoney(category.value)}
+                    </span>
                   </div>
-                  <span className="text-sm font-medium tabular-nums w-16 text-right">
-                    ${category.value.toLocaleString()}
-                  </span>
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
           </div>
-        </div>
+        )}
       </CardContent>
     </Card>
   );

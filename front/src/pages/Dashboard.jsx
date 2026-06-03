@@ -20,6 +20,7 @@ export default function Dashboard({
   const [loading, setLoading] = useState(false);
   //const [accounts, setAccounts] = useState([]);
   const [categories, setCategories] = useState([]);
+  const [budgets, setBudgets] = useState([]);
   // const [accountId, setAccountId] = useState("");
   // const [categoryId, setCategoryId] = useState("");
 
@@ -63,9 +64,29 @@ export default function Dashboard({
       }
     };
 
+    const fetchBudgets = async () => {
+      if (!token) return;
+
+      try {
+        const response = await fetch("http://localhost:8000/budgets/", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setBudgets(Array.isArray(data) ? data : []);
+        }
+      } catch (error) {
+        console.error("Error fetching budgets:", error);
+      }
+    };
+
     if (token) {
       fetchCategories();
       fetchTransactions();
+      fetchBudgets();
     }
   }, [token, refreshing]);
 
@@ -88,12 +109,12 @@ export default function Dashboard({
         <div className="flex flex-1 flex-col">
           <div className="@container/main flex flex-1 flex-col gap-2">
             <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
-              <SectionCards />
+              <SectionCards transactions={transactions} budgets={budgets} />
               <div className="px-4 lg:px-6">
                 <ChartAreaInteractive transactions={transactions} />
               </div>
               <div className="grid grid-cols-1 gap-4 px-4 lg:grid-cols-2 lg:px-6">
-                <SpendingCategories />
+                <SpendingCategories transactions={transactions} />
                 <RecentTransactions
                   transactions={transactions}
                   loading={loading}

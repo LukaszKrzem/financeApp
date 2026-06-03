@@ -1,6 +1,11 @@
-import { IconArrowDown, IconArrowUp, IconTrendingDown, IconTrendingUp } from "@tabler/icons-react"
+import {
+  IconArrowDown,
+  IconArrowUp,
+  IconTrendingDown,
+  IconTrendingUp,
+} from "@tabler/icons-react";
 
-import { Badge } from '@/components/ui/badge'
+import { Badge } from "@/components/ui/badge";
 import {
   Card,
   CardAction,
@@ -8,9 +13,55 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card'
+} from "@/components/ui/card";
 
-export function SectionCards() {
+const formatMoney = (value) =>
+  new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "PLN",
+  }).format(value);
+
+const isIncomeTransaction = (transaction) =>
+  transaction.type === "INCOME" ||
+  transaction.is_income === "T" ||
+  transaction.is_income === "Y";
+
+export function SectionCards({ transactions = [], budgets = [] }) {
+  const totals = transactions.reduce(
+    (summary, transaction) => {
+      const amount = Number(transaction.amount) || 0;
+
+      if (isIncomeTransaction(transaction)) {
+        summary.income += amount;
+      } else {
+        summary.spent += amount;
+      }
+
+      return summary;
+    },
+    { income: 0, spent: 0 },
+  );
+
+  const savings = totals.income - totals.spent;
+  const savingsPercent =
+    totals.income > 0 ? Math.round((savings / totals.income) * 100) : 0;
+
+  const budgetLeft = budgets.reduce((sum, budget) => {
+    const limit = Number(budget.limit) || 0;
+    const spent = Number(budget.current_spent) || 0;
+    return sum + (limit - spent);
+  }, 0);
+
+  const averageBudgetUsage =
+    budgets.length > 0
+      ? Math.round(
+          budgets.reduce(
+            (sum, budget) => sum + (Number(budget.percent_used) || 0),
+            0,
+          ) / budgets.length,
+        )
+      : 0;
+
   return (
     <div className="grid grid-cols-1 gap-4 px-4 lg:px-6 @xl/main:grid-cols-2 @5xl/main:grid-cols-4">
       <Card className="@container/card border-border/50 bg-card">
@@ -22,18 +73,21 @@ export function SectionCards() {
             Total Spent
           </CardDescription>
           <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-            $4,892.50
+            {formatMoney(totals.spent)}
           </CardTitle>
           <CardAction>
-            <Badge variant="outline" className="text-destructive border-destructive/30">
+            <Badge
+              variant="outline"
+              className="text-destructive border-destructive/30"
+            >
               <IconTrendingUp className="size-3" />
-              +8.2%
+              Expenses
             </Badge>
           </CardAction>
         </CardHeader>
         <CardFooter className="flex-col items-start gap-1.5 text-sm">
           <div className="line-clamp-1 flex gap-2 font-medium text-muted-foreground">
-            vs $4,520 last month
+            From {transactions.length} transactions
           </div>
         </CardFooter>
       </Card>
@@ -46,18 +100,18 @@ export function SectionCards() {
             Income
           </CardDescription>
           <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-            $7,250.00
+            {formatMoney(totals.income)}
           </CardTitle>
           <CardAction>
             <Badge variant="outline" className="text-primary border-primary/30">
               <IconTrendingUp className="size-3" />
-              +12.5%
+              Income
             </Badge>
           </CardAction>
         </CardHeader>
         <CardFooter className="flex-col items-start gap-1.5 text-sm">
           <div className="line-clamp-1 flex gap-2 font-medium text-muted-foreground">
-            vs $6,440 last month
+            Registered in transaction history
           </div>
         </CardFooter>
       </Card>
@@ -70,18 +124,25 @@ export function SectionCards() {
             Savings
           </CardDescription>
           <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-            $2,357.50
+            {formatMoney(savings)}
           </CardTitle>
           <CardAction>
-            <Badge variant="outline" className="text-primary border-primary/30">
+            <Badge
+              variant="outline"
+              className={
+                savings >= 0
+                  ? "text-primary border-primary/30"
+                  : "text-destructive border-destructive/30"
+              }
+            >
               <IconTrendingUp className="size-3" />
-              +22.8%
+              {savings >= 0 ? "Positive" : "Negative"}
             </Badge>
           </CardAction>
         </CardHeader>
         <CardFooter className="flex-col items-start gap-1.5 text-sm">
           <div className="line-clamp-1 flex gap-2 font-medium text-muted-foreground">
-            32% of income saved
+            {savingsPercent}% of income saved
           </div>
         </CardFooter>
       </Card>
@@ -94,20 +155,29 @@ export function SectionCards() {
             Budget Left
           </CardDescription>
           <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-            $1,107.50
+            {formatMoney(budgetLeft)}
           </CardTitle>
           <CardAction>
-            <Badge variant="outline" className="text-chart-3 border-chart-3/30">
-              On Track
+            <Badge
+              variant="outline"
+              className={
+                budgetLeft >= 0
+                  ? "text-chart-3 border-chart-3/30"
+                  : "text-destructive border-destructive/30"
+              }
+            >
+              {budgetLeft >= 0 ? "On Track" : "Over Limit"}
             </Badge>
           </CardAction>
         </CardHeader>
         <CardFooter className="flex-col items-start gap-1.5 text-sm">
           <div className="line-clamp-1 flex gap-2 font-medium text-muted-foreground">
-            18% of monthly budget
+            {budgets.length > 0
+              ? `${averageBudgetUsage}% of budget used`
+              : "No budgets defined yet"}
           </div>
         </CardFooter>
       </Card>
     </div>
-  )
+  );
 }

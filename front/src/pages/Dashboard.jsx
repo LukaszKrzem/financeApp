@@ -7,11 +7,18 @@ import { RecentTransactions } from "@/components/recent-transactions";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { useState, useEffect } from "react";
 
-export default function Dashboard({ user, onLogout, token }) {
+export default function Dashboard({
+  user,
+  onLogout,
+  token,
+  refreshing,
+  setRefreshing,
+  accounts,
+}) {
   const [transactions, setTransactions] = useState([]);
-  const [refreshing, setRefreshing] = useState(0);
+  //const [refreshing, setRefreshing] = useState(0);
   const [loading, setLoading] = useState(false);
-  const [accounts, setAccounts] = useState([]);
+  //const [accounts, setAccounts] = useState([]);
   const [categories, setCategories] = useState([]);
   // const [accountId, setAccountId] = useState("");
   // const [categoryId, setCategoryId] = useState("");
@@ -80,8 +87,8 @@ export default function Dashboard({ user, onLogout, token }) {
     };
 
     if (token) {
-      fetchAccounts();
-      fetchCategories();
+      //fetchAccounts();
+      // fetchCategories();
       fetchTransactions();
     }
   }, [token, refreshing]);

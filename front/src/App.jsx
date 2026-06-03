@@ -17,7 +17,8 @@ function App() {
   const [token, setToken] = useState(localStorage.getItem("token"));
   const [loading, setLoading] = useState(false);
   const [user, setUser] = useState(null);
-
+  const [refreshing, setRefreshing] = useState(0);
+  const [accounts, setAccounts] = useState([]);
   const handleLogin = (newToken) => {
     localStorage.setItem("token", newToken);
     setToken(newToken);
@@ -26,7 +27,56 @@ function App() {
     localStorage.removeItem("token");
     setToken(null);
   };
+  useEffect(() => {
+    // const fetchTransactions = async () => {
+    //   if (!token) return;
 
+    //   try {
+    //     const response = await fetch("http://localhost:8000/transactions", {
+    //       headers: {
+    //         Authorization: `Bearer ${token}`,
+    //       },
+    //     });
+
+    //     if (response.ok) {
+    //       const data = await response.json();
+    //       setTransactions(data);
+    //       console.log("Transactions:", data);
+    //     } else {
+    //       console.error("Failed to fetch transactions");
+    //     }
+    //   } catch (error) {
+    //     console.error("Error fetching transactions:", error);
+    //   } finally {
+    //     setLoading(false);
+    //   }
+    // };
+    const fetchAccounts = async () => {
+      try {
+        const response = await fetch("http://localhost:8000/accounts", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setAccounts(data);
+
+          // if (data.length > 0) {
+          //   setAccountId(data[0].id_account.toString());
+          // }
+          console.log("Accounts:", data);
+        }
+      } catch (error) {
+        console.error("Failed to fetch accounts:", error);
+      }
+    };
+
+    if (token) {
+      fetchAccounts();
+    }
+  }, [token, refreshing]);
   useEffect(() => {
     const fetchUser = async () => {
       if (!token) {
@@ -96,7 +146,14 @@ function App() {
             path="/dashboard"
             element={
               token ? (
-                <Dashboard onLogout={handleLogout} user={user} token={token} />
+                <Dashboard
+                  onLogout={handleLogout}
+                  user={user}
+                  token={token}
+                  accounts={accounts}
+                  refreshing={refreshing}
+                  setRefreshing={setRefreshing}
+                />
               ) : (
                 <Navigate to="/" replace />
               )
@@ -116,7 +173,12 @@ function App() {
             path="/accounts"
             element={
               token ? (
-                <Accounts onLogout={handleLogout} user={user} token={token} />
+                <Accounts
+                  onLogout={handleLogout}
+                  user={user}
+                  token={token}
+                  accounts={accounts}
+                />
               ) : (
                 <Navigate to="/" replace />
               )

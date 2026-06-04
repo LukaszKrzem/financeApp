@@ -4,6 +4,7 @@ import { AppSidebar } from "@/components/app-sidebar";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { SimpleDataTable } from "@/components/simple-data-table";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 export const columns = [
   {
@@ -51,10 +52,13 @@ export default function Transactions({ user, token, onLogout }) {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(0);
   const [typeFilter, setTypeFilter] = useState("ALL");
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
 
-  const filteredTransactions = typeFilter === "ALL"
-  ? transactions
-  : transactions.filter(t => t.type === typeFilter);
+  const filteredTransactions = transactions
+    .filter(t => typeFilter === "ALL" || t.type === typeFilter)
+    .filter(t => !dateFrom || new Date(t.date) >= new Date(dateFrom))
+    .filter(t => !dateTo || new Date(t.date) <= new Date(dateTo + "T23:59:59"));
 
   useEffect(() => {
     const fetchTransactions = async () => {
@@ -100,18 +104,43 @@ export default function Transactions({ user, token, onLogout }) {
           </div>
 
           <div className="bg-card border-border/50 border rounded-xl p-4">
-          <div className="flex gap-2 mb-4">
-            {["ALL", "EXPENSE", "INCOME"].map((type) => (
-              <Button
-                key={type}
-                variant={typeFilter === type ? "default" : "outline"}
-                size="sm"
-                onClick={() => setTypeFilter(type)}
-              >
-                {type === "ALL" ? "All" : type === "EXPENSE" ? "Expenses" : "Income"}
-              </Button>
-            ))}
-          </div>
+            <div className="flex flex-wrap gap-2 mb-4 items-center">
+              {["ALL", "EXPENSE", "INCOME"].map((type) => (
+                <Button
+                  key={type}
+                  variant={typeFilter === type ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setTypeFilter(type)}
+                >
+                  {type === "ALL" ? "All" : type === "EXPENSE" ? "Expenses" : "Income"}
+                </Button>
+              ))}
+
+              <div className="flex items-center gap-2 ml-auto">
+                <Input
+                  type="date"
+                  value={dateFrom}
+                  onChange={e => setDateFrom(e.target.value)}
+                  className="w-36 h-8 text-sm"
+                />
+                <span className="text-muted-foreground text-sm">—</span>
+                <Input
+                  type="date"
+                  value={dateTo}
+                  onChange={e => setDateTo(e.target.value)}
+                  className="w-36 h-8 text-sm"
+                />
+                {(dateFrom || dateTo) && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => { setDateFrom(""); setDateTo(""); }}
+                  >
+                    Clear
+                  </Button>
+                )}
+              </div>
+            </div>
           {loading ? (
             <div className="text-center py-10">Loading transactions...</div>
           ) : (

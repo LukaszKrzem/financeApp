@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 import {
   IconBuildingStore,
@@ -80,26 +81,30 @@ const CustomTooltip = ({ active, payload }) => {
 };
 
 export function SpendingCategories({ transactions = [] }) {
-  const categories = transactions
-    .filter(isExpenseTransaction)
-    .reduce((summary, transaction) => {
-      const categoryName = transaction.category_name || "Other";
-      const amount = Number(transaction.amount) || 0;
+  const categoryData = useMemo(() => {
+    const categories = transactions
+      .filter(isExpenseTransaction)
+      .reduce((summary, transaction) => {
+        const categoryName = transaction.category_name || "Other";
+        const amount = Number(transaction.amount) || 0;
 
-      summary[categoryName] = (summary[categoryName] || 0) + amount;
-      return summary;
-    }, {});
+        summary[categoryName] = (summary[categoryName] || 0) + amount;
+        return summary;
+      }, {});
 
-  const categoryData = Object.entries(categories)
-    .map(([name, value], index) => ({
-      name,
-      value,
-      color: chartColors[index % chartColors.length],
-      icon: getIconForCategory(name),
-    }))
-    .sort((a, b) => b.value - a.value);
+    return Object.entries(categories)
+      .map(([name, value], index) => ({
+        name,
+        value,
+        color: chartColors[index % chartColors.length],
+        icon: getIconForCategory(name),
+      }))
+      .sort((a, b) => b.value - a.value);
+  }, [transactions]);
 
-  const total = categoryData.reduce((acc, cat) => acc + cat.value, 0);
+  const total = useMemo(() =>
+    categoryData.reduce((acc, cat) => acc + cat.value, 0),
+  [categoryData]);
 
   return (
     <Card className="border-border/50">

@@ -10,6 +10,7 @@ import Dashboard from "./pages/Dashboard";
 import Budgets from "./pages/Budgets";
 import Accounts from "./pages/Accounts";
 import SavingsGoals from "./pages/SavingsGoals";
+import Transactions from "./pages/Transactions";
 
 const API_URL = "http://localhost:8000";
 
@@ -197,6 +198,18 @@ function App() {
                 <Navigate to="/" replace />
               )
             }
+          />
+          <Route
+            path="/transactions"
+            element={ token ? (
+              <Transactions
+                onLogout={handleLogout}
+                user={user}
+                token={token}
+              />
+            ) : (
+              <Navigate to="/" replace />
+            )}
           />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

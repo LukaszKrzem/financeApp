@@ -40,7 +40,7 @@ const data = {
     },
     {
       title: "Transactions",
-      url: "#",
+      url: "/transactions",
       icon: IconReceipt,
     },
     {

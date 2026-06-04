@@ -3,6 +3,7 @@ import { SiteHeader } from "@/components/site-header";
 import { AppSidebar } from "@/components/app-sidebar";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { SimpleDataTable } from "@/components/simple-data-table";
+import { Button } from "@/components/ui/button";
 
 export const columns = [
   {
@@ -49,6 +50,11 @@ export default function Transactions({ user, token, onLogout }) {
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(0);
+  const [typeFilter, setTypeFilter] = useState("ALL");
+
+  const filteredTransactions = typeFilter === "ALL"
+  ? transactions
+  : transactions.filter(t => t.type === typeFilter);
 
   useEffect(() => {
     const fetchTransactions = async () => {
@@ -94,12 +100,24 @@ export default function Transactions({ user, token, onLogout }) {
           </div>
 
           <div className="bg-card border-border/50 border rounded-xl p-4">
-            {loading ? (
-              <div className="text-center py-10">Loading transactions...</div>
-            ) : (
-              <SimpleDataTable columns={columns} data={transactions} />
-            )}
+          <div className="flex gap-2 mb-4">
+            {["ALL", "EXPENSE", "INCOME"].map((type) => (
+              <Button
+                key={type}
+                variant={typeFilter === type ? "default" : "outline"}
+                size="sm"
+                onClick={() => setTypeFilter(type)}
+              >
+                {type === "ALL" ? "All" : type === "EXPENSE" ? "Expenses" : "Income"}
+              </Button>
+            ))}
           </div>
+          {loading ? (
+            <div className="text-center py-10">Loading transactions...</div>
+          ) : (
+            <SimpleDataTable columns={columns} data={filteredTransactions} />
+          )}
+        </div>
 
         </div>
       </SidebarInset>

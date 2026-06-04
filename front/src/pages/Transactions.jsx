@@ -48,6 +48,7 @@ export const columns = [
 export default function Transactions({ user, token, onLogout }) {
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(0);
 
   useEffect(() => {
     const fetchTransactions = async () => {
@@ -71,7 +72,7 @@ export default function Transactions({ user, token, onLogout }) {
     };
 
     fetchTransactions();
-  }, [token]);
+  }, [token, refreshing]);
 
   return (
     <SidebarProvider
@@ -82,7 +83,7 @@ export default function Transactions({ user, token, onLogout }) {
     >
       <AppSidebar variant="inset" onLogout={onLogout} user={user} />
       <SidebarInset>
-        <SiteHeader user={user} token={token} />
+        <SiteHeader user={user} token={token} setRefreshing={setRefreshing} />
         <div className="flex flex-1 flex-col p-4 md:p-6 gap-6">
 
           <div>

@@ -22,17 +22,19 @@ export const columns = [
     header: "Category",
   },
   {
-    accessorKey: "amount",
+    id: "amount",
     header: "Amount",
+    accessorFn: (row) => {
+      const val = parseFloat(row.amount);
+      return row.type === "EXPENSE" ? -val : val;
+    },
     cell: ({ row }) => {
-      const amount = parseFloat(row.getValue("amount"));
-      const type = row.original.type;
-
-      const isExpense = type === "EXPENSE";
+      const amount = row.getValue("amount");
+      const isExpense = amount < 0;
       const formatted = new Intl.NumberFormat("pl-PL", {
         style: "currency",
         currency: "PLN",
-      }).format(amount);
+      }).format(Math.abs(amount));
 
       return (
         <div className={`font-medium ${isExpense ? "text-red-500" : "text-emerald-500"}`}>

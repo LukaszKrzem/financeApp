@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { SiteHeader } from "@/components/site-header";
 import { AppSidebar } from "@/components/app-sidebar";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
-import { SimpleDataTable } from "@/components/ui/simple-data-table";
+import { SimpleDataTable } from "@/components/simple-data-table";
 
 export const columns = [
   {

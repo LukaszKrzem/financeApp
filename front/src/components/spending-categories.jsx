@@ -1,4 +1,4 @@
-import { Cell, Pie, PieChart, ResponsiveContainer } from "recharts";
+import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 import {
   IconBuildingStore,
   IconShoppingCart,
@@ -63,6 +63,22 @@ const formatMoney = (value) =>
     maximumFractionDigits: 0,
   }).format(value);
 
+const CustomTooltip = ({ active, payload }) => {
+  if (active && payload && payload.length) {
+    return (
+      <div className="bg-card border-border border rounded-lg p-3 shadow-lg z-50">
+        <p className="text-sm font-medium text-foreground mb-1">
+          {payload[0].name}
+        </p>
+        <p className="text-sm font-bold text-primary">
+          {formatMoney(payload[0].value)}
+        </p>
+      </div>
+    );
+  }
+  return null;
+};
+
 export function SpendingCategories({ transactions = [] }) {
   const categories = transactions
     .filter(isExpenseTransaction)
@@ -101,6 +117,7 @@ export function SpendingCategories({ transactions = [] }) {
             <div className="mx-auto h-[180px] w-[180px] lg:mx-0">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
+                  <Tooltip content={<CustomTooltip />} />
                   <Pie
                     data={categoryData}
                     cx="50%"

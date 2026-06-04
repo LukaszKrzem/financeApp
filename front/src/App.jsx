@@ -11,6 +11,7 @@ import Budgets from "./pages/Budgets";
 import Accounts from "./pages/Accounts";
 import SavingsGoals from "./pages/SavingsGoals";
 import Transactions from "./pages/Transactions";
+import Settings from "./pages/Settings";
 
 const API_URL = "http://localhost:8000";
 
@@ -211,7 +212,17 @@ function App() {
               <Navigate to="/" replace />
             )}
           />
-          <Route path="*" element={<Navigate to="/" replace />} />
+          <Route
+            path="/settings"
+            element={
+              token ? (
+                <Settings onLogout={handleLogout} user={user} token={token} />
+              ) : (
+                <Navigate to="/" replace />
+              )
+            }
+            />
+            <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </BrowserRouter>
     </TooltipProvider>

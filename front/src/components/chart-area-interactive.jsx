@@ -73,18 +73,21 @@ export function ChartAreaInteractive({ transactions }) {
           const dateStr = getLocalDateString(txDate);
 
           if (!grouped[dateStr]) {
-            grouped[dateStr] = { date: dateStr, spending: 0, income: 0 };
+            //grouped[dateStr] = { date: dateStr, spending: 0, income: 0 };
+            grouped[dateStr] = { date: dateStr, spending: 1, income: 1 };
           }
 
           const amount = parseFloat(tx.amount) || 0;
+          const exchangeRate = parseFloat(tx.exchange_rate) || 1;
+
           if (
             tx.type === "INCOME" ||
             tx.is_income === "T" ||
             tx.is_income === "Y"
           ) {
-            grouped[dateStr].income += amount;
+            grouped[dateStr].income += amount * exchangeRate;
           } else {
-            grouped[dateStr].spending += amount;
+            grouped[dateStr].spending += amount * exchangeRate;
           }
         }
       });
@@ -98,7 +101,7 @@ export function ChartAreaInteractive({ transactions }) {
       if (grouped[dateStr]) {
         filledData.push(grouped[dateStr]);
       } else {
-        filledData.push({ date: dateStr, spending: 0, income: 0 });
+        filledData.push({ date: dateStr, spending: 1, income: 1 });
       }
       currentDate.setDate(currentDate.getDate() + 1);
     }
@@ -213,18 +216,22 @@ export function ChartAreaInteractive({ transactions }) {
               }}
             />
             <YAxis
+              scale="log"
+              domain={[1, "auto"]}
               tickLine={false}
               axisLine={false}
               tickMargin={8}
-              tickFormatter={(value) => `$${(value).toFixed(0)}`}
-              width={55}
+              tickFormatter={(value) => {
+                return value <= 1 ? "0PLN" : `${value.toFixed(0)}PLN`;
+              }}
+              width={85}
             />
             <ChartTooltip
               cursor={false}
               content={
                 <ChartTooltipContent
                   labelFormatter={(value) => {
-                    return new Date(value).toLocaleDateString("en-US", {
+                    return new Date(value).toLocaleDateString("pl-PL", {
                       day: "numeric",
                       month: "long",
                       year: "numeric",
@@ -234,7 +241,8 @@ export function ChartAreaInteractive({ transactions }) {
                     <div className="flex items-center gap-2">
                       <span className="capitalize">{name}</span>
                       <span className="font-medium">
-                        ${Number(value).toLocaleString()}
+                        {value <= 1 ? 0 : Number(value).toLocaleString("pl-PL")}{" "}
+                        PLN
                       </span>
                     </div>
                   )}

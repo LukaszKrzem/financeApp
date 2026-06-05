@@ -76,7 +76,7 @@ def get_user_transactions(
     db: sqlalchemy.orm.Session = Depends(get_db), current_user=Depends(get_current_user)
 ):
     results = (
-        db.query(structure.Transaction, structure.Category)
+        db.query(structure.Transaction, structure.Category, structure.Currency)
         .join(
             structure.Account,
             structure.Transaction.Account_id_account == structure.Account.id_account,
@@ -86,13 +86,18 @@ def get_user_transactions(
             structure.Transaction.Category_id_category
             == structure.Category.id_category,
         )
+        .join(
+            structure.Currency,
+            structure.Transaction.Currency_id_currency
+            == structure.Currency.id_currency,
+        )
         .filter(structure.Account.User_id_user == current_user.id_user)
         .order_by(structure.Transaction.date.desc())
         .all()
     )  # Fixed it to include join correctly
-
+    print(results)
     transactions_with_data = []
-    for trans, cat in results:
+    for trans, cat, cur in results:
         transactions_with_data.append(
             {
                 "id_transaction": trans.id_transaction,
@@ -100,9 +105,10 @@ def get_user_transactions(
                 "date": trans.date,
                 "description": trans.description,
                 "type": trans.type,
-                # "frequency": trans.frequency,
                 "Account_id_account": trans.Account_id_account,
                 "category_name": cat.name if cat else "Other",
+                "exchange_rate": cur.exchange_rate if cur else None,
+                "currency_code": cur.code if cur else None,
             }
         )
     return transactions_with_data

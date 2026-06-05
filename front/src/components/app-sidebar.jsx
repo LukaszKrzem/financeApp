@@ -113,7 +113,7 @@ export function AppSidebar({ user, onLogout, ...props }) {
             >
               <a href="#">
                 <IconWallet className="size-5! text-primary" />
-                <span className="text-base font-semibold">SpendWise</span>
+                <span className="text-base font-semibold">SmartBudget</span>
               </a>
             </SidebarMenuButton>
           </SidebarMenuItem>

@@ -138,6 +138,30 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route
+            path="/"
+            element={token ? <Navigate to="/dashboard" replace /> : <Home />}
+          />
+          <Route
+            path="/login"
+            element={
+              token ? (
+                <Navigate to="/dashboard" replace />
+              ) : (
+                <Login onLogin={handleLogin} apiUrl={API_URL} />
+              )
+            }
+          />
+          <Route
+            path="/register"
+            element={
+              token ? (
+                <Navigate to="/dashboard" replace />
+              ) : (
+                <Register apiUrl={API_URL} onRegistration={handleLogin} />
+              )
+            }
+          />
+          <Route
             element={
               <Layout
                 onLogout={handleLogout}
@@ -153,26 +177,7 @@ function App() {
               path="/"
               element={token ? <Navigate to="/dashboard" replace /> : <Home />}
             />
-            <Route
-              path="/login"
-              element={
-                token ? (
-                  <Navigate to="/dashboard" replace />
-                ) : (
-                  <Login onLogin={handleLogin} apiUrl={API_URL} />
-                )
-              }
-            />
-            <Route
-              path="/register"
-              element={
-                token ? (
-                  <Navigate to="/dashboard" replace />
-                ) : (
-                  <Register apiUrl={API_URL} onRegistration={handleLogin} />
-                )
-              }
-            />
+
             <Route
               path="/dashboard"
               element={

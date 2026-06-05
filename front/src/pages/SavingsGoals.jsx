@@ -158,181 +158,172 @@ export default function SavingsGoals({ user, onLogout, token }) {
   };
 
   return (
-    <SidebarProvider
-      style={{
-        "--sidebar-width": "calc(var(--spacing) * 72)",
-        "--header-height": "calc(var(--spacing) * 12)",
-      }}
-    >
-      <AppSidebar variant="inset" onLogout={onLogout} user={user} />
-      <SidebarInset>
-        <SiteHeader user={user} token={token} />
-
-        <div className="flex flex-1 flex-col p-4 lg:p-6 gap-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-2xl font-semibold tracking-tight">
-                Savings Goals
-              </h2>
-              <p className="text-sm text-muted-foreground">
-                Track progress towards your planned savings.
-              </p>
-            </div>
-
-            <Dialog open={open} onOpenChange={setOpen}>
-              <DialogTrigger asChild>
-                <Button className="gap-2">
-                  <IconPlus className="size-4" />
-                  Add Goal
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="sm:max-w-[425px]">
-                <DialogHeader>
-                  <DialogTitle>Create Savings Goal</DialogTitle>
-                </DialogHeader>
-                <form onSubmit={handleCreateGoal} className="flex flex-col gap-4 py-4">
-                  <div className="flex flex-col gap-2">
-                    <label className="text-sm font-medium">Goal name</label>
-                    <input
-                      type="text"
-                      placeholder="e.g. New laptop"
-                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-                      value={name}
-                      onChange={(event) => setName(event.target.value)}
-                      required
-                    />
-                  </div>
-
-                  <div className="flex flex-col gap-2">
-                    <label className="text-sm font-medium">Target amount</label>
-                    <input
-                      type="number"
-                      min="0"
-                      step="0.01"
-                      placeholder="e.g. 5000"
-                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-                      value={target}
-                      onChange={(event) => setTarget(event.target.value)}
-                      required
-                    />
-                  </div>
-
-                  <div className="flex flex-col gap-2">
-                    <label className="text-sm font-medium">Current amount</label>
-                    <input
-                      type="number"
-                      min="0"
-                      step="0.01"
-                      placeholder="e.g. 1000"
-                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-                      value={currentAmount}
-                      onChange={(event) => setCurrentAmount(event.target.value)}
-                    />
-                  </div>
-
-                  <div className="flex flex-col gap-2">
-                    <label className="text-sm font-medium">Deadline</label>
-                    <input
-                      type="date"
-                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-                      value={timeLimit}
-                      onChange={(event) => setTimeLimit(event.target.value)}
-                    />
-                  </div>
-
-                  <Button type="submit" className="w-full mt-2">
-                    Confirm Goal
-                  </Button>
-                </form>
-              </DialogContent>
-            </Dialog>
-          </div>
-
-          {loading ? (
-            <p className="text-sm text-muted-foreground text-center py-8">
-              Loading savings goals...
-            </p>
-          ) : goals.length === 0 ? (
-            <p className="text-sm text-muted-foreground text-center py-8">
-              You haven't created any savings goals yet.
-            </p>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {goals.map((goal) => {
-                const percent = Math.min(Number(goal.percent_complete) || 0, 100);
-                const left = Number(goal.target) - Number(goal.current_amount);
-
-                return (
-                  <div
-                    key={goal.id_saving_goal}
-                    className="rounded-xl border bg-card text-card-foreground shadow-sm p-5 flex flex-col gap-4"
-                  >
-                    <div className="flex items-start justify-between gap-3">
-                      <div>
-                        <h3 className="font-semibold text-lg">{goal.name}</h3>
-                        <p className="text-xs text-muted-foreground">
-                          {goal.time_limit
-                            ? `Deadline: ${new Date(goal.time_limit).toLocaleDateString()}`
-                            : "No deadline"}
-                        </p>
-                      </div>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => handleDeleteGoal(goal.id_saving_goal)}
-                      >
-                        <IconTrash className="size-4" />
-                      </Button>
-                    </div>
-
-                    <div>
-                      <div className="flex justify-between text-sm mb-2">
-                        <span>
-                          {formatMoney(goal.current_amount, goal.currency_code)}
-                        </span>
-                        <span className="text-muted-foreground">
-                          {formatMoney(goal.target, goal.currency_code)}
-                        </span>
-                      </div>
-                      <Progress value={percent} className="h-2" />
-                    </div>
-
-                    <p className="text-xs text-muted-foreground">
-                      {left > 0
-                        ? `${formatMoney(left, goal.currency_code)} left to save`
-                        : "Goal completed"}
-                    </p>
-
-                    <div className="flex gap-2">
-                      <input
-                        type="number"
-                        min="0"
-                        step="0.01"
-                        placeholder="Amount to add"
-                        value={contributions[goal.id_saving_goal] || ""}
-                        className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm"
-                        onChange={(event) =>
-                          setContributions((currentValues) => ({
-                            ...currentValues,
-                            [goal.id_saving_goal]: event.target.value,
-                          }))
-                        }
-                      />
-                      <Button
-                        type="button"
-                        size="sm"
-                        onClick={() => handleAddContribution(goal.id_saving_goal)}
-                      >
-                        Add
-                      </Button>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          )}
+    <div className="flex flex-1 flex-col p-4 lg:p-6 gap-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-2xl font-semibold tracking-tight">
+            Savings Goals
+          </h2>
+          <p className="text-sm text-muted-foreground">
+            Track progress towards your planned savings.
+          </p>
         </div>
-      </SidebarInset>
-    </SidebarProvider>
+
+        <Dialog open={open} onOpenChange={setOpen}>
+          <DialogTrigger asChild>
+            <Button className="gap-2">
+              <IconPlus className="size-4" />
+              Add Goal
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader>
+              <DialogTitle>Create Savings Goal</DialogTitle>
+            </DialogHeader>
+            <form
+              onSubmit={handleCreateGoal}
+              className="flex flex-col gap-4 py-4"
+            >
+              <div className="flex flex-col gap-2">
+                <label className="text-sm font-medium">Goal name</label>
+                <input
+                  type="text"
+                  placeholder="e.g. New laptop"
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                  value={name}
+                  onChange={(event) => setName(event.target.value)}
+                  required
+                />
+              </div>
+
+              <div className="flex flex-col gap-2">
+                <label className="text-sm font-medium">Target amount</label>
+                <input
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  placeholder="e.g. 5000"
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                  value={target}
+                  onChange={(event) => setTarget(event.target.value)}
+                  required
+                />
+              </div>
+
+              <div className="flex flex-col gap-2">
+                <label className="text-sm font-medium">Current amount</label>
+                <input
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  placeholder="e.g. 1000"
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                  value={currentAmount}
+                  onChange={(event) => setCurrentAmount(event.target.value)}
+                />
+              </div>
+
+              <div className="flex flex-col gap-2">
+                <label className="text-sm font-medium">Deadline</label>
+                <input
+                  type="date"
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                  value={timeLimit}
+                  onChange={(event) => setTimeLimit(event.target.value)}
+                />
+              </div>
+
+              <Button type="submit" className="w-full mt-2">
+                Confirm Goal
+              </Button>
+            </form>
+          </DialogContent>
+        </Dialog>
+      </div>
+
+      {loading ? (
+        <p className="text-sm text-muted-foreground text-center py-8">
+          Loading savings goals...
+        </p>
+      ) : goals.length === 0 ? (
+        <p className="text-sm text-muted-foreground text-center py-8">
+          You haven't created any savings goals yet.
+        </p>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {goals.map((goal) => {
+            const percent = Math.min(Number(goal.percent_complete) || 0, 100);
+            const left = Number(goal.target) - Number(goal.current_amount);
+
+            return (
+              <div
+                key={goal.id_saving_goal}
+                className="rounded-xl border bg-card text-card-foreground shadow-sm p-5 flex flex-col gap-4"
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <h3 className="font-semibold text-lg">{goal.name}</h3>
+                    <p className="text-xs text-muted-foreground">
+                      {goal.time_limit
+                        ? `Deadline: ${new Date(goal.time_limit).toLocaleDateString()}`
+                        : "No deadline"}
+                    </p>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => handleDeleteGoal(goal.id_saving_goal)}
+                  >
+                    <IconTrash className="size-4" />
+                  </Button>
+                </div>
+
+                <div>
+                  <div className="flex justify-between text-sm mb-2">
+                    <span>
+                      {formatMoney(goal.current_amount, goal.currency_code)}
+                    </span>
+                    <span className="text-muted-foreground">
+                      {formatMoney(goal.target, goal.currency_code)}
+                    </span>
+                  </div>
+                  <Progress value={percent} className="h-2" />
+                </div>
+
+                <p className="text-xs text-muted-foreground">
+                  {left > 0
+                    ? `${formatMoney(left, goal.currency_code)} left to save`
+                    : "Goal completed"}
+                </p>
+
+                <div className="flex gap-2">
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    placeholder="Amount to add"
+                    value={contributions[goal.id_saving_goal] || ""}
+                    className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm"
+                    onChange={(event) =>
+                      setContributions((currentValues) => ({
+                        ...currentValues,
+                        [goal.id_saving_goal]: event.target.value,
+                      }))
+                    }
+                  />
+                  <Button
+                    type="button"
+                    size="sm"
+                    onClick={() => handleAddContribution(goal.id_saving_goal)}
+                  >
+                    Add
+                  </Button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
   );
 }

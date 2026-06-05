@@ -39,8 +39,11 @@ export const columns = [
       }).format(Math.abs(amount));
 
       return (
-        <div className={`font-medium ${isExpense ? "text-red-500" : "text-emerald-500"}`}>
-          {isExpense ? "-" : "+"}{formatted}
+        <div
+          className={`font-medium ${isExpense ? "text-red-500" : "text-emerald-500"}`}
+        >
+          {isExpense ? "-" : "+"}
+          {formatted}
         </div>
       );
     },
@@ -56,9 +59,11 @@ export default function Transactions({ user, token, onLogout }) {
   const [dateTo, setDateTo] = useState("");
 
   const filteredTransactions = transactions
-    .filter(t => typeFilter === "ALL" || t.type === typeFilter)
-    .filter(t => !dateFrom || new Date(t.date) >= new Date(dateFrom))
-    .filter(t => !dateTo || new Date(t.date) <= new Date(dateTo + "T23:59:59"));
+    .filter((t) => typeFilter === "ALL" || t.type === typeFilter)
+    .filter((t) => !dateFrom || new Date(t.date) >= new Date(dateFrom))
+    .filter(
+      (t) => !dateTo || new Date(t.date) <= new Date(dateTo + "T23:59:59"),
+    );
 
   useEffect(() => {
     const fetchTransactions = async () => {
@@ -85,71 +90,67 @@ export default function Transactions({ user, token, onLogout }) {
   }, [token, refreshing]);
 
   return (
-    <SidebarProvider
-      style={{
-        "--sidebar-width": "calc(var(--spacing) * 72)",
-        "--header-height": "calc(var(--spacing) * 12)",
-      }}
-    >
-      <AppSidebar variant="inset" onLogout={onLogout} user={user} />
-      <SidebarInset>
-        <SiteHeader user={user} token={token} setRefreshing={setRefreshing} />
-        <div className="flex flex-1 flex-col p-4 md:p-6 gap-6">
+    <div className="flex flex-1 flex-col p-4 md:p-6 gap-6">
+      <div>
+        <h1 className="text-2xl font-bold tracking-tight">
+          Transaction history
+        </h1>
+        <p className="text-muted-foreground">
+          Review all your expenses and income.
+        </p>
+      </div>
 
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight">Transaction history</h1>
-            <p className="text-muted-foreground">
-              Review all your expenses and income.
-            </p>
+      <div className="bg-card border-border/50 border rounded-xl p-4">
+        <div className="flex flex-wrap gap-2 mb-4 items-center">
+          {["ALL", "EXPENSE", "INCOME"].map((type) => (
+            <Button
+              key={type}
+              variant={typeFilter === type ? "default" : "outline"}
+              size="sm"
+              onClick={() => setTypeFilter(type)}
+            >
+              {type === "ALL"
+                ? "All"
+                : type === "EXPENSE"
+                  ? "Expenses"
+                  : "Income"}
+            </Button>
+          ))}
+
+          <div className="flex items-center gap-2 ml-auto">
+            <Input
+              type="date"
+              value={dateFrom}
+              onChange={(e) => setDateFrom(e.target.value)}
+              className="w-36 h-8 text-sm"
+            />
+            <span className="text-muted-foreground text-sm">—</span>
+            <Input
+              type="date"
+              value={dateTo}
+              onChange={(e) => setDateTo(e.target.value)}
+              className="w-36 h-8 text-sm"
+            />
+            {(dateFrom || dateTo) && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  setDateFrom("");
+                  setDateTo("");
+                }}
+              >
+                Clear
+              </Button>
+            )}
           </div>
-
-          <div className="bg-card border-border/50 border rounded-xl p-4">
-            <div className="flex flex-wrap gap-2 mb-4 items-center">
-              {["ALL", "EXPENSE", "INCOME"].map((type) => (
-                <Button
-                  key={type}
-                  variant={typeFilter === type ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setTypeFilter(type)}
-                >
-                  {type === "ALL" ? "All" : type === "EXPENSE" ? "Expenses" : "Income"}
-                </Button>
-              ))}
-
-              <div className="flex items-center gap-2 ml-auto">
-                <Input
-                  type="date"
-                  value={dateFrom}
-                  onChange={e => setDateFrom(e.target.value)}
-                  className="w-36 h-8 text-sm"
-                />
-                <span className="text-muted-foreground text-sm">—</span>
-                <Input
-                  type="date"
-                  value={dateTo}
-                  onChange={e => setDateTo(e.target.value)}
-                  className="w-36 h-8 text-sm"
-                />
-                {(dateFrom || dateTo) && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => { setDateFrom(""); setDateTo(""); }}
-                  >
-                    Clear
-                  </Button>
-                )}
-              </div>
-            </div>
-          {loading ? (
-            <div className="text-center py-10">Loading transactions...</div>
-          ) : (
-            <SimpleDataTable columns={columns} data={filteredTransactions} />
-          )}
         </div>
-
-        </div>
-      </SidebarInset>
-    </SidebarProvider>
+        {loading ? (
+          <div className="text-center py-10">Loading transactions...</div>
+        ) : (
+          <SimpleDataTable columns={columns} data={filteredTransactions} />
+        )}
+      </div>
+    </div>
   );
 }

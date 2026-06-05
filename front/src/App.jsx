@@ -12,6 +12,7 @@ import Accounts from "./pages/Accounts";
 import SavingsGoals from "./pages/SavingsGoals";
 import Transactions from "./pages/Transactions";
 import Settings from "./pages/Settings";
+import Layout from "./components/Layout";
 
 const API_URL = "http://localhost:8000";
 
@@ -21,6 +22,9 @@ function App() {
   const [user, setUser] = useState(null);
   const [refreshing, setRefreshing] = useState(0);
   const [accounts, setAccounts] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [transactions, setTransactions] = useState([]);
+
   const handleLogin = (newToken) => {
     localStorage.setItem("token", newToken);
     setToken(newToken);
@@ -30,29 +34,49 @@ function App() {
     setToken(null);
   };
   useEffect(() => {
-    // const fetchTransactions = async () => {
-    //   if (!token) return;
+    const fetchCategories = async () => {
+      if (!token) return;
+      try {
+        const response = await fetch("http://localhost:8000/categories", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        if (response.ok) {
+          const data = await response.json();
+          setCategories(data);
+          console.log("Categories:", data);
+        } else {
+          console.error("Failed to fetch categories");
+        }
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+      }
+    };
+    const fetchTransactions = async () => {
+      if (!token) return;
 
-    //   try {
-    //     const response = await fetch("http://localhost:8000/transactions", {
-    //       headers: {
-    //         Authorization: `Bearer ${token}`,
-    //       },
-    //     });
+      try {
+        const response = await fetch("http://localhost:8000/transactions", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
 
-    //     if (response.ok) {
-    //       const data = await response.json();
-    //       setTransactions(data);
-    //       console.log("Transactions:", data);
-    //     } else {
-    //       console.error("Failed to fetch transactions");
-    //     }
-    //   } catch (error) {
-    //     console.error("Error fetching transactions:", error);
-    //   } finally {
-    //     setLoading(false);
-    //   }
-    // };
+        if (response.ok) {
+          const data = await response.json();
+          setTransactions(data);
+          console.log("Transactions:", data);
+        } else {
+          console.error("Failed to fetch transactions");
+        }
+      } catch (error) {
+        console.error("Error fetching transactions:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
     const fetchAccounts = async () => {
       try {
         const response = await fetch("http://localhost:8000/accounts", {
@@ -64,22 +88,12 @@ function App() {
         if (response.ok) {
           const data = await response.json();
           setAccounts(data);
-
-          // if (data.length > 0) {
-          //   setAccountId(data[0].id_account.toString());
-          // }
           console.log("Accounts:", data);
         }
       } catch (error) {
         console.error("Failed to fetch accounts:", error);
       }
     };
-
-    if (token) {
-      fetchAccounts();
-    }
-  }, [token, refreshing]);
-  useEffect(() => {
     const fetchUser = async () => {
       if (!token) {
         setUser(null);
@@ -108,7 +122,10 @@ function App() {
       }
     };
     fetchUser();
-  }, [token]);
+    fetchAccounts();
+    fetchCategories();
+    fetchTransactions();
+  }, [token, refreshing]);
   if (loading) {
     return (
       <div className="flex h-screen items-center justify-center">
@@ -121,108 +138,123 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route
-            path="/"
-            element={token ? <Navigate to="/dashboard" replace /> : <Home />}
-          />
-          <Route
-            path="/login"
             element={
-              token ? (
-                <Navigate to="/dashboard" replace />
-              ) : (
-                <Login onLogin={handleLogin} apiUrl={API_URL} />
-              )
-            }
-          />
-          <Route
-            path="/register"
-            element={
-              token ? (
-                <Navigate to="/dashboard" replace />
-              ) : (
-                <Register apiUrl={API_URL} onRegistration={handleLogin} />
-              )
-            }
-          />
-          <Route
-            path="/dashboard"
-            element={
-              token ? (
-                <Dashboard
-                  onLogout={handleLogout}
-                  user={user}
-                  token={token}
-                  accounts={accounts}
-                  refreshing={refreshing}
-                  setRefreshing={setRefreshing}
-                />
-              ) : (
-                <Navigate to="/" replace />
-              )
-            }
-          />
-          <Route
-            path="/budgets"
-            element={
-              token ? (
-                <Budgets onLogout={handleLogout} user={user} token={token} />
-              ) : (
-                <Navigate to="/" replace />
-              )
-            }
-          />
-          <Route
-            path="/accounts"
-            element={
-              token ? (
-                <Accounts
-                  onLogout={handleLogout}
-                  user={user}
-                  token={token}
-                  accounts={accounts}
-                />
-              ) : (
-                <Navigate to="/" replace />
-              )
-            }
-          />
-          <Route
-            path="/savings-goals"
-            element={
-              token ? (
-                <SavingsGoals
-                  onLogout={handleLogout}
-                  user={user}
-                  token={token}
-                />
-              ) : (
-                <Navigate to="/" replace />
-              )
-            }
-          />
-          <Route
-            path="/transactions"
-            element={ token ? (
-              <Transactions
+              <Layout
                 onLogout={handleLogout}
                 user={user}
                 token={token}
+                accounts={accounts}
+                categories={categories}
+                setRefreshing={setRefreshing}
               />
-            ) : (
-              <Navigate to="/" replace />
-            )}
-          />
-          <Route
-            path="/settings"
-            element={
-              token ? (
-                <Settings onLogout={handleLogout} user={user} token={token} />
-              ) : (
-                <Navigate to="/" replace />
-              )
             }
+          >
+            <Route
+              path="/"
+              element={token ? <Navigate to="/dashboard" replace /> : <Home />}
+            />
+            <Route
+              path="/login"
+              element={
+                token ? (
+                  <Navigate to="/dashboard" replace />
+                ) : (
+                  <Login onLogin={handleLogin} apiUrl={API_URL} />
+                )
+              }
+            />
+            <Route
+              path="/register"
+              element={
+                token ? (
+                  <Navigate to="/dashboard" replace />
+                ) : (
+                  <Register apiUrl={API_URL} onRegistration={handleLogin} />
+                )
+              }
+            />
+            <Route
+              path="/dashboard"
+              element={
+                token ? (
+                  <Dashboard
+                    onLogout={handleLogout}
+                    user={user}
+                    token={token}
+                    accounts={accounts}
+                    refreshing={refreshing}
+                    setRefreshing={setRefreshing}
+                  />
+                ) : (
+                  <Navigate to="/" replace />
+                )
+              }
+            />
+            <Route
+              path="/budgets"
+              element={
+                token ? (
+                  <Budgets onLogout={handleLogout} user={user} token={token} />
+                ) : (
+                  <Navigate to="/" replace />
+                )
+              }
+            />
+            <Route
+              path="/accounts"
+              element={
+                token ? (
+                  <Accounts
+                    onLogout={handleLogout}
+                    user={user}
+                    token={token}
+                    accounts={accounts}
+                  />
+                ) : (
+                  <Navigate to="/" replace />
+                )
+              }
+            />
+            <Route
+              path="/savings-goals"
+              element={
+                token ? (
+                  <SavingsGoals
+                    onLogout={handleLogout}
+                    user={user}
+                    token={token}
+                  />
+                ) : (
+                  <Navigate to="/" replace />
+                )
+              }
+            />
+            <Route
+              path="/transactions"
+              element={
+                token ? (
+                  <Transactions
+                    onLogout={handleLogout}
+                    user={user}
+                    token={token}
+                  />
+                ) : (
+                  <Navigate to="/" replace />
+                )
+              }
+            />
+            <Route
+              path="/settings"
+              element={
+                token ? (
+                  <Settings onLogout={handleLogout} user={user} token={token} />
+                ) : (
+                  <Navigate to="/" replace />
+                )
+              }
             />
             <Route path="*" element={<Navigate to="/" replace />} />
+          </Route>
         </Routes>
       </BrowserRouter>
     </TooltipProvider>

@@ -17,7 +17,6 @@ import {
 } from "@/components/ui/select";
 
 export function AddTransactionDialog({
-  user,
   token,
   setRefreshing,
   accounts = [],

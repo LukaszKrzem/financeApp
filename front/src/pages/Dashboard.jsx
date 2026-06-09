@@ -14,81 +14,18 @@ export default function Dashboard({
   refreshing,
   setRefreshing,
   accounts,
+  categories,
+  budgets,
+  transactions,
 }) {
-  const [transactions, setTransactions] = useState([]);
+  // const [transactions, setTransactions] = useState([]);
   //const [refreshing, setRefreshing] = useState(0);
   const [loading, setLoading] = useState(false);
   //const [accounts, setAccounts] = useState([]);
-  const [categories, setCategories] = useState([]);
-  const [budgets, setBudgets] = useState([]);
+  //const [categories, setCategories] = useState([]);
+  // const [budgets, setBudgets] = useState([]);
   // const [accountId, setAccountId] = useState("");
   // const [categoryId, setCategoryId] = useState("");
-
-  useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        const response = await fetch("http://localhost:8000/categories", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        if (response.ok) {
-          const data = await response.json();
-          setCategories(data);
-          console.log("Categories:", data);
-        }
-      } catch (error) {
-        console.error("Failed to fetch categories:", error);
-      }
-    };
-
-    const fetchTransactions = async () => {
-      if (!token) return;
-
-      try {
-        const response = await fetch("http://localhost:8000/transactions", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        if (response.ok) {
-          const data = await response.json();
-          setTransactions(data);
-          console.log("Transactions:", data);
-        } else {
-          console.error("Failed to fetch transactions");
-        }
-      } catch (error) {
-        console.error("Error fetching transactions:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    const fetchBudgets = async () => {
-      if (!token) return;
-
-      try {
-        const response = await fetch("http://localhost:8000/budgets/", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        if (response.ok) {
-          const data = await response.json();
-          setBudgets(Array.isArray(data) ? data : []);
-        }
-      } catch (error) {
-        console.error("Error fetching budgets:", error);
-      }
-    };
-
-    if (token) {
-      fetchCategories();
-      fetchTransactions();
-      fetchBudgets();
-    }
-  }, [token, refreshing]);
 
   return (
     <div className="flex flex-1 flex-col">

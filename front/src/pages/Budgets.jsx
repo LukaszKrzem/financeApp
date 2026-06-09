@@ -5,31 +5,14 @@ import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { Progress } from "@/components/ui/progress";
 import { AddBudgetDialog } from "@/components/AddBudgetDialog";
 
-export default function BudgetsPage({ user, onLogout, token }) {
-  const [budgets, setBudgets] = useState([]);
+export default function BudgetsPage({
+  token,
+  categories,
+  budgets,
+  setRefreshing,
+}) {
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchBudgets = async () => {
-      if (!token) return;
-      try {
-        const response = await fetch("http://localhost:8000/budgets/", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        if (response.ok) {
-          const data = await response.json();
-          setBudgets(Array.isArray(data) ? data : []);
-        }
-      } catch (error) {
-        console.error("Error fetching budgets data:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchBudgets();
-  }, [token, refreshTrigger]);
 
   return (
     <div className="flex flex-1 flex-col p-4 lg:p-6 gap-6">
@@ -44,7 +27,11 @@ export default function BudgetsPage({ user, onLogout, token }) {
         </div>
         <AddBudgetDialog
           token={token}
-          onBudgetAdded={() => setRefreshTrigger((p) => p + 1)}
+          onBudgetAdded={() => {
+            setRefreshTrigger((p) => p + 1);
+            setRefreshing(token + 1);
+          }}
+          categories={categories}
         />
       </div>
 

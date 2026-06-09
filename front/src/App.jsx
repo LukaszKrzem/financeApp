@@ -24,6 +24,7 @@ function App() {
   const [accounts, setAccounts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [transactions, setTransactions] = useState([]);
+  const [budgets, setBudgets] = useState([]);
 
   const handleLogin = (newToken) => {
     localStorage.setItem("token", newToken);
@@ -34,6 +35,23 @@ function App() {
     setToken(null);
   };
   useEffect(() => {
+    const fetchBudgets = async () => {
+      if (!token) return;
+      try {
+        const response = await fetch("http://localhost:8000/budgets/", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (response.ok) {
+          const data = await response.json();
+          setBudgets(Array.isArray(data) ? data : []);
+        }
+      } catch (error) {
+        console.error("Error fetching budgets data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
     const fetchCategories = async () => {
       if (!token) return;
       try {
@@ -124,6 +142,7 @@ function App() {
     fetchUser();
     fetchAccounts();
     fetchCategories();
+    fetchBudgets();
     fetchTransactions();
   }, [token, refreshing]);
   if (loading) {
@@ -189,6 +208,9 @@ function App() {
                     accounts={accounts}
                     refreshing={refreshing}
                     setRefreshing={setRefreshing}
+                    budgets={budgets}
+                    categories={categories}
+                    transactions={transactions}
                   />
                 ) : (
                   <Navigate to="/" replace />
@@ -199,7 +221,12 @@ function App() {
               path="/budgets"
               element={
                 token ? (
-                  <Budgets onLogout={handleLogout} user={user} token={token} />
+                  <Budgets
+                    token={token}
+                    categories={categories}
+                    budgets={budgets}
+                    setRefreshing={setRefreshing}
+                  />
                 ) : (
                   <Navigate to="/" replace />
                 )
@@ -214,6 +241,7 @@ function App() {
                     user={user}
                     token={token}
                     accounts={accounts}
+                    setRefreshing={setRefreshing}
                   />
                 ) : (
                   <Navigate to="/" replace />

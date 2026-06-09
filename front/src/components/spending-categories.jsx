@@ -86,9 +86,11 @@ export function SpendingCategories({ transactions = [] }) {
       .filter(isExpenseTransaction)
       .reduce((summary, transaction) => {
         const categoryName = transaction.category_name || "Other";
+        const exchangeRate = parseFloat(transaction.exchange_rate) || 1;
         const amount = Number(transaction.amount) || 0;
 
-        summary[categoryName] = (summary[categoryName] || 0) + amount;
+        summary[categoryName] =
+          (summary[categoryName] || 0) + amount * exchangeRate;
         return summary;
       }, {});
 
@@ -102,9 +104,10 @@ export function SpendingCategories({ transactions = [] }) {
       .sort((a, b) => b.value - a.value);
   }, [transactions]);
 
-  const total = useMemo(() =>
-    categoryData.reduce((acc, cat) => acc + cat.value, 0),
-  [categoryData]);
+  const total = useMemo(
+    () => categoryData.reduce((acc, cat) => acc + cat.value, 0),
+    [categoryData],
+  );
 
   return (
     <Card className="border-border/50">

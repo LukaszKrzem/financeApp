@@ -22,8 +22,8 @@ export function SiteHeader({
   user,
   token,
   setRefreshing,
-  categories,
-  accounts,
+  categories = [],
+  accounts = [],
 }) {
   const [notifications, setNotifications] = useState([]);
 
@@ -149,7 +149,6 @@ export function SiteHeader({
 
           {token && (
             <AddTransactionDialog
-              user={user}
               token={token}
               setRefreshing={setRefreshing}
               categories={categories}

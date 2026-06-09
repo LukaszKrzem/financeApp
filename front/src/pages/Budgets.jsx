@@ -10,10 +10,8 @@ export default function BudgetsPage({
   categories,
   budgets,
   setRefreshing,
+  loading,
 }) {
-  const [refreshTrigger, setRefreshTrigger] = useState(0);
-  const [loading, setLoading] = useState(true);
-
   return (
     <div className="flex flex-1 flex-col p-4 lg:p-6 gap-6">
       <div className="flex items-center justify-between">
@@ -28,7 +26,6 @@ export default function BudgetsPage({
         <AddBudgetDialog
           token={token}
           onBudgetAdded={() => {
-            setRefreshTrigger((p) => p + 1);
             setRefreshing(token + 1);
           }}
           categories={categories}

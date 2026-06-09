@@ -211,6 +211,7 @@ function App() {
                     budgets={budgets}
                     categories={categories}
                     transactions={transactions}
+                    loading={loading}
                   />
                 ) : (
                   <Navigate to="/" replace />
@@ -226,6 +227,7 @@ function App() {
                     categories={categories}
                     budgets={budgets}
                     setRefreshing={setRefreshing}
+                    loading={loading}
                   />
                 ) : (
                   <Navigate to="/" replace />
@@ -266,11 +268,7 @@ function App() {
               path="/transactions"
               element={
                 token ? (
-                  <Transactions
-                    onLogout={handleLogout}
-                    user={user}
-                    token={token}
-                  />
+                  <Transactions transactions={transactions} loading={loading} />
                 ) : (
                   <Navigate to="/" replace />
                 )

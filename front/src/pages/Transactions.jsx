@@ -50,10 +50,7 @@ export const columns = [
   },
 ];
 
-export default function Transactions({ user, token, onLogout }) {
-  const [transactions, setTransactions] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(0);
+export default function Transactions({ transactions, loading }) {
   const [typeFilter, setTypeFilter] = useState("ALL");
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
@@ -64,30 +61,6 @@ export default function Transactions({ user, token, onLogout }) {
     .filter(
       (t) => !dateTo || new Date(t.date) <= new Date(dateTo + "T23:59:59"),
     );
-
-  useEffect(() => {
-    const fetchTransactions = async () => {
-      if (!token) return;
-      try {
-        const response = await fetch("http://localhost:8000/transactions", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        if (response.ok) {
-          const data = await response.json();
-          setTransactions(data);
-        }
-      } catch (error) {
-        console.error("Error fetching transactions:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchTransactions();
-  }, [token, refreshing]);
 
   return (
     <div className="flex flex-1 flex-col p-4 md:p-6 gap-6">

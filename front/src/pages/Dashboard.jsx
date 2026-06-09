@@ -17,10 +17,11 @@ export default function Dashboard({
   categories,
   budgets,
   transactions,
+  loading,
 }) {
   // const [transactions, setTransactions] = useState([]);
   //const [refreshing, setRefreshing] = useState(0);
-  const [loading, setLoading] = useState(false);
+  //const [loading, setLoading] = useState(false);
   //const [accounts, setAccounts] = useState([]);
   //const [categories, setCategories] = useState([]);
   // const [budgets, setBudgets] = useState([]);

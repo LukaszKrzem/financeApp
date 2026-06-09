@@ -4,16 +4,7 @@ import { SiteHeader } from "@/components/site-header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { AddAccountDialog } from "@/components/AddAccountDialog";
 
-export default function Accounts({
-  user,
-  onLogout,
-  token,
-  accounts,
-  setRefreshing,
-}) {
-  const [refreshTrigger, setRefreshTrigger] = useState(0);
-  const [loading, setLoading] = useState(false);
-
+export default function Accounts({ token, accounts, setRefreshing, loading }) {
   return (
     <div className="flex flex-1 flex-col p-4 lg:p-6 gap-6">
       <div className="flex items-center justify-between">
@@ -28,7 +19,6 @@ export default function Accounts({
         <AddAccountDialog
           token={token}
           onAccountAdded={() => {
-            setRefreshTrigger((p) => p + 1);
             setRefreshing(token + 1);
           }}
         />

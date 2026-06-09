@@ -239,10 +239,9 @@ function App() {
               element={
                 token ? (
                   <Accounts
-                    onLogout={handleLogout}
-                    user={user}
                     token={token}
                     accounts={accounts}
+                    loading={loading}
                     setRefreshing={setRefreshing}
                   />
                 ) : (

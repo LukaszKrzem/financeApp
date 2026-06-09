@@ -21,6 +21,24 @@ import {
 } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
+const formatTransactionAmount = (amount, currencyCode) => {
+  const value = new Intl.NumberFormat("pl-PL", {
+    notation: "compact",
+    maximumFractionDigits: 1,
+  }).format(Math.abs(parseFloat(amount)).toFixed(2));
+  const code = (currencyCode || "PLN").toUpperCase();
+  switch (code) {
+    case "USD":
+      return `$${value}`;
+    case "EUR":
+      return `${value} €`;
+    case "GBP":
+      return `£${value}`;
+    case "PLN":
+    default:
+      return `${value} zł`;
+  }
+};
 export function RecentTransactions({ transactions, loading }) {
   const getIconForCategory = (categoryName) => {
     const name = (categoryName || "").toLowerCase();
@@ -61,11 +79,8 @@ export function RecentTransactions({ transactions, loading }) {
               transactions.map((transaction) => {
                 const typeLower = transaction.type.toLowerCase();
                 const isIncome = typeLower === "income";
-                const parsedAmount = parseFloat(transaction.amount);
-
                 const catName = transaction.category_name || "Other";
                 const Icon = getIconForCategory(catName, typeLower);
-
                 const displayName = transaction.description || catName;
                 const displayDate = new Date(
                   transaction.date,
@@ -102,8 +117,11 @@ export function RecentTransactions({ transactions, loading }) {
                           isIncome ? "text-primary" : "text-foreground"
                         }`}
                       >
-                        {isIncome ? "+" : "-"}$
-                        {Math.abs(parsedAmount).toFixed(2)}
+                        {isIncome ? "+" : "-"}
+                        {formatTransactionAmount(
+                          transaction.amount,
+                          transaction.currency_code,
+                        )}
                       </span>
                       {isIncome ? (
                         <Badge

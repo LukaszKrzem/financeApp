@@ -1,9 +1,23 @@
-import { useState, useEffect } from "react";
-import { AppSidebar } from "@/components/app-sidebar";
-import { SiteHeader } from "@/components/site-header";
-import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { AddAccountDialog } from "@/components/AddAccountDialog";
 
+const formatAccountAmount = (amount, currencyCode) => {
+  const value = new Intl.NumberFormat("pl-PL", {
+    notation: "compact",
+    maximumFractionDigits: 1,
+  }).format(Math.abs(parseFloat(amount)).toFixed(2));
+  const code = (currencyCode || "PLN").toUpperCase();
+  switch (code) {
+    case "USD":
+      return `$${value}`;
+    case "EUR":
+      return `${value} €`;
+    case "GBP":
+      return `£${value}`;
+    case "PLN":
+    default:
+      return `${value} zł`;
+  }
+};
 export default function Accounts({ token, accounts, setRefreshing, loading }) {
   return (
     <div className="flex flex-1 flex-col p-4 lg:p-6 gap-6">
@@ -36,9 +50,10 @@ export default function Accounts({ token, accounts, setRefreshing, loading }) {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {accounts.map((account) => {
             if (!account) return null;
-
-            const balance = Number(account.current_balance) || 0;
-            const currencyCode = account.currency_code || "$";
+            const compactNumber = formatAccountAmount(
+              account.current_balance,
+              account.currency_code,
+            );
 
             return (
               <div
@@ -50,7 +65,7 @@ export default function Accounts({ token, accounts, setRefreshing, loading }) {
                     {account.name}
                   </span>
                   <span className="text-xs font-mono px-2 py-0.5 rounded bg-muted text-muted-foreground">
-                    {currencyCode}
+                    {account.currency_code}
                   </span>
                 </div>
                 <div className="mt-2">
@@ -58,7 +73,7 @@ export default function Accounts({ token, accounts, setRefreshing, loading }) {
                     Current Balance
                   </span>
                   <span className="text-3xl font-bold tracking-tight text-primary">
-                    {currencyCode} {balance.toFixed(2)}
+                    {compactNumber}
                   </span>
                 </div>
               </div>

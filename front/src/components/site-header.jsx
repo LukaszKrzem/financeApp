@@ -81,7 +81,7 @@ export function SiteHeader({
         />
         <h1 className="text-base font-medium">Expense Dashboard</h1>
         <div className="ml-auto flex items-center gap-3">
-          <Select defaultValue="may">
+          {/* <Select defaultValue="may">
             <SelectTrigger className="w-[140px] h-8 text-sm">
               <SelectValue placeholder="Select month" />
             </SelectTrigger>
@@ -91,7 +91,7 @@ export function SiteHeader({
               <SelectItem value="mar">March 2026</SelectItem>
               <SelectItem value="feb">February 2026</SelectItem>
             </SelectContent>
-          </Select>
+          </Select>*/}
           <Popover>
             <PopoverTrigger asChild>
               <Button variant="ghost" size="icon" className="relative">

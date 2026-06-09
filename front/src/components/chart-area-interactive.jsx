@@ -250,7 +250,7 @@ export function ChartAreaInteractive({ transactions }) {
                       <span className="capitalize">{name}</span>
                       <span className="font-medium">
                         {value <= 1 ? 0 : Number(value).toLocaleString("pl-PL")}{" "}
-                        PLN
+                        zł
                       </span>
                     </div>
                   )}

@@ -35,7 +35,16 @@ const chartConfig = {
     color: "var(--chart-1)",
   },
 };
+const formatCompactMoney = (value) => {
+  if (value <= 1) return "0 PLN";
 
+  return new Intl.NumberFormat("pl-PL", {
+    style: "currency",
+    currency: "PLN",
+    notation: "compact",
+    maximumFractionDigits: 1,
+  }).format(value);
+};
 export function ChartAreaInteractive({ transactions }) {
   const isMobile = useIsMobile();
   const [timeRange, setTimeRange] = React.useState("5m");
@@ -45,6 +54,7 @@ export function ChartAreaInteractive({ transactions }) {
       setTimeRange("3m");
     }
   }, [isMobile]);
+
   const getLocalDateString = (date) => {
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, "0");
@@ -221,9 +231,7 @@ export function ChartAreaInteractive({ transactions }) {
               tickLine={false}
               axisLine={false}
               tickMargin={8}
-              tickFormatter={(value) => {
-                return value <= 1 ? "0PLN" : `${value.toFixed(0)}PLN`;
-              }}
+              tickFormatter={(value) => formatCompactMoney(value)}
               width={85}
             />
             <ChartTooltip

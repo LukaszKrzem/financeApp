@@ -16,9 +16,10 @@ import {
 } from "@/components/ui/card";
 
 const formatMoney = (value) =>
-  new Intl.NumberFormat("en-US", {
+  new Intl.NumberFormat("pl-PL", {
     style: "currency",
     currency: "PLN",
+    notation: "compact",
   }).format(value);
 
 const isIncomeTransaction = (transaction) =>
@@ -30,11 +31,12 @@ export function SectionCards({ transactions = [], budgets = [] }) {
   const totals = transactions.reduce(
     (summary, transaction) => {
       const amount = Number(transaction.amount) || 0;
+      const exchangeRate = parseFloat(transaction.exchange_rate) || 1;
 
       if (isIncomeTransaction(transaction)) {
-        summary.income += amount;
+        summary.income += amount * exchangeRate;
       } else {
-        summary.spent += amount;
+        summary.spent += amount * exchangeRate;
       }
 
       return summary;

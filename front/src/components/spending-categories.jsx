@@ -58,10 +58,11 @@ const isExpenseTransaction = (transaction) =>
   transaction.is_income === "N";
 
 const formatMoney = (value) =>
-  new Intl.NumberFormat("en-US", {
+  new Intl.NumberFormat("pl-PL", {
     style: "currency",
     currency: "PLN",
     maximumFractionDigits: 0,
+    notation: "compact",
   }).format(value);
 
 const CustomTooltip = ({ active, payload }) => {

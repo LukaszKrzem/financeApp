@@ -117,7 +117,7 @@ export function ChartAreaInteractive({ transactions }) {
     }
 
     return filledData;
-  }, [transactions]);
+  }, [transactions, timeRange]);
 
   const startDate = new Date();
   let monthsToSubtract = 5;
@@ -232,7 +232,7 @@ export function ChartAreaInteractive({ transactions }) {
               axisLine={false}
               tickMargin={8}
               tickFormatter={(value) => formatCompactMoney(value)}
-              width={85}
+              width={65}
             />
             <ChartTooltip
               cursor={false}
@@ -249,8 +249,7 @@ export function ChartAreaInteractive({ transactions }) {
                     <div className="flex items-center gap-2">
                       <span className="capitalize">{name}</span>
                       <span className="font-medium">
-                        {value <= 1 ? 0 : Number(value).toLocaleString("pl-PL")}{" "}
-                        zł
+                        {formatCompactMoney(value)}
                       </span>
                     </div>
                   )}

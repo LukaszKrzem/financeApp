@@ -4,6 +4,7 @@ import {
   IconTrendingDown,
   IconTrendingUp,
 } from "@tabler/icons-react";
+import { useMemo } from "react"; // <--- 1. IMPORTUJEMY useMemo
 
 import { Badge } from "@/components/ui/badge";
 import {
@@ -28,31 +29,36 @@ const isIncomeTransaction = (transaction) =>
   transaction.is_income === "Y";
 
 export function SectionCards({ transactions = [], budgets = [] }) {
-  const totals = transactions.reduce(
-    (summary, transaction) => {
-      const amount = Number(transaction.amount) || 0;
-      const exchangeRate = parseFloat(transaction.exchange_rate) || 1;
+  const totals = useMemo(() => {
+    return transactions.reduce(
+      (summary, transaction) => {
+        const amount = Number(transaction.amount) || 0;
+        const exchangeRate = parseFloat(transaction.exchange_rate) || 1;
 
-      if (isIncomeTransaction(transaction)) {
-        summary.income += amount * exchangeRate;
-      } else {
-        summary.spent += amount * exchangeRate;
-      }
+        if (isIncomeTransaction(transaction)) {
+          summary.income += amount * exchangeRate;
+        } else {
+          summary.spent += amount * exchangeRate;
+        }
 
-      return summary;
-    },
-    { income: 0, spent: 0 },
-  );
+        return summary;
+      },
+      { income: 0, spent: 0 },
+    );
+  }, [transactions]);
 
   const savings = totals.income - totals.spent;
+
   const savingsPercent =
     totals.income > 0 ? Math.round((savings / totals.income) * 100) : 0;
 
-  const budgetLeft = budgets.reduce((sum, budget) => {
-    const limit = Number(budget.limit) || 0;
-    const spent = Number(budget.current_spent) || 0;
-    return sum + (limit - spent);
-  }, 0);
+  const budgetLeft = useMemo(() => {
+    return budgets.reduce((sum, budget) => {
+      const limit = Number(budget.limit) || 0;
+      const spent = Number(budget.current_spent) || 0;
+      return sum + (limit - spent);
+    }, 0);
+  }, [budgets]);
 
   const averageBudgetUsage =
     budgets.length > 0
@@ -74,7 +80,8 @@ export function SectionCards({ transactions = [], budgets = [] }) {
             </span>
             Total Spent
           </CardDescription>
-          <CardTitle className="whitespace-nowrap text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
+          {/* Zwróć uwagę: Poprawione klasy dla tytułów (bez ucinania) */}
+          <CardTitle className="text-xl font-semibold tabular-nums break-words @[250px]/card:text-2xl">
             {formatMoney(totals.spent)}
           </CardTitle>
           <CardAction className="min-w-0">
@@ -93,6 +100,7 @@ export function SectionCards({ transactions = [], budgets = [] }) {
           </div>
         </CardFooter>
       </Card>
+
       <Card className="@container/card border-border/50 bg-card overflow-hidden">
         <CardHeader>
           <CardDescription className="flex items-center gap-2">
@@ -101,7 +109,7 @@ export function SectionCards({ transactions = [], budgets = [] }) {
             </span>
             Income
           </CardDescription>
-          <CardTitle className="whitespace-nowrap text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
+          <CardTitle className="text-xl font-semibold tabular-nums break-words @[250px]/card:text-2xl">
             {formatMoney(totals.income)}
           </CardTitle>
           <CardAction className="min-w-0">
@@ -117,6 +125,7 @@ export function SectionCards({ transactions = [], budgets = [] }) {
           </div>
         </CardFooter>
       </Card>
+
       <Card className="@container/card border-border/50 bg-card overflow-hidden">
         <CardHeader>
           <CardDescription className="flex items-center gap-2">
@@ -125,7 +134,7 @@ export function SectionCards({ transactions = [], budgets = [] }) {
             </span>
             Savings
           </CardDescription>
-          <CardTitle className="whitespace-nowrap text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
+          <CardTitle className="text-xl font-semibold tabular-nums break-words @[250px]/card:text-2xl">
             {formatMoney(savings)}
           </CardTitle>
           <CardAction className="min-w-0">
@@ -148,6 +157,7 @@ export function SectionCards({ transactions = [], budgets = [] }) {
           </div>
         </CardFooter>
       </Card>
+
       <Card className="@container/card border-border/50 bg-card overflow-hidden">
         <CardHeader>
           <CardDescription className="flex items-center gap-2">
@@ -156,7 +166,7 @@ export function SectionCards({ transactions = [], budgets = [] }) {
             </span>
             Budget Left
           </CardDescription>
-          <CardTitle className="whitespace-nowrap text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
+          <CardTitle className="text-xl font-semibold tabular-nums break-words @[250px]/card:text-2xl">
             {formatMoney(budgetLeft)}
           </CardTitle>
           <CardAction className="min-w-0">

@@ -24,8 +24,8 @@ class TransactionOut(pydantic.BaseModel):
     type: TransactionType  # Made it TransactionType to avoid confusion and better work with structure
     Account_id_account: int
     category_name: Optional[str] = None
-    exchange_rate: float
-    currency_code: str
+    exchange_rate: Optional[float] = None
+    currency_code: Optional[str] = None
 
     class Config:
         from_attributes = True

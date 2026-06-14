@@ -19,15 +19,6 @@ export default function Dashboard({
   transactions,
   loading,
 }) {
-  // const [transactions, setTransactions] = useState([]);
-  //const [refreshing, setRefreshing] = useState(0);
-  //const [loading, setLoading] = useState(false);
-  //const [accounts, setAccounts] = useState([]);
-  //const [categories, setCategories] = useState([]);
-  // const [budgets, setBudgets] = useState([]);
-  // const [accountId, setAccountId] = useState("");
-  // const [categoryId, setCategoryId] = useState("");
-
   return (
     <div className="flex flex-1 flex-col">
       <div className="@container/main flex flex-1 flex-col gap-2">

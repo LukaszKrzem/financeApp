@@ -13,6 +13,7 @@ class TransactionCreate(pydantic.BaseModel):
     type: TransactionType
     Account_id_account: int
     Category_id_category: Optional[int] = None
+    Currency_id_currency: int = 1
 
 
 class TransactionOut(pydantic.BaseModel):

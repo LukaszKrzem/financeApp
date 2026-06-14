@@ -14,6 +14,7 @@ from back.routers import (
     transaction_router,
     user_router,
     notification_router,
+    currency_router,
 )
 
 # ! Important !
@@ -57,7 +58,7 @@ app.include_router(scheduled_router.router)
 app.include_router(budget_router.router)
 app.include_router(notification_router.router)
 app.include_router(savings_goal_router.router)
-
+app.include_router(currency_router.router)
 # For testing if app is alive, can be removed later
 @app.get("/")
 def read_root():

@@ -508,9 +508,11 @@ SELECT
     -- Sum of expenses
     COALESCE( -- to make sure we dont get null
         (
-            SELECT SUM(t.amount) 
+            SELECT SUM(t.amount*(curr_trans.exchange_rate/curr_budget.exchange_rate))
             FROM transaction t
             JOIN account a ON t.account_id_account = a.id_account
+            JOIN currency curr_trans ON t.currency_id_currency = curr_trans.id_currency
+            JOIN currency curr_budget ON curr_budget.id_currency = b.currency_id_currency
             WHERE a.user_id_user = b.user_id_user
               AND t.categories_id_category = b.categories_id_category
               AND t.is_income = 'F'
@@ -521,9 +523,11 @@ SELECT
     -- calculate procent of buget used to make job of my frontend easier coz it requiers some work
     ROUND((COALESCE( 
         (
-            SELECT SUM(t.amount) 
+            SELECT SUM(t.amount*(curr_trans.exchange_rate/curr_budget.exchange_rate))
             FROM transaction t
             JOIN account a ON t.account_id_account = a.id_account
+            JOIN currency curr_trans ON t.currency_id_currency = curr_trans.id_currency
+            JOIN currency curr_budget ON curr_budget.id_currency = b.currency_id_currency
             WHERE a.user_id_user = b.user_id_user
               AND t.categories_id_category = b.categories_id_category
               AND t.is_income = 'F'
@@ -544,13 +548,14 @@ DECLARE
     v_user_id INT;
     v_budget_id INT;
     v_budget_limit NUMERIC(20, 2);
+    v_budget_currency_id INT;
     v_current_spent NUMERIC(20, 2);
 BEGIN
     IF NEW.is_income = 'F' THEN
         SELECT user_id_user INTO v_user_id 
         FROM account 
         WHERE id_account = NEW.account_id_account;
-        SELECT id_budget, "limit" INTO v_budget_id, v_budget_limit
+        SELECT id_budget, "limit", currency_id_currency INTO v_budget_id, v_budget_limit, v_budget_currency_id
         FROM budget
         WHERE user_id_user = v_user_id
           AND categories_id_category = NEW.categories_id_category
@@ -558,9 +563,11 @@ BEGIN
           AND NEW.transaction_date <= "end"::timestamp;
 
         IF v_budget_id IS NOT NULL THEN
-            SELECT COALESCE(SUM(amount), 0.00) INTO v_current_spent
+            SELECT COALESCE(SUM(t.amount * (curr_trans.exchange_rate / curr_budget.exchange_rate)), 0.00) INTO v_current_spent
             FROM transaction t
             JOIN account a ON t.account_id_account = a.id_account
+            JOIN currency curr_trans ON t.currency_id_currency = curr_trans.id_currency
+            JOIN currency curr_budget ON curr_budget.id_currency = v_budget_currency_id
             WHERE a.user_id_user = v_user_id
               AND t.categories_id_category = NEW.categories_id_category
               AND t.is_income = 'F'

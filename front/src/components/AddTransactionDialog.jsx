@@ -21,6 +21,7 @@ export function AddTransactionDialog({
   setRefreshing,
   accounts = [],
   categories = [],
+  currencies = [],
 }) {
   const [open, setOpen] = useState(false);
   const [amount, setAmount] = useState("");
@@ -28,6 +29,7 @@ export function AddTransactionDialog({
   const [description, setDescription] = useState("");
   const [accountId, setAccountId] = useState("");
   const [categoryId, setCategoryId] = useState("");
+  const [currencyId, setCurrencyId] = useState("");
   const [transactionFrequency, setTransactionFrequency] = useState("");
   const [error, setError] = useState(null);
 
@@ -36,6 +38,13 @@ export function AddTransactionDialog({
       ? accounts.find((acc) => acc.id_account.toString() === accountId)
       : null;
   const currencyDisplay = selectedAccount?.currency_code || "PLN";
+
+  useEffect(() => {
+    const selectedAccount = accounts.find((acc) => acc.id_account.toString() === accountId);
+    if (selectedAccount && selectedAccount.Currency_id_currency) {
+      setCurrencyId(selectedAccount.Currency_id_currency.toString());
+    }
+  }, [accountId, accounts]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -54,6 +63,7 @@ export function AddTransactionDialog({
             description: description,
             Account_id_account: parseInt(accountId),
             Category_id_category: categoryId ? parseInt(categoryId) : null,
+            Currency_id_currency: parseInt(currencyId),
           }),
         });
 
@@ -86,6 +96,7 @@ export function AddTransactionDialog({
               description: description,
               Account_id_account: parseInt(accountId),
               Category_id_category: categoryId ? parseInt(categoryId) : null,
+              Currency_id_currency: parseInt(currencyId),
               frequency: transactionFrequency,
               next_date: new Date("2317-10-10").toISOString(),
             }),
@@ -127,19 +138,29 @@ export function AddTransactionDialog({
             </SelectContent>
           </Select>
 
-          <div className="relative">
+          <div className="flex gap-2">
             <Input
               placeholder="Amount"
               id="amount"
               type="number"
+              step="0.01" 
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
-              className="pr-12"
+              className="flex-1"
               required
             />
-            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground pointer-events-none">
-              {currencyDisplay}
-            </span>
+            <Select value={currencyId} onValueChange={setCurrencyId} required>
+              <SelectTrigger className="w-[100px]">
+                <SelectValue placeholder="Waluta" />
+              </SelectTrigger>
+              <SelectContent>
+                {currencies.map((cur) => (
+                  <SelectItem key={cur.id_currency} value={cur.id_currency.toString()}>
+                    {cur.code}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
           <Input
             type="text"
@@ -149,21 +170,21 @@ export function AddTransactionDialog({
             required
           />
           <div className="grid gap-2">
-            <select
-              value={categoryId}
-              onChange={(e) => setCategoryId(e.target.value)}
-              className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-              required
-            >
-              <option value="" disabled>
-                Choose category
-              </option>
-              {categories.map((cat) => (
-                <option key={cat.id_category} value={cat.id_category}>
-                  {cat.name}
-                </option>
-              ))}
-            </select>
+            <Select value={categoryId} onValueChange={setCategoryId} required>
+              <SelectTrigger>
+                <SelectValue placeholder="Choose category" />
+              </SelectTrigger>
+              <SelectContent>
+                {categories.map((cat) => (
+                  <SelectItem 
+                    key={cat.id_category} 
+                    value={cat.id_category.toString()} 
+                  >
+                    {cat.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
           <div className="flex justify-between">
             <Select value={accountId} onValueChange={setAccountId} required>

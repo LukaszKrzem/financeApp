@@ -30,25 +30,31 @@ export function AddTransactionDialog({
   const [accountId, setAccountId] = useState("");
   const [categoryId, setCategoryId] = useState("");
   const [currencyId, setCurrencyId] = useState("");
-  const [transactionFrequency, setTransactionFrequency] = useState("");
+  const [transactionFrequency, setTransactionFrequency] =
+    useState("not_scheduled");
   const [error, setError] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const selectedAccount =
-    accounts.length > 0
-      ? accounts.find((acc) => acc.id_account.toString() === accountId)
-      : null;
-  const currencyDisplay = selectedAccount?.currency_code || "PLN";
+  // const selectedAccount =
+  //   accounts.length > 0
+  //     ? accounts.find((acc) => acc.id_account.toString() === accountId)
+  //     : null;
 
   useEffect(() => {
+    if (!accountId && accounts.length > 0) {
+      setAccountId(accounts[0].id_account.toString());
+    }
     const selectedAccount = accounts.find(
       (acc) => acc.id_account.toString() === accountId,
     );
-    if (selectedAccount && selectedAccount.Currency_id_currency) {
+    if (selectedAccount) {
       setCurrencyId(selectedAccount.Currency_id_currency.toString());
     }
   }, [accountId, accounts]);
 
   const handleSubmit = async (e) => {
+    if (isSubmitting) return;
+    setIsSubmitting(true);
     e.preventDefault();
     setError(null);
     if (transactionFrequency == "not_scheduled") {
@@ -116,6 +122,8 @@ export function AddTransactionDialog({
         setRefreshing((prev) => prev + 1);
       } catch (err) {
         setError(err.message);
+      } finally {
+        setIsSubmitting(false);
       }
     }
   };
@@ -226,7 +234,7 @@ export function AddTransactionDialog({
           </div>
 
           {error && <p className="text-red-500 text-sm">{error}</p>}
-          <Button type="submit" className="w-full">
+          <Button type="submit" className="w-full" disabled={isSubmitting}>
             Save
           </Button>
         </form>

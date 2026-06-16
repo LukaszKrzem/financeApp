@@ -25,6 +25,7 @@ function App() {
   const [categories, setCategories] = useState([]);
   const [transactions, setTransactions] = useState([]);
   const [budgets, setBudgets] = useState([]);
+  const [currencies, setCurrencies] = useState([]);
 
   const handleLogin = (newToken) => {
     localStorage.setItem("token", newToken);
@@ -49,6 +50,22 @@ function App() {
         console.error("Error fetching budgets data:", error);
       } finally {
         setLoading(false);
+      }
+    };
+
+    const fetchCurrencies = async () => {
+      if (!token) return;
+      try {
+        const response = await fetch("http://localhost:8000/currencies", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (response.ok) {
+          const data = await response.json();
+          setCurrencies(data);
+          console.log("Currencies:", data);
+        }
+      } catch (error) {
+        console.error("Error fetching currencies:", error);
       }
     };
 
@@ -141,6 +158,7 @@ function App() {
     };
     fetchUser();
     fetchAccounts();
+    fetchCurrencies();
     fetchCategories();
     fetchBudgets();
     fetchTransactions();
@@ -188,6 +206,7 @@ function App() {
                 token={token}
                 accounts={accounts}
                 categories={categories}
+                currencies={currencies}
                 setRefreshing={setRefreshing}
               />
             }

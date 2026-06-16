@@ -24,6 +24,7 @@ export function SiteHeader({
   setRefreshing,
   categories = [],
   accounts = [],
+  currencies = [],
 }) {
   const [notifications, setNotifications] = useState([]);
 
@@ -153,6 +154,7 @@ export function SiteHeader({
               setRefreshing={setRefreshing}
               categories={categories}
               accounts={accounts}
+              currencies={currencies}
             />
           )}
         </div>

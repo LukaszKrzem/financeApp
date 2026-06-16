@@ -9,6 +9,7 @@ export default function Layout({
   token,
   accounts,
   categories,
+  currencies,
   setRefreshing,
 }) {
   return (
@@ -25,6 +26,7 @@ export default function Layout({
           token={token}
           setRefreshing={setRefreshing}
           categories={categories}
+          currencies={currencies}
           accounts={accounts}
         />
 

@@ -149,21 +149,21 @@ export function AddTransactionDialog({
             required
           />
           <div className="grid gap-2">
-            <select
-              value={categoryId}
-              onChange={(e) => setCategoryId(e.target.value)}
-              className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-              required
-            >
-              <option value="" disabled>
-                Choose category
-              </option>
-              {categories.map((cat) => (
-                <option key={cat.id_category} value={cat.id_category}>
-                  {cat.name}
-                </option>
-              ))}
-            </select>
+            <Select value={categoryId} onValueChange={setCategoryId} required>
+              <SelectTrigger>
+                <SelectValue placeholder="Choose category" />
+              </SelectTrigger>
+              <SelectContent>
+                {categories.map((cat) => (
+                  <SelectItem 
+                    key={cat.id_category} 
+                    value={cat.id_category.toString()} 
+                  >
+                    {cat.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
           <div className="flex justify-between">
             <Select value={accountId} onValueChange={setAccountId} required>

@@ -128,6 +128,7 @@ export function AddTransactionDialog({
               id="amount"
               type="number"
               step="0.01"
+              min="0.01"
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
               className="flex-1"

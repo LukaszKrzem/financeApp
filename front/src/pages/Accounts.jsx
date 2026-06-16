@@ -33,7 +33,7 @@ export default function Accounts({ token, accounts, setRefreshing, loading }) {
         <AddAccountDialog
           token={token}
           onAccountAdded={() => {
-            setRefreshing(token + 1);
+            setRefreshing((prev) => prev + 1);
           }}
         />
       </div>

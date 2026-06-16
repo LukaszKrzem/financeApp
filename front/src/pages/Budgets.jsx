@@ -26,7 +26,7 @@ export default function BudgetsPage({
         <AddBudgetDialog
           token={token}
           onBudgetAdded={() => {
-            setRefreshing(token + 1);
+            setRefreshing((prev) => prev + 1);
           }}
           categories={categories}
         />

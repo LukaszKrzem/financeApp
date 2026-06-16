@@ -40,7 +40,9 @@ export function AddTransactionDialog({
   const currencyDisplay = selectedAccount?.currency_code || "PLN";
 
   useEffect(() => {
-    const selectedAccount = accounts.find((acc) => acc.id_account.toString() === accountId);
+    const selectedAccount = accounts.find(
+      (acc) => acc.id_account.toString() === accountId,
+    );
     if (selectedAccount && selectedAccount.Currency_id_currency) {
       setCurrencyId(selectedAccount.Currency_id_currency.toString());
     }
@@ -75,7 +77,7 @@ export function AddTransactionDialog({
         setAmount("");
         setDescription("");
         setOpen(false);
-        setRefreshing(token + 1);
+        setRefreshing((prev) => prev + 1);
       } catch (err) {
         setError(err.message);
       }
@@ -111,7 +113,7 @@ export function AddTransactionDialog({
         setAmount("");
         setDescription("");
         setOpen(false);
-        setRefreshing(token + 1);
+        setRefreshing((prev) => prev + 1);
       } catch (err) {
         setError(err.message);
       }
@@ -143,7 +145,7 @@ export function AddTransactionDialog({
               placeholder="Amount"
               id="amount"
               type="number"
-              step="0.01" 
+              step="0.01"
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
               className="flex-1"
@@ -155,7 +157,10 @@ export function AddTransactionDialog({
               </SelectTrigger>
               <SelectContent>
                 {currencies.map((cur) => (
-                  <SelectItem key={cur.id_currency} value={cur.id_currency.toString()}>
+                  <SelectItem
+                    key={cur.id_currency}
+                    value={cur.id_currency.toString()}
+                  >
                     {cur.code}
                   </SelectItem>
                 ))}
@@ -176,9 +181,9 @@ export function AddTransactionDialog({
               </SelectTrigger>
               <SelectContent>
                 {categories.map((cat) => (
-                  <SelectItem 
-                    key={cat.id_category} 
-                    value={cat.id_category.toString()} 
+                  <SelectItem
+                    key={cat.id_category}
+                    value={cat.id_category.toString()}
                   >
                     {cat.name}
                   </SelectItem>

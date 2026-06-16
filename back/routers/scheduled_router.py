@@ -45,7 +45,7 @@ def create_scheduled_transaction(
         description=data.description,
         Account_id_account=data.Account_id_account,
         Category_id_category=data.Category_id_category,
-        Currency_id_currency=account.Currency_id_currency,
+        Currency_id_currency=data.Currency_id_currency,
     )
 
     db.add(new_scheduled)

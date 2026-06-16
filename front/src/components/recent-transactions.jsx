@@ -1,15 +1,11 @@
 import { useState, useEffect } from "react";
 
 import {
-  IconShoppingCart,
-  IconCar,
-  IconCoffee,
-  IconBuildingStore,
-  IconDeviceGamepad2,
-  IconPlug,
   IconArrowUp,
   IconArrowDown,
 } from "@tabler/icons-react";
+import { getIconForCategory, DEFAULT_ICON } from "@/lib/categoryIcons";
+
 
 import { Badge } from "@/components/ui/badge";
 import {
@@ -40,20 +36,6 @@ const formatTransactionAmount = (amount, currencyCode) => {
   }
 };
 export function RecentTransactions({ transactions, loading }) {
-  const getIconForCategory = (categoryName) => {
-    const name = (categoryName || "").toLowerCase();
-    console.log("Sprawdzam kategorię:", name);
-    if (name.includes("other")) return IconBuildingStore;
-    if (name.includes("transport")) return IconCar;
-    if (name.includes("food")) return IconCoffee;
-    if (name.includes("shopping")) return IconShoppingCart;
-    if (name.includes("entertainment")) return IconDeviceGamepad2;
-    if (name.includes("utilities")) return IconPlug;
-    if (name.includes("salary")) return IconArrowUp;
-
-    return IconBuildingStore;
-  };
-
   if (loading) {
     return (
       <div className="p-6 text-center text-muted-foreground">

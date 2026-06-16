@@ -1,14 +1,6 @@
 import { useMemo } from "react";
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
-import {
-  IconBuildingStore,
-  IconShoppingCart,
-  IconCar,
-  IconHome,
-  IconToolsKitchen2,
-  IconMovie,
-  IconHeartbeat,
-} from "@tabler/icons-react";
+import { getIconForCategory, DEFAULT_ICON } from "@/lib/categoryIcons";
 
 import {
   Card,
@@ -26,31 +18,6 @@ const chartColors = [
   "var(--chart-5)",
   "var(--primary)",
 ];
-
-const getIconForCategory = (categoryName) => {
-  const name = categoryName.toLowerCase();
-
-  if (name.includes("food") || name.includes("jedzenie")) {
-    return IconToolsKitchen2;
-  }
-  if (name.includes("transport") || name.includes("car")) {
-    return IconCar;
-  }
-  if (name.includes("home") || name.includes("housing")) {
-    return IconHome;
-  }
-  if (name.includes("shopping") || name.includes("sklep")) {
-    return IconShoppingCart;
-  }
-  if (name.includes("entertainment") || name.includes("movie")) {
-    return IconMovie;
-  }
-  if (name.includes("health")) {
-    return IconHeartbeat;
-  }
-
-  return IconBuildingStore;
-};
 
 const isExpenseTransaction = (transaction) =>
   transaction.type === "EXPENSE" ||

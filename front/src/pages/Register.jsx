@@ -12,8 +12,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { GoogleLogin, GoogleOAuthProvider } from "@react-oauth/google";
 
-export function Register({ apiUrl, onRegistration }) {
+export function Register({
+  apiUrl,
+  onRegistration,
+  GOOGLE_CLIENT_ID,
+  handleGoogleLogin,
+}) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -100,9 +106,16 @@ export function Register({ apiUrl, onRegistration }) {
               <Button type="submit" className="w-full">
                 Sign Up
               </Button>
-              <Button variant="outline" className="w-full" type="button">
-                Login with Google
-              </Button>
+              <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
+                <GoogleLogin
+                  variant="outline"
+                  className="w-full"
+                  onSuccess={handleGoogleLogin}
+                  onError={() => {
+                    console.log("Login Failed");
+                  }}
+                />
+              </GoogleOAuthProvider>
             </CardFooter>
           </form>
         </CardContent>

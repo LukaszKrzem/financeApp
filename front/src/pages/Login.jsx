@@ -12,11 +12,17 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useState } from "react";
 import { Link } from "react-router-dom";
-
-export function Login({ apiUrl, onLogin }) {
+import { GoogleLogin, GoogleOAuthProvider } from "@react-oauth/google";
+export function Login({
+  apiUrl,
+  onLogin,
+  handleGoogleLogin,
+  GOOGLE_CLIENT_ID,
+}) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
@@ -40,7 +46,7 @@ export function Login({ apiUrl, onLogin }) {
       onLogin(data.token);
       console.log(data.token);
     } catch (err) {
-      console.log("dupa");
+      console.log("Invalid credentials");
       setError(err.message);
     }
   };
@@ -94,9 +100,21 @@ export function Login({ apiUrl, onLogin }) {
               <Button type="submit" className="w-full">
                 Login
               </Button>
-              <Button variant="outline" className="w-full" type="button">
-                Login with Google
-              </Button>
+              <GoogleOAuthProvider
+                clientId={
+                  GOOGLE_CLIENT_ID ||
+                  "449318029169-r53vkhiu2pcfoohcdacqks1j9737l5e2.apps.googleusercontent.com"
+                }
+              >
+                <GoogleLogin
+                  variant="outline"
+                  className="w-full"
+                  onSuccess={handleGoogleLogin}
+                  onError={() => {
+                    console.log("Login Failed");
+                  }}
+                />
+              </GoogleOAuthProvider>
             </CardFooter>
           </form>
         </CardContent>

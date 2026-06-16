@@ -15,6 +15,8 @@ import Settings from "./pages/Settings";
 import Layout from "./components/Layout";
 
 const API_URL = "http://localhost:8000";
+const GOOGLE_CLIENT_ID =
+  "449318029169-r53vkhiu2pcfoohcdacqks1j9737l5e2.apps.googleusercontent.com";
 
 function App() {
   const [token, setToken] = useState(localStorage.getItem("token"));
@@ -34,11 +36,32 @@ function App() {
     localStorage.removeItem("token");
     setToken(null);
   };
+
+  const handleGoogleLogin = async (googleToken) => {
+    try {
+      console.log("google token: ", googleToken.credential);
+      const response = await fetch(`${API_URL}/auth/google`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ token: googleToken.credential }),
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.detail || "login error");
+      }
+      handleLogin(data.token);
+    } catch (error) {
+      console.error("Error google auth", error);
+    }
+  };
+
   useEffect(() => {
     const fetchBudgets = async () => {
       if (!token) return;
       try {
-        const response = await fetch("http://localhost:8000/budgets/", {
+        const response = await fetch(`${API_URL}/budgets/`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (response.ok) {
@@ -55,7 +78,7 @@ function App() {
     const fetchCategories = async () => {
       if (!token) return;
       try {
-        const response = await fetch("http://localhost:8000/categories", {
+        const response = await fetch(`${API_URL}/categories/`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -75,7 +98,7 @@ function App() {
       if (!token) return;
 
       try {
-        const response = await fetch("http://localhost:8000/transactions", {
+        const response = await fetch(`${API_URL}/transactions/`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -97,7 +120,7 @@ function App() {
 
     const fetchAccounts = async () => {
       try {
-        const response = await fetch("http://localhost:8000/accounts", {
+        const response = await fetch(`${API_URL}/accounts/`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -166,7 +189,12 @@ function App() {
               token ? (
                 <Navigate to="/dashboard" replace />
               ) : (
-                <Login onLogin={handleLogin} apiUrl={API_URL} />
+                <Login
+                  onLogin={handleLogin}
+                  apiUrl={API_URL}
+                  handleGoogleLogin={handleGoogleLogin}
+                  GOOGLE_CLIENT_ID={GOOGLE_CLIENT_ID}
+                />
               )
             }
           />
@@ -176,7 +204,12 @@ function App() {
               token ? (
                 <Navigate to="/dashboard" replace />
               ) : (
-                <Register apiUrl={API_URL} onRegistration={handleLogin} />
+                <Register
+                  apiUrl={API_URL}
+                  onRegistration={handleLogin}
+                  handleGoogleLogin={handleGoogleLogin}
+                  GOOGLE_CLIENT_ID={GOOGLE_CLIENT_ID}
+                />
               )
             }
           />

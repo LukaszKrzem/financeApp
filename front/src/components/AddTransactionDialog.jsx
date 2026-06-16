@@ -53,63 +53,38 @@ export function AddTransactionDialog({
   }, [accountId, accounts]);
 
   const handleSubmit = async (e) => {
-    if (isSubmitting) return;
-    setIsSubmitting(true);
-    e.preventDefault();
-    setError(null);
-    if (transactionFrequency == "not_scheduled") {
+      e.preventDefault();
+      if (isSubmitting) return;
+      
+      setIsSubmitting(true);
+      setError(null);
+
+      const payload = {
+        amount: parseFloat(amount),
+        type: type,
+        description: description,
+        Account_id_account: parseInt(accountId),
+        Category_id_category: categoryId ? parseInt(categoryId) : null,
+        Currency_id_currency: parseInt(currencyId),
+      };
+
+      const isScheduled = transactionFrequency !== "not_scheduled";
+      const endpoint = isScheduled ? "/scheduled-transactions/" : "/transactions/";
+      
+      if (isScheduled) {
+        payload.frequency = transactionFrequency;
+        payload.next_date = new Date("2317-10-10").toISOString();
+      }
+
       try {
-        const response = await fetch("http://localhost:8000/transactions/", {
+        const response = await fetch(`http://localhost:8000${endpoint}`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify({
-            amount: parseFloat(amount),
-            type: type,
-            description: description,
-            Account_id_account: parseInt(accountId),
-            Category_id_category: categoryId ? parseInt(categoryId) : null,
-            Currency_id_currency: parseInt(currencyId),
-          }),
+          body: JSON.stringify(payload),
         });
-
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.detail || "Error adding transaction");
-        }
-
-        setAmount("");
-        setDescription("");
-        setOpen(false);
-        setRefreshing((prev) => prev + 1);
-      } catch (err) {
-        setError(err.message);
-      }
-    } else {
-      try {
-        console.log(transactionFrequency);
-        const response = await fetch(
-          "http://localhost:8000/scheduled-transactions/",
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-            body: JSON.stringify({
-              amount: parseFloat(amount),
-              type: type,
-              description: description,
-              Account_id_account: parseInt(accountId),
-              Category_id_category: categoryId ? parseInt(categoryId) : null,
-              Currency_id_currency: parseInt(currencyId),
-              frequency: transactionFrequency,
-              next_date: new Date("2317-10-10").toISOString(),
-            }),
-          },
-        );
 
         if (!response.ok) {
           const errorData = await response.json();
@@ -125,8 +100,7 @@ export function AddTransactionDialog({
       } finally {
         setIsSubmitting(false);
       }
-    }
-  };
+    };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>

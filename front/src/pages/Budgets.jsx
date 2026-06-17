@@ -5,6 +5,25 @@ import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { Progress } from "@/components/ui/progress";
 import { AddBudgetDialog } from "@/components/AddBudgetDialog";
 
+const formatBudgetAmount = (amount, currencyCode) => {
+  const value = new Intl.NumberFormat("pl-PL", {
+    notation: "compact",
+    maximumFractionDigits: 1,
+  }).format(Math.abs(parseFloat(amount)).toFixed(2));
+  const code = (currencyCode || "PLN").toUpperCase();
+  switch (code) {
+    case "USD":
+      return `$${value}`;
+    case "EUR":
+      return `${value} €`;
+    case "GBP":
+      return `£${value}`;
+    case "PLN":
+      return `${value} zł`;
+    default:
+      return `${value} ${code}`;
+  }
+};
 export default function BudgetsPage({
   token,
   categories,
@@ -70,10 +89,11 @@ export default function BudgetsPage({
                 </div>
                 <div className="flex items-baseline gap-1">
                   <span className="text-2xl font-bold">
-                    ${spent.toFixed(2)}
+                    {formatBudgetAmount(spent.toFixed(2), budget.currency_code)}
                   </span>
                   <span className="text-sm text-muted-foreground">
-                    / ${limit.toFixed(2)}
+                    /{" "}
+                    {formatBudgetAmount(limit.toFixed(2), budget.currency_code)}
                   </span>
                 </div>
 
@@ -81,8 +101,8 @@ export default function BudgetsPage({
 
                 <p className="text-[11px] text-muted-foreground mt-1">
                   {limit - spent >= 0
-                    ? `You have $${(limit - spent).toFixed(2)} left`
-                    : `You have exceeded the limit by $${Math.abs(limit - spent).toFixed(2)}!`}
+                    ? `You have ${formatBudgetAmount((limit - spent).toFixed(2), budget.currency_code)} left`
+                    : `You have exceeded the limit by ${formatBudgetAmount(Math.abs(limit - spent).toFixed(2), budget.currency_code)}!`}
                 </p>
               </div>
             );

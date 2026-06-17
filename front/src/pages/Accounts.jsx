@@ -14,11 +14,18 @@ const formatAccountAmount = (amount, currencyCode) => {
     case "GBP":
       return `£${value}`;
     case "PLN":
-    default:
       return `${value} zł`;
+    default:
+      return `${value} ${code}`;
   }
 };
-export default function Accounts({ token, accounts, setRefreshing, loading, currencies }) {
+export default function Accounts({
+  token,
+  accounts,
+  setRefreshing,
+  loading,
+  currencies,
+}) {
   return (
     <div className="flex flex-1 flex-col p-4 lg:p-6 gap-6">
       <div className="flex items-center justify-between">

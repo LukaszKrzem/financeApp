@@ -23,7 +23,7 @@ export function AddAccountDialog({ token, onAccountAdded, currencies = [] }) {
     const [currencyId, setCurrencyId] = useState("");
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (!name || !balance) return;
+        if (!name || !balance || !currencyId) return;
 
         try {
             const response = await fetch("http://localhost:8000/accounts/", {
@@ -42,6 +42,7 @@ export function AddAccountDialog({ token, onAccountAdded, currencies = [] }) {
             if (response.ok) {
                 setName("");
                 setBalance("");
+                setCurrencyId("");
                 setOpen(false);
                 if (onAccountAdded) onAccountAdded();
             }

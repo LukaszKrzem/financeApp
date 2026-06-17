@@ -28,11 +28,6 @@ import {
 } from "@/components/ui/sidebar";
 
 const data = {
-  user: {
-    name: "Alex Johnson",
-    email: "alex@example.com",
-    avatar: "/avatars/shadcn.jpg",
-  },
   navMain: [
     {
       title: "Overview",
@@ -44,11 +39,11 @@ const data = {
       url: "/transactions",
       icon: IconReceipt,
     },
-    {
-      title: "Analytics",
-      url: "#",
-      icon: IconChartPie,
-    },
+    // {
+    //   title: "Analytics",
+    //   url: "#",
+    //   icon: IconChartPie,
+    // },
     {
       title: "Budgets",
       url: "/budgets",
@@ -71,16 +66,16 @@ const data = {
       url: "/settings",
       icon: IconSettings,
     },
-    {
-      title: "Help",
-      url: "#",
-      icon: IconHelp,
-    },
-    {
-      title: "Search",
-      url: "#",
-      icon: IconSearch,
-    },
+    // {
+    //   title: "Help",
+    //   url: "#",
+    //   icon: IconHelp,
+    // },
+    // {
+    //   title: "Search",
+    //   url: "#",
+    //   icon: IconSearch,
+    // },
   ],
   documents: [
     {
@@ -122,7 +117,7 @@ export function AppSidebar({ user, onLogout, ...props }) {
       <SidebarContent className="overflow-hidden">
         <ScrollArea className="h-full w-full">
           <NavMain items={data.navMain} />
-          <NavDocuments items={data.documents} />
+          {/* <NavDocuments items={data.documents} />*/}
           <NavSecondary items={data.navSecondary} className="mt-auto" />
         </ScrollArea>
       </SidebarContent>

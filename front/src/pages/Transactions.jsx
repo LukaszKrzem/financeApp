@@ -6,6 +6,26 @@ import { SimpleDataTable } from "@/components/simple-data-table";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
+const formatTransactionAmount = (amount, currencyCode) => {
+  const value = new Intl.NumberFormat("pl-PL", {
+    notation: "compact",
+    maximumFractionDigits: 1,
+  }).format(Math.abs(parseFloat(amount)).toFixed(2));
+  const code = (currencyCode || "PLN").toUpperCase();
+  switch (code) {
+    case "USD":
+      return `$${value}`;
+    case "EUR":
+      return `${value} €`;
+    case "GBP":
+      return `£${value}`;
+    case "PLN":
+      return `${value} zł`;
+    default:
+      return `${value} ${code}`;
+  }
+};
+
 export const columns = [
   {
     accessorKey: "date",
@@ -33,10 +53,10 @@ export const columns = [
     cell: ({ row }) => {
       const amount = row.getValue("amount");
       const isExpense = amount < 0;
-      const formatted = new Intl.NumberFormat("pl-PL", {
-        style: "currency",
-        currency: "PLN",
-      }).format(Math.abs(amount));
+      const formatted = formatTransactionAmount(
+        amount,
+        row.original.currency_code,
+      );
 
       return (
         <div

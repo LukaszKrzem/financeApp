@@ -1,11 +1,7 @@
 import { useState, useEffect } from "react";
 
-import {
-  IconArrowUp,
-  IconArrowDown,
-} from "@tabler/icons-react";
+import { IconArrowUp, IconArrowDown } from "@tabler/icons-react";
 import { getIconForCategory, DEFAULT_ICON } from "@/lib/categoryIcons";
-
 
 import { Badge } from "@/components/ui/badge";
 import {
@@ -31,8 +27,9 @@ const formatTransactionAmount = (amount, currencyCode) => {
     case "GBP":
       return `£${value}`;
     case "PLN":
-    default:
       return `${value} zł`;
+    default:
+      return `${value} ${code}`;
   }
 };
 export function RecentTransactions({ transactions, loading }) {

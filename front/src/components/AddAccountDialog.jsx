@@ -7,13 +7,20 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
 import { IconPlus } from "@tabler/icons-react";
 
-export function AddAccountDialog({ token, onAccountAdded }) {
+export function AddAccountDialog({ token, onAccountAdded, currencies = [] }) {
     const [open, setOpen] = useState(false);
     const [name, setName] = useState("");
     const [balance, setBalance] = useState("");
-
+    const [currencyId, setCurrencyId] = useState("");
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (!name || !balance) return;
@@ -28,7 +35,7 @@ export function AddAccountDialog({ token, onAccountAdded }) {
                 body: JSON.stringify({
                     name: name,
                     current_balance: parseFloat(balance),
-                    Currency_id_currency: 1
+                    Currency_id_currency: parseInt(currencyId)
                 }),
             });
 
@@ -79,6 +86,24 @@ export function AddAccountDialog({ token, onAccountAdded }) {
                             onChange={(e) => setBalance(e.target.value)}
                             required
                         />
+                    </div>
+                    <div className="flex flex-col gap-2">
+                        <label className="text-sm font-medium">Currency</label>
+                        <Select value={currencyId} onValueChange={setCurrencyId} required>
+                            <SelectTrigger className="w-full">
+                                <SelectValue placeholder="Select currency" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {currencies.map((currency) => (
+                                    <SelectItem 
+                                        key={currency.id_currency} 
+                                        value={currency.id_currency.toString()}
+                                    >
+                                        {currency.code}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
                     </div>
 
                     <Button type="submit" className="w-full mt-2">

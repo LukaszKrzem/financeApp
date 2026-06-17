@@ -295,6 +295,7 @@ function App() {
                     accounts={accounts}
                     loading={loading}
                     setRefreshing={setRefreshing}
+                    currencies={currencies}
                   />
                 ) : (
                   <Navigate to="/" replace />

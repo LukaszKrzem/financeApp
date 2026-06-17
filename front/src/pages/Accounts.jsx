@@ -18,7 +18,7 @@ const formatAccountAmount = (amount, currencyCode) => {
       return `${value} zł`;
   }
 };
-export default function Accounts({ token, accounts, setRefreshing, loading }) {
+export default function Accounts({ token, accounts, setRefreshing, loading, currencies }) {
   return (
     <div className="flex flex-1 flex-col p-4 lg:p-6 gap-6">
       <div className="flex items-center justify-between">
@@ -35,6 +35,7 @@ export default function Accounts({ token, accounts, setRefreshing, loading }) {
           onAccountAdded={() => {
             setRefreshing((prev) => prev + 1);
           }}
+          currencies={currencies}
         />
       </div>
 

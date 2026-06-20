@@ -1,6 +1,8 @@
 __pycache__/
 venv/
 .venv/
+.env
 modelV1/
 .vscode/
 t/
+back/.env

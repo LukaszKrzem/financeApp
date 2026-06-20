@@ -6,15 +6,11 @@ from google.auth.transport import requests
 from google.oauth2 import id_token
 from jose import JWTError, jwt
 from passlib.context import CryptContext
+from back.config import GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
 # For now left it here maybe later move to some config file idk
-GOOGLE_CLIENT_ID = (
-    "449318029169-r53vkhiu2pcfoohcdacqks1j9737l5e2.apps.googleusercontent.com"
-)
-
-SECRET_KEY = "e7c845b2069818804c7c640e02927236d933e14f6b2803b8782046808791c13d"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = (
     60  # change it to less if you want to test token expiration
@@ -40,13 +36,13 @@ def create_access_token(data: dict):
     to_encode = data.copy()
     expire = datetime.now(timezone.utc) + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     to_encode.update({"exp": expire})
-    return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    return jwt.encode(to_encode, GOOGLE_CLIENT_SECRET, algorithm=ALGORITHM)
 
 
 # Used to verify JWT token and get user info from it
 def verify_token(token: str):
     try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        payload = jwt.decode(token, GOOGLE_CLIENT_SECRET, algorithms=[ALGORITHM])
         return payload
     except JWTError:
         return None

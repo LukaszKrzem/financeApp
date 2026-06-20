@@ -15,8 +15,7 @@ import Settings from "./pages/Settings";
 import Layout from "./components/Layout";
 
 const API_URL = "http://localhost:8000";
-const GOOGLE_CLIENT_ID =
-  "449318029169-r53vkhiu2pcfoohcdacqks1j9737l5e2.apps.googleusercontent.com";
+const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
 function App() {
   const [token, setToken] = useState(localStorage.getItem("token"));

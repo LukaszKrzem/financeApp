@@ -26,6 +26,28 @@ export function Register({
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
+  const handleDemoLogin = async () => {
+    setError('');
+    try {
+      const response = await fetch(`${apiUrl}/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: import.meta.env.VITE_DEMO_EMAIL,
+          password: import.meta.env.VITE_DEMO_PASSWORD,
+        }),
+      });
+      const data = await response.json();
+      if (!response.ok)
+        throw new Error(
+          typeof data.detail === 'string' ? data.detail : 'Login error'
+        );
+      onRegistration(data.token);
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -107,6 +129,15 @@ export function Register({
             <CardFooter className="flex-col gap-4 mt-6 px-0 pb-2">
               <Button type="submit" className="w-full">
                 Sign Up
+              </Button>
+
+              <Button
+                type="button"
+                variant="secondary"
+                className="w-full"
+                onClick={handleDemoLogin}
+              >
+                Try Demo
               </Button>
 
               <div className="relative w-full py-2">

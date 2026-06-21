@@ -1,24 +1,24 @@
-import { useState, useEffect } from "react";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import "./App.css";
+import { useState, useEffect } from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { TooltipProvider } from '@/components/ui/tooltip';
+import './App.css';
 
-import Home from "./pages/Home";
-import Login from "./pages/Login";
-import Register from "./pages/Register";
-import Dashboard from "./pages/Dashboard";
-import Budgets from "./pages/Budgets";
-import Accounts from "./pages/Accounts";
-import SavingsGoals from "./pages/SavingsGoals";
-import Transactions from "./pages/Transactions";
-import Settings from "./pages/Settings";
-import Layout from "./components/Layout";
+import Home from './pages/Home';
+import Login from './pages/Login';
+import Register from './pages/Register';
+import Dashboard from './pages/Dashboard';
+import Budgets from './pages/Budgets';
+import Accounts from './pages/Accounts';
+import SavingsGoals from './pages/SavingsGoals';
+import Transactions from './pages/Transactions';
+import Settings from './pages/Settings';
+import Layout from './components/Layout';
 
 const API_URL = import.meta.env.VITE_API_URL;
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
 function App() {
-  const [token, setToken] = useState(localStorage.getItem("token"));
+  const [token, setToken] = useState(localStorage.getItem('token'));
   const [loading, setLoading] = useState(false);
   const [user, setUser] = useState(null);
   const [refreshing, setRefreshing] = useState(0);
@@ -29,30 +29,30 @@ function App() {
   const [currencies, setCurrencies] = useState([]);
 
   const handleLogin = (newToken) => {
-    localStorage.setItem("token", newToken);
+    localStorage.setItem('token', newToken);
     setToken(newToken);
   };
   const handleLogout = () => {
-    localStorage.removeItem("token");
+    localStorage.removeItem('token');
     setToken(null);
   };
 
   const handleGoogleLogin = async (googleToken) => {
     try {
       const response = await fetch(`${API_URL}/auth/google`, {
-        method: "POST",
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({ token: googleToken.credential }),
       });
       const data = await response.json();
       if (!response.ok) {
-        throw new Error(data.detail || "login error");
+        throw new Error(data.detail || 'login error');
       }
       handleLogin(data.token);
     } catch (error) {
-      console.error("Error google auth", error);
+      console.error('Error google auth', error);
     }
   };
 
@@ -68,7 +68,7 @@ function App() {
           setBudgets(Array.isArray(data) ? data : []);
         }
       } catch (error) {
-        console.error("Error fetching budgets data:", error);
+        console.error('Error fetching budgets data:', error);
       } finally {
         setLoading(false);
       }
@@ -85,7 +85,7 @@ function App() {
           setCurrencies(data);
         }
       } catch (error) {
-        console.error("Error fetching currencies:", error);
+        console.error('Error fetching currencies:', error);
       }
     };
 
@@ -101,10 +101,10 @@ function App() {
           const data = await response.json();
           setCategories(data);
         } else {
-          console.error("Failed to fetch categories");
+          console.error('Failed to fetch categories');
         }
       } catch (error) {
-        console.error("Error fetching categories:", error);
+        console.error('Error fetching categories:', error);
       }
     };
     const fetchTransactions = async () => {
@@ -121,10 +121,10 @@ function App() {
           const data = await response.json();
           setTransactions(data);
         } else {
-          console.error("Failed to fetch transactions");
+          console.error('Failed to fetch transactions');
         }
       } catch (error) {
-        console.error("Error fetching transactions:", error);
+        console.error('Error fetching transactions:', error);
       } finally {
         setLoading(false);
       }
@@ -143,7 +143,7 @@ function App() {
           setAccounts(data);
         }
       } catch (error) {
-        console.error("Failed to fetch accounts:", error);
+        console.error('Failed to fetch accounts:', error);
       }
     };
     const fetchUser = async () => {
@@ -154,10 +154,10 @@ function App() {
       }
       try {
         const response = await fetch(`${API_URL}/me`, {
-          method: "GET",
+          method: 'GET',
           headers: {
             Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
           },
         });
         if (response.ok) {
@@ -167,7 +167,7 @@ function App() {
           handleLogout();
         }
       } catch (error) {
-        console.error("Failed to fetch user data", error);
+        console.error('Failed to fetch user data', error);
       } finally {
         setLoading(false);
       }

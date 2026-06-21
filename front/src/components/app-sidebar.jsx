@@ -10,13 +10,13 @@ import {
   IconTags,
   IconTarget,
   IconWallet,
-} from "@tabler/icons-react";
+} from '@tabler/icons-react';
 
-import { NavDocuments } from "@/components/nav-documents";
-import { NavMain } from "@/components/nav-main";
-import { NavSecondary } from "@/components/nav-secondary";
-import { NavUser } from "@/components/nav-user";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { NavDocuments } from '@/components/nav-documents';
+import { NavMain } from '@/components/nav-main';
+import { NavSecondary } from '@/components/nav-secondary';
+import { NavUser } from '@/components/nav-user';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import {
   Sidebar,
   SidebarContent,
@@ -25,18 +25,18 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from "@/components/ui/sidebar";
+} from '@/components/ui/sidebar';
 
 const data = {
   navMain: [
     {
-      title: "Overview",
-      url: "/dashboard",
+      title: 'Overview',
+      url: '/dashboard',
       icon: IconLayoutDashboard,
     },
     {
-      title: "Transactions",
-      url: "/transactions",
+      title: 'Transactions',
+      url: '/transactions',
       icon: IconReceipt,
     },
     // {
@@ -45,25 +45,25 @@ const data = {
     //   icon: IconChartPie,
     // },
     {
-      title: "Budgets",
-      url: "/budgets",
+      title: 'Budgets',
+      url: '/budgets',
       icon: IconTarget,
     },
     {
-      title: "Savings Goals",
-      url: "/savings-goals",
+      title: 'Savings Goals',
+      url: '/savings-goals',
       icon: IconWallet,
     },
     {
-      title: "Accounts",
-      url: "/accounts",
+      title: 'Accounts',
+      url: '/accounts',
       icon: IconCreditCard,
     },
   ],
   navSecondary: [
     {
-      title: "Settings",
-      url: "/settings",
+      title: 'Settings',
+      url: '/settings',
       icon: IconSettings,
     },
     // {
@@ -79,18 +79,18 @@ const data = {
   ],
   documents: [
     {
-      name: "Categories",
-      url: "#",
+      name: 'Categories',
+      url: '#',
       icon: IconTags,
     },
     {
-      name: "Wallets",
-      url: "#",
+      name: 'Wallets',
+      url: '#',
       icon: IconWallet,
     },
     {
-      name: "Subscriptions",
-      url: "#",
+      name: 'Subscriptions',
+      url: '#',
       icon: IconCurrencyDollar,
     },
   ],

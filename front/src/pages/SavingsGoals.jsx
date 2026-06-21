@@ -1,19 +1,19 @@
-import { useEffect, useState } from "react";
-import { IconPlus, IconTrash } from "@tabler/icons-react";
+import { useEffect, useState } from 'react';
+import { IconPlus, IconTrash } from '@tabler/icons-react';
 
-import { Button } from "@/components/ui/button";
+import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
-import { Progress } from "@/components/ui/progress";
+} from '@/components/ui/dialog';
+import { Progress } from '@/components/ui/progress';
 
-const formatMoney = (value, currencyCode = "PLN") =>
-  new Intl.NumberFormat("en-US", {
-    style: "currency",
+const formatMoney = (value, currencyCode = 'PLN') =>
+  new Intl.NumberFormat('en-US', {
+    style: 'currency',
     currency: currencyCode,
   }).format(Number(value) || 0);
 
@@ -21,10 +21,10 @@ export default function SavingsGoals({ user, onLogout, token, apiUrl }) {
   const [goals, setGoals] = useState([]);
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
-  const [name, setName] = useState("");
-  const [target, setTarget] = useState("");
-  const [currentAmount, setCurrentAmount] = useState("");
-  const [timeLimit, setTimeLimit] = useState("");
+  const [name, setName] = useState('');
+  const [target, setTarget] = useState('');
+  const [currentAmount, setCurrentAmount] = useState('');
+  const [timeLimit, setTimeLimit] = useState('');
   const [contributions, setContributions] = useState({});
 
   const reloadGoals = async () => {
@@ -42,7 +42,7 @@ export default function SavingsGoals({ user, onLogout, token, apiUrl }) {
         setGoals(Array.isArray(data) ? data : []);
       }
     } catch (error) {
-      console.error("Error fetching savings goals:", error);
+      console.error('Error fetching savings goals:', error);
     } finally {
       setLoading(false);
     }
@@ -64,7 +64,7 @@ export default function SavingsGoals({ user, onLogout, token, apiUrl }) {
           setGoals(Array.isArray(data) ? data : []);
         }
       } catch (error) {
-        console.error("Error fetching savings goals:", error);
+        console.error('Error fetching savings goals:', error);
       } finally {
         setLoading(false);
       }
@@ -78,9 +78,9 @@ export default function SavingsGoals({ user, onLogout, token, apiUrl }) {
 
     try {
       const response = await fetch(`${apiUrl}/savings-goals/`, {
-        method: "POST",
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
@@ -93,15 +93,15 @@ export default function SavingsGoals({ user, onLogout, token, apiUrl }) {
       });
 
       if (response.ok) {
-        setName("");
-        setTarget("");
-        setCurrentAmount("");
-        setTimeLimit("");
+        setName('');
+        setTarget('');
+        setCurrentAmount('');
+        setTimeLimit('');
         setOpen(false);
         reloadGoals();
       }
     } catch (error) {
-      console.error("Error creating savings goal:", error);
+      console.error('Error creating savings goal:', error);
     }
   };
 
@@ -111,9 +111,9 @@ export default function SavingsGoals({ user, onLogout, token, apiUrl }) {
 
     try {
       const response = await fetch(`${apiUrl}/savings-goals/${goalId}/add`, {
-        method: "PATCH",
+        method: 'PATCH',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
@@ -124,19 +124,19 @@ export default function SavingsGoals({ user, onLogout, token, apiUrl }) {
       if (response.ok) {
         setContributions((currentValues) => ({
           ...currentValues,
-          [goalId]: "",
+          [goalId]: '',
         }));
         reloadGoals();
       }
     } catch (error) {
-      console.error("Error adding contribution:", error);
+      console.error('Error adding contribution:', error);
     }
   };
 
   const handleDeleteGoal = async (goalId) => {
     try {
       const response = await fetch(`${apiUrl}/savings-goals/${goalId}`, {
-        method: "DELETE",
+        method: 'DELETE',
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -144,11 +144,11 @@ export default function SavingsGoals({ user, onLogout, token, apiUrl }) {
 
       if (response.ok) {
         setGoals((currentGoals) =>
-          currentGoals.filter((goal) => goal.id_saving_goal !== goalId),
+          currentGoals.filter((goal) => goal.id_saving_goal !== goalId)
         );
       }
     } catch (error) {
-      console.error("Error deleting savings goal:", error);
+      console.error('Error deleting savings goal:', error);
     }
   };
 
@@ -261,7 +261,7 @@ export default function SavingsGoals({ user, onLogout, token, apiUrl }) {
                     <p className="text-xs text-muted-foreground">
                       {goal.time_limit
                         ? `Deadline: ${new Date(goal.time_limit).toLocaleDateString()}`
-                        : "No deadline"}
+                        : 'No deadline'}
                     </p>
                   </div>
                   <Button
@@ -288,7 +288,7 @@ export default function SavingsGoals({ user, onLogout, token, apiUrl }) {
                 <p className="text-xs text-muted-foreground">
                   {left > 0
                     ? `${formatMoney(left, goal.currency_code)} left to save`
-                    : "Goal completed"}
+                    : 'Goal completed'}
                 </p>
 
                 <div className="flex gap-2">
@@ -297,7 +297,7 @@ export default function SavingsGoals({ user, onLogout, token, apiUrl }) {
                     min="0"
                     step="0.01"
                     placeholder="Amount to add"
-                    value={contributions[goal.id_saving_goal] || ""}
+                    value={contributions[goal.id_saving_goal] || ''}
                     className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm"
                     onChange={(event) =>
                       setContributions((currentValues) => ({

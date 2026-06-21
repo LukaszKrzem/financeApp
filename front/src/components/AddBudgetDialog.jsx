@@ -1,20 +1,20 @@
-import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
+import { useState, useEffect } from 'react';
+import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
+} from '@/components/ui/dialog';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { IconPlus } from "@tabler/icons-react";
+} from '@/components/ui/select';
+import { IconPlus } from '@tabler/icons-react';
 
 export function AddBudgetDialog({
   token,
@@ -24,8 +24,8 @@ export function AddBudgetDialog({
   apiUrl,
 }) {
   const [open, setOpen] = useState(false);
-  const [amount, setAmount] = useState("");
-  const [category, setCategory] = useState("");
+  const [amount, setAmount] = useState('');
+  const [category, setCategory] = useState('');
   // const [categories, setCategories] = useState([]);
 
   // useEffect(() => {
@@ -56,16 +56,16 @@ export function AddBudgetDialog({
     e.preventDefault();
     if (!amount || !category) return;
 
-    const today = new Date().toISOString().split("T")[0];
+    const today = new Date().toISOString().split('T')[0];
     const nextMonth = new Date();
     nextMonth.setMonth(nextMonth.getMonth() + 1);
-    const endDate = nextMonth.toISOString().split("T")[0];
+    const endDate = nextMonth.toISOString().split('T')[0];
 
     try {
       const response = await fetch(`${apiUrl}/budgets/`, {
-        method: "POST",
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
@@ -78,14 +78,14 @@ export function AddBudgetDialog({
       });
 
       if (response.ok) {
-        setAmount("");
-        setCategory("");
+        setAmount('');
+        setCategory('');
         setOpen(false);
         if (onBudgetAdded) onBudgetAdded();
         setRefreshing(token + 1);
       }
     } catch (error) {
-      console.error("Error creating budget:", error);
+      console.error('Error creating budget:', error);
     }
   };
 

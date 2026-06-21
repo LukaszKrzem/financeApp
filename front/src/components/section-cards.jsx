@@ -3,10 +3,10 @@ import {
   IconArrowUp,
   IconTrendingDown,
   IconTrendingUp,
-} from "@tabler/icons-react";
-import { useMemo } from "react"; // <--- 1. IMPORTUJEMY useMemo
+} from '@tabler/icons-react';
+import { useMemo } from 'react'; // <--- 1. IMPORTUJEMY useMemo
 
-import { Badge } from "@/components/ui/badge";
+import { Badge } from '@/components/ui/badge';
 import {
   Card,
   CardAction,
@@ -14,19 +14,19 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
+} from '@/components/ui/card';
 
 const formatMoney = (value) =>
-  new Intl.NumberFormat("pl-PL", {
-    style: "currency",
-    currency: "PLN",
-    notation: "compact",
+  new Intl.NumberFormat('pl-PL', {
+    style: 'currency',
+    currency: 'PLN',
+    notation: 'compact',
   }).format(value);
 
 const isIncomeTransaction = (transaction) =>
-  transaction.type === "INCOME" ||
-  transaction.is_income === "T" ||
-  transaction.is_income === "Y";
+  transaction.type === 'INCOME' ||
+  transaction.is_income === 'T' ||
+  transaction.is_income === 'Y';
 
 export function SectionCards({ transactions = [], budgets = [] }) {
   const totals = useMemo(() => {
@@ -43,7 +43,7 @@ export function SectionCards({ transactions = [], budgets = [] }) {
 
         return summary;
       },
-      { income: 0, spent: 0 },
+      { income: 0, spent: 0 }
     );
   }, [transactions]);
 
@@ -65,8 +65,8 @@ export function SectionCards({ transactions = [], budgets = [] }) {
       ? Math.round(
           budgets.reduce(
             (sum, budget) => sum + (Number(budget.percent_used) || 0),
-            0,
-          ) / budgets.length,
+            0
+          ) / budgets.length
         )
       : 0;
 
@@ -142,12 +142,12 @@ export function SectionCards({ transactions = [], budgets = [] }) {
               variant="outline"
               className={
                 savings >= 0
-                  ? "text-primary border-primary/30"
-                  : "text-destructive border-destructive/30"
+                  ? 'text-primary border-primary/30'
+                  : 'text-destructive border-destructive/30'
               }
             >
               <IconTrendingUp className="size-3" />
-              {savings >= 0 ? "Positive" : "Negative"}
+              {savings >= 0 ? 'Positive' : 'Negative'}
             </Badge>
           </CardAction>
         </CardHeader>
@@ -174,11 +174,11 @@ export function SectionCards({ transactions = [], budgets = [] }) {
               variant="outline"
               className={
                 budgetLeft >= 0
-                  ? "text-chart-3 border-chart-3/30"
-                  : "text-destructive border-destructive/30"
+                  ? 'text-chart-3 border-chart-3/30'
+                  : 'text-destructive border-destructive/30'
               }
             >
-              {budgetLeft >= 0 ? "On Track" : "Over Limit"}
+              {budgetLeft >= 0 ? 'On Track' : 'Over Limit'}
             </Badge>
           </CardAction>
         </CardHeader>
@@ -186,7 +186,7 @@ export function SectionCards({ transactions = [], budgets = [] }) {
           <div className="line-clamp-1 flex gap-2 font-medium text-muted-foreground">
             {budgets.length > 0
               ? `${averageBudgetUsage}% of budget used`
-              : "No budgets defined yet"}
+              : 'No budgets defined yet'}
           </div>
         </CardFooter>
       </Card>

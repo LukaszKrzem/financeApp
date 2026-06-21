@@ -1,24 +1,24 @@
-import { useState } from "react";
-import { SimpleDataTable } from "@/components/simple-data-table";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { useIsMobile } from "@/hooks/use-mobile";
-import { ArrowUpRight, ArrowDownLeft, Calendar } from "lucide-react";
+import { useState } from 'react';
+import { SimpleDataTable } from '@/components/simple-data-table';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { ArrowUpRight, ArrowDownLeft, Calendar } from 'lucide-react';
 
 const formatTransactionAmount = (amount, currencyCode) => {
-  const value = new Intl.NumberFormat("pl-PL", {
-    notation: "compact",
+  const value = new Intl.NumberFormat('pl-PL', {
+    notation: 'compact',
     maximumFractionDigits: 1,
   }).format(Math.abs(parseFloat(amount)).toFixed(2));
-  const code = (currencyCode || "PLN").toUpperCase();
+  const code = (currencyCode || 'PLN').toUpperCase();
   switch (code) {
-    case "USD":
+    case 'USD':
       return `$${value}`;
-    case "EUR":
+    case 'EUR':
       return `${value} €`;
-    case "GBP":
+    case 'GBP':
       return `£${value}`;
-    case "PLN":
+    case 'PLN':
       return `${value} zł`;
     default:
       return `${value} ${code}`;
@@ -27,41 +27,41 @@ const formatTransactionAmount = (amount, currencyCode) => {
 
 export const columns = [
   {
-    accessorKey: "date",
-    header: "Date",
+    accessorKey: 'date',
+    header: 'Date',
     cell: ({ row }) => {
-      const date = new Date(row.getValue("date"));
-      return date.toLocaleDateString("pl-PL");
+      const date = new Date(row.getValue('date'));
+      return date.toLocaleDateString('pl-PL');
     },
   },
   {
-    accessorKey: "description",
-    header: "Description",
+    accessorKey: 'description',
+    header: 'Description',
   },
   {
-    accessorKey: "category_name",
-    header: "Category",
+    accessorKey: 'category_name',
+    header: 'Category',
   },
   {
-    id: "amount",
-    header: "Amount",
+    id: 'amount',
+    header: 'Amount',
     accessorFn: (row) => {
       const val = parseFloat(row.amount);
-      return row.type === "EXPENSE" ? -val : val;
+      return row.type === 'EXPENSE' ? -val : val;
     },
     cell: ({ row }) => {
-      const amount = row.getValue("amount");
+      const amount = row.getValue('amount');
       const isExpense = amount < 0;
       const formatted = formatTransactionAmount(
         amount,
-        row.original.currency_code,
+        row.original.currency_code
       );
 
       return (
         <div
-          className={`font-medium ${isExpense ? "text-red-500" : "text-emerald-500"}`}
+          className={`font-medium ${isExpense ? 'text-red-500' : 'text-emerald-500'}`}
         >
-          {isExpense ? "-" : "+"}
+          {isExpense ? '-' : '+'}
           {formatted}
         </div>
       );
@@ -70,17 +70,17 @@ export const columns = [
 ];
 
 export default function Transactions({ transactions, loading }) {
-  const [typeFilter, setTypeFilter] = useState("ALL");
-  const [dateFrom, setDateFrom] = useState("");
-  const [dateTo, setDateTo] = useState("");
+  const [typeFilter, setTypeFilter] = useState('ALL');
+  const [dateFrom, setDateFrom] = useState('');
+  const [dateTo, setDateTo] = useState('');
 
   const isMobile = useIsMobile();
 
   const filteredTransactions = transactions
-    .filter((t) => typeFilter === "ALL" || t.type === typeFilter)
+    .filter((t) => typeFilter === 'ALL' || t.type === typeFilter)
     .filter((t) => !dateFrom || new Date(t.date) >= new Date(dateFrom))
     .filter(
-      (t) => !dateTo || new Date(t.date) <= new Date(dateTo + "T23:59:59"),
+      (t) => !dateTo || new Date(t.date) <= new Date(dateTo + 'T23:59:59')
     );
 
   return (
@@ -97,19 +97,19 @@ export default function Transactions({ transactions, loading }) {
       <div className="bg-card border-border/50 border rounded-xl p-4">
         <div className="flex flex-col md:flex-row gap-4 mb-6 md:items-center">
           <div className="flex gap-2">
-            {["ALL", "EXPENSE", "INCOME"].map((type) => (
+            {['ALL', 'EXPENSE', 'INCOME'].map((type) => (
               <Button
                 key={type}
-                variant={typeFilter === type ? "default" : "outline"}
+                variant={typeFilter === type ? 'default' : 'outline'}
                 size="sm"
                 className="flex-1 md:flex-none"
                 onClick={() => setTypeFilter(type)}
               >
-                {type === "ALL"
-                  ? "All"
-                  : type === "EXPENSE"
-                    ? "Expenses"
-                    : "Income"}
+                {type === 'ALL'
+                  ? 'All'
+                  : type === 'EXPENSE'
+                    ? 'Expenses'
+                    : 'Income'}
               </Button>
             ))}
           </div>
@@ -133,8 +133,8 @@ export default function Transactions({ transactions, loading }) {
                 variant="ghost"
                 size="sm"
                 onClick={() => {
-                  setDateFrom("");
-                  setDateTo("");
+                  setDateFrom('');
+                  setDateTo('');
                 }}
               >
                 Clear
@@ -152,8 +152,11 @@ export default function Transactions({ transactions, loading }) {
         ) : isMobile ? (
           <div className="flex flex-col gap-3">
             {filteredTransactions.map((t) => {
-              const isExpense = t.type === "EXPENSE";
-              const formattedAmount = formatTransactionAmount(t.amount, t.currency_code);
+              const isExpense = t.type === 'EXPENSE';
+              const formattedAmount = formatTransactionAmount(
+                t.amount,
+                t.currency_code
+              );
 
               return (
                 <div
@@ -161,8 +164,14 @@ export default function Transactions({ transactions, loading }) {
                   className="flex items-center justify-between p-3 border rounded-lg bg-background shadow-sm"
                 >
                   <div className="flex items-center gap-3">
-                    <div className={`p-2 rounded-full ${isExpense ? 'bg-red-100 text-red-600 dark:bg-red-900/30' : 'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30'}`}>
-                      {isExpense ? <ArrowDownLeft className="h-4 w-4" /> : <ArrowUpRight className="h-4 w-4" />}
+                    <div
+                      className={`p-2 rounded-full ${isExpense ? 'bg-red-100 text-red-600 dark:bg-red-900/30' : 'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30'}`}
+                    >
+                      {isExpense ? (
+                        <ArrowDownLeft className="h-4 w-4" />
+                      ) : (
+                        <ArrowUpRight className="h-4 w-4" />
+                      )}
                     </div>
 
                     <div className="flex flex-col">
@@ -170,18 +179,21 @@ export default function Transactions({ transactions, loading }) {
                         {t.description}
                       </span>
                       <span className="text-xs text-muted-foreground flex items-center gap-1">
-                        {t.category_name || "Uncategorized"}
+                        {t.category_name || 'Uncategorized'}
                       </span>
                     </div>
                   </div>
 
                   <div className="flex flex-col items-end">
-                    <span className={`font-bold ${isExpense ? "text-red-500" : "text-emerald-500"}`}>
-                      {isExpense ? "-" : "+"}{formattedAmount}
+                    <span
+                      className={`font-bold ${isExpense ? 'text-red-500' : 'text-emerald-500'}`}
+                    >
+                      {isExpense ? '-' : '+'}
+                      {formattedAmount}
                     </span>
                     <span className="text-[10px] text-muted-foreground flex items-center gap-1 mt-0.5">
                       <Calendar className="h-3 w-3" />
-                      {new Date(t.date).toLocaleDateString("pl-PL")}
+                      {new Date(t.date).toLocaleDateString('pl-PL')}
                     </span>
                   </div>
                 </div>

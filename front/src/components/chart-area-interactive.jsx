@@ -1,7 +1,7 @@
-import * as React from "react";
-import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts";
+import * as React from 'react';
+import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from 'recharts';
 
-import { useIsMobile } from "@/hooks/use-mobile";
+import { useIsMobile } from '@/hooks/use-mobile';
 import {
   Card,
   CardAction,
@@ -9,56 +9,56 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
+} from '@/components/ui/card';
 import {
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
-} from "@/components/ui/chart";
+} from '@/components/ui/chart';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import { useMemo } from "react";
+} from '@/components/ui/select';
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
+import { useMemo } from 'react';
 
 const chartConfig = {
   spending: {
-    label: "Spending",
-    color: "var(--chart-4)",
+    label: 'Spending',
+    color: 'var(--chart-4)',
   },
   income: {
-    label: "Income",
-    color: "var(--chart-1)",
+    label: 'Income',
+    color: 'var(--chart-1)',
   },
 };
 const formatCompactMoney = (value) => {
-  if (value <= 1) return "0 PLN";
+  if (value <= 1) return '0 PLN';
 
-  return new Intl.NumberFormat("pl-PL", {
-    style: "currency",
-    currency: "PLN",
-    notation: "compact",
+  return new Intl.NumberFormat('pl-PL', {
+    style: 'currency',
+    currency: 'PLN',
+    notation: 'compact',
     maximumFractionDigits: 1,
   }).format(value);
 };
 export function ChartAreaInteractive({ transactions }) {
   const isMobile = useIsMobile();
-  const [timeRange, setTimeRange] = React.useState("5m");
+  const [timeRange, setTimeRange] = React.useState('5m');
 
   React.useEffect(() => {
     if (isMobile) {
-      setTimeRange("3m");
+      setTimeRange('3m');
     }
   }, [isMobile]);
 
   const getLocalDateString = (date) => {
     const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const day = String(date.getDate()).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
     return `${year}-${month}-${day}`;
   };
   const chartData = React.useMemo(() => {
@@ -67,8 +67,8 @@ export function ChartAreaInteractive({ transactions }) {
 
     const startDate = new Date(endDate);
     let monthsToSubtract = 5;
-    if (timeRange === "3m") monthsToSubtract = 3;
-    if (timeRange === "1m") monthsToSubtract = 1;
+    if (timeRange === '3m') monthsToSubtract = 3;
+    if (timeRange === '1m') monthsToSubtract = 1;
     startDate.setMonth(startDate.getMonth() - monthsToSubtract);
     startDate.setHours(0, 0, 0, 0);
 
@@ -91,9 +91,9 @@ export function ChartAreaInteractive({ transactions }) {
           const exchangeRate = parseFloat(tx.exchange_rate) || 1;
 
           if (
-            tx.type === "INCOME" ||
-            tx.is_income === "T" ||
-            tx.is_income === "Y"
+            tx.type === 'INCOME' ||
+            tx.is_income === 'T' ||
+            tx.is_income === 'Y'
           ) {
             grouped[dateStr].income += amount * exchangeRate;
           } else {
@@ -121,8 +121,8 @@ export function ChartAreaInteractive({ transactions }) {
 
   const startDate = new Date();
   let monthsToSubtract = 5;
-  if (timeRange === "3m") monthsToSubtract = 3;
-  if (timeRange === "1m") monthsToSubtract = 1;
+  if (timeRange === '3m') monthsToSubtract = 3;
+  if (timeRange === '1m') monthsToSubtract = 1;
   startDate.setMonth(startDate.getMonth() - monthsToSubtract);
 
   const filteredData = chartData.filter((item) => {
@@ -219,15 +219,15 @@ export function ChartAreaInteractive({ transactions }) {
               minTickGap={32}
               tickFormatter={(value) => {
                 const date = new Date(value);
-                return date.toLocaleDateString("en-US", {
-                  day: "numeric",
-                  month: "short",
+                return date.toLocaleDateString('en-US', {
+                  day: 'numeric',
+                  month: 'short',
                 });
               }}
             />
             <YAxis
               scale="log"
-              domain={[1, "auto"]}
+              domain={[1, 'auto']}
               tickLine={false}
               axisLine={false}
               tickMargin={8}
@@ -239,10 +239,10 @@ export function ChartAreaInteractive({ transactions }) {
               content={
                 <ChartTooltipContent
                   labelFormatter={(value) => {
-                    return new Date(value).toLocaleDateString("pl-PL", {
-                      day: "numeric",
-                      month: "long",
-                      year: "numeric",
+                    return new Date(value).toLocaleDateString('pl-PL', {
+                      day: 'numeric',
+                      month: 'long',
+                      year: 'numeric',
                     });
                   }}
                   formatter={(value, name) => (

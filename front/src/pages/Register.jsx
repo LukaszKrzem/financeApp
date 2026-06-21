@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui/button";
+import { Button } from '@/components/ui/button';
 import {
   Card,
   CardAction,
@@ -7,12 +7,12 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { GoogleLogin, GoogleOAuthProvider } from "@react-oauth/google";
+} from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { GoogleLogin, GoogleOAuthProvider } from '@react-oauth/google';
 
 export function Register({
   apiUrl,
@@ -20,28 +20,28 @@ export function Register({
   GOOGLE_CLIENT_ID,
   handleGoogleLogin,
 }) {
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       const response = await fetch(`${apiUrl}/register`, {
-        method: "POST",
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({ name, email, password }),
       });
       const data = await response.json();
       if (!response.ok) {
-        throw new Error(data.detail || "registration error");
+        throw new Error(data.detail || 'registration error');
       }
       onRegistration(data.token);
-      navigate("/login");
+      navigate('/login');
     } catch (err) {
       setError(err.message);
     }
@@ -129,7 +129,7 @@ export function Register({
                   <GoogleLogin
                     onSuccess={handleGoogleLogin}
                     onError={() => {
-                      console.error("Login Failed");
+                      console.error('Login Failed');
                     }}
                   />
                 </GoogleOAuthProvider>

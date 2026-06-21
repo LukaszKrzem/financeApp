@@ -1,4 +1,4 @@
-import * as React from "react";
+import * as React from 'react';
 import {
   flexRender,
   getCoreRowModel,
@@ -6,8 +6,8 @@ import {
   getPaginationRowModel,
   getFilteredRowModel,
   useReactTable,
-} from "@tanstack/react-table";
-import { IconChevronUp, IconChevronDown } from "@tabler/icons-react";
+} from '@tanstack/react-table';
+import { IconChevronUp, IconChevronDown } from '@tabler/icons-react';
 
 import {
   Table,
@@ -16,13 +16,13 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+} from '@/components/ui/table';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 
 export function SimpleDataTable({ columns, data }) {
   const [sorting, setSorting] = React.useState([]);
-  const [globalFilter, setGlobalFilter] = React.useState("");
+  const [globalFilter, setGlobalFilter] = React.useState('');
 
   const table = useReactTable({
     data,
@@ -41,7 +41,6 @@ export function SimpleDataTable({ columns, data }) {
 
   return (
     <div className="w-full">
-
       <div className="flex items-center pb-4">
         <Input
           placeholder="Search..."
@@ -60,12 +59,11 @@ export function SimpleDataTable({ columns, data }) {
                   return (
                     <TableHead key={header.id}>
                       {header.isPlaceholder ? null : (
-
                         <div
                           className={
                             header.column.getCanSort()
-                              ? "flex items-center gap-1 cursor-pointer select-none hover:text-foreground"
-                              : ""
+                              ? 'flex items-center gap-1 cursor-pointer select-none hover:text-foreground'
+                              : ''
                           }
                           onClick={header.column.getToggleSortingHandler()}
                         >
@@ -76,15 +74,20 @@ export function SimpleDataTable({ columns, data }) {
                           {header.column.getCanSort() && (
                             <span className="size-4 flex items-center justify-center">
                               {{
-                                asc: <IconChevronUp className="size-3.5 text-primary" />,
-                                desc: <IconChevronDown className="size-3.5 text-primary" />,
+                                asc: (
+                                  <IconChevronUp className="size-3.5 text-primary" />
+                                ),
+                                desc: (
+                                  <IconChevronDown className="size-3.5 text-primary" />
+                                ),
                               }[header.column.getIsSorted()] ?? (
-                                <span className="text-muted-foreground/30 text-xs">↕</span>
+                                <span className="text-muted-foreground/30 text-xs">
+                                  ↕
+                                </span>
                               )}
                             </span>
                           )}
                         </div>
-
                       )}
                     </TableHead>
                   );
@@ -97,7 +100,7 @@ export function SimpleDataTable({ columns, data }) {
               table.getRowModel().rows.map((row) => (
                 <TableRow
                   key={row.id}
-                  data-state={row.getIsSelected() && "selected"}
+                  data-state={row.getIsSelected() && 'selected'}
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
@@ -125,7 +128,7 @@ export function SimpleDataTable({ columns, data }) {
 
       <div className="flex items-center justify-end space-x-2 py-4">
         <div className="text-sm text-muted-foreground mr-auto">
-          Page {table.getState().pagination.pageIndex + 1} of{" "}
+          Page {table.getState().pagination.pageIndex + 1} of{' '}
           {table.getPageCount()}
         </div>
         <Button
@@ -145,7 +148,6 @@ export function SimpleDataTable({ columns, data }) {
           Next
         </Button>
       </div>
-
     </div>
   );
 }

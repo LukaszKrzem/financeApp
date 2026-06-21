@@ -1,21 +1,21 @@
-import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
-import { SidebarTrigger } from "@/components/ui/sidebar";
+import { useState, useEffect } from 'react';
+import { Button } from '@/components/ui/button';
+import { Separator } from '@/components/ui/separator';
+import { SidebarTrigger } from '@/components/ui/sidebar';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { IconBell, IconPlus, IconX } from "@tabler/icons-react";
-import { AddTransactionDialog } from "@/components/AddTransactionDialog";
+} from '@/components/ui/select';
+import { IconBell, IconPlus, IconX } from '@tabler/icons-react';
+import { AddTransactionDialog } from '@/components/AddTransactionDialog';
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover";
+} from '@/components/ui/popover';
 
 export function SiteHeader({
   user,
@@ -33,9 +33,9 @@ export function SiteHeader({
       if (!token) return;
       try {
         const response = await fetch(`${apiUrl}/notifications`, {
-          method: "GET",
+          method: 'GET',
           headers: {
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
             Authorization: `Bearer ${token}`,
           },
         });
@@ -44,7 +44,7 @@ export function SiteHeader({
           setNotifications(data);
         }
       } catch (error) {
-        console.error("Error fetching notifications:", error);
+        console.error('Error fetching notifications:', error);
       }
     };
     const interval = setInterval(fetchNotifications, 30000);
@@ -53,22 +53,20 @@ export function SiteHeader({
 
   const handleMarkAsRead = async (id) => {
     try {
-      const response = await fetch(`${apiUrl}/notifications/${id}/read`,
-        {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
+      const response = await fetch(`${apiUrl}/notifications/${id}/read`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
         },
-      );
+      });
       if (response.ok) {
         setNotifications((prev) =>
-          prev.filter((n) => n.id_notification !== id),
+          prev.filter((n) => n.id_notification !== id)
         );
       }
     } catch (error) {
-      console.error("Error marking notification as read:", error);
+      console.error('Error marking notification as read:', error);
     }
   };
   return (
@@ -124,11 +122,11 @@ export function SiteHeader({
                             {item.message}
                           </p>
                           <span className="text-[10px] text-muted-foreground">
-                            {new Date(item.date).toLocaleTimeString("pl-PL", {
-                              hour: "2-digit",
-                              minute: "2-digit",
-                            })}{" "}
-                            - {new Date(item.date).toLocaleDateString("pl-PL")}
+                            {new Date(item.date).toLocaleTimeString('pl-PL', {
+                              hour: '2-digit',
+                              minute: '2-digit',
+                            })}{' '}
+                            - {new Date(item.date).toLocaleDateString('pl-PL')}
                           </span>
                         </div>
                         <Button
@@ -148,16 +146,16 @@ export function SiteHeader({
           </Popover>
 
           {token && (
-          <div className="hidden md:flex">
-            <AddTransactionDialog
-              token={token}
-              setRefreshing={setRefreshing}
-              categories={categories}
-              accounts={accounts}
-              currencies={currencies}
-              apiUrl={apiUrl}
-            />
-          </div>
+            <div className="hidden md:flex">
+              <AddTransactionDialog
+                token={token}
+                setRefreshing={setRefreshing}
+                categories={categories}
+                accounts={accounts}
+                currencies={currencies}
+                apiUrl={apiUrl}
+              />
+            </div>
           )}
         </div>
       </div>

@@ -1,6 +1,6 @@
-import { useMemo } from "react";
-import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
-import { getIconForCategory, DEFAULT_ICON } from "@/lib/categoryIcons";
+import { useMemo } from 'react';
+import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from 'recharts';
+import { getIconForCategory, DEFAULT_ICON } from '@/lib/categoryIcons';
 
 import {
   Card,
@@ -8,28 +8,28 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
+} from '@/components/ui/card';
 
 const chartColors = [
-  "var(--chart-1)",
-  "var(--chart-2)",
-  "var(--chart-3)",
-  "var(--chart-4)",
-  "var(--chart-5)",
-  "var(--primary)",
+  'var(--chart-1)',
+  'var(--chart-2)',
+  'var(--chart-3)',
+  'var(--chart-4)',
+  'var(--chart-5)',
+  'var(--primary)',
 ];
 
 const isExpenseTransaction = (transaction) =>
-  transaction.type === "EXPENSE" ||
-  transaction.is_income === "F" ||
-  transaction.is_income === "N";
+  transaction.type === 'EXPENSE' ||
+  transaction.is_income === 'F' ||
+  transaction.is_income === 'N';
 
 const formatMoney = (value) =>
-  new Intl.NumberFormat("pl-PL", {
-    style: "currency",
-    currency: "PLN",
+  new Intl.NumberFormat('pl-PL', {
+    style: 'currency',
+    currency: 'PLN',
     maximumFractionDigits: 0,
-    notation: "compact",
+    notation: 'compact',
   }).format(value);
 
 const CustomTooltip = ({ active, payload }) => {
@@ -53,7 +53,7 @@ export function SpendingCategories({ transactions = [] }) {
     const categories = transactions
       .filter(isExpenseTransaction)
       .reduce((summary, transaction) => {
-        const categoryName = transaction.category_name || "Other";
+        const categoryName = transaction.category_name || 'Other';
         const exchangeRate = parseFloat(transaction.exchange_rate) || 1;
         const amount = Number(transaction.amount) || 0;
 
@@ -74,7 +74,7 @@ export function SpendingCategories({ transactions = [] }) {
 
   const total = useMemo(
     () => categoryData.reduce((acc, cat) => acc + cat.value, 0),
-    [categoryData],
+    [categoryData]
   );
 
   return (

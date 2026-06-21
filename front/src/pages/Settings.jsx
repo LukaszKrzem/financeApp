@@ -1,9 +1,9 @@
-import { SiteHeader } from "@/components/site-header";
-import { AppSidebar } from "@/components/app-sidebar";
-import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
-import { useTheme } from "@/components/theme-provider";
-import { Button } from "@/components/ui/button";
-import { IconSun, IconMoon, IconDeviceDesktop } from "@tabler/icons-react";
+import { SiteHeader } from '@/components/site-header';
+import { AppSidebar } from '@/components/app-sidebar';
+import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
+import { useTheme } from '@/components/theme-provider';
+import { Button } from '@/components/ui/button';
+import { IconSun, IconMoon, IconDeviceDesktop } from '@tabler/icons-react';
 
 export default function Settings({ user, token, onLogout }) {
   const { theme, setTheme } = useTheme();
@@ -26,27 +26,27 @@ export default function Settings({ user, token, onLogout }) {
 
           <div className="flex flex-wrap gap-4">
             <Button
-              variant={theme === "light" ? "default" : "outline"}
+              variant={theme === 'light' ? 'default' : 'outline'}
               className="w-32 flex items-center gap-2"
-              onClick={() => setTheme("light")}
+              onClick={() => setTheme('light')}
             >
               <IconSun className="size-4" />
               Light
             </Button>
 
             <Button
-              variant={theme === "dark" ? "default" : "outline"}
+              variant={theme === 'dark' ? 'default' : 'outline'}
               className="w-32 flex items-center gap-2"
-              onClick={() => setTheme("dark")}
+              onClick={() => setTheme('dark')}
             >
               <IconMoon className="size-4" />
               Dark
             </Button>
 
             <Button
-              variant={theme === "system" ? "default" : "outline"}
+              variant={theme === 'system' ? 'default' : 'outline'}
               className="w-32 flex items-center gap-2"
-              onClick={() => setTheme("system")}
+              onClick={() => setTheme('system')}
             >
               <IconDeviceDesktop className="size-4" />
               System

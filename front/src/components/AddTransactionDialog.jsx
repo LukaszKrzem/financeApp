@@ -1,13 +1,13 @@
-import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { useState, useEffect } from 'react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
+} from '@/components/ui/dialog';
 import {
   Drawer,
   DrawerContent,
@@ -16,15 +16,15 @@ import {
   DrawerTrigger,
   DrawerFooter,
   DrawerClose,
-} from "@/components/ui/drawer";
+} from '@/components/ui/drawer';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { useIsMobile } from "@/hooks/use-mobile";
+} from '@/components/ui/select';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 export function AddTransactionDialog({
   token,
@@ -36,16 +36,16 @@ export function AddTransactionDialog({
   trigger,
 }) {
   const [open, setOpen] = useState(false);
-  const [amount, setAmount] = useState("");
-  const [type, setType] = useState("EXPENSE");
-  const [description, setDescription] = useState("");
-  const [accountId, setAccountId] = useState("");
-  const [categoryId, setCategoryId] = useState("");
-  const [currencyId, setCurrencyId] = useState("");
-  const [transactionFrequency, setTransactionFrequency] = useState("not_scheduled");
+  const [amount, setAmount] = useState('');
+  const [type, setType] = useState('EXPENSE');
+  const [description, setDescription] = useState('');
+  const [accountId, setAccountId] = useState('');
+  const [categoryId, setCategoryId] = useState('');
+  const [currencyId, setCurrencyId] = useState('');
+  const [transactionFrequency, setTransactionFrequency] =
+    useState('not_scheduled');
   const [error, setError] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-
 
   const isMobile = useIsMobile();
   const isDesktop = !isMobile;
@@ -55,7 +55,7 @@ export function AddTransactionDialog({
       setAccountId(accounts[0].id_account.toString());
     }
     const selectedAccount = accounts.find(
-      (acc) => acc.id_account.toString() === accountId,
+      (acc) => acc.id_account.toString() === accountId
     );
     if (selectedAccount) {
       setCurrencyId(selectedAccount.Currency_id_currency.toString());
@@ -78,19 +78,21 @@ export function AddTransactionDialog({
       Currency_id_currency: parseInt(currencyId),
     };
 
-    const isScheduled = transactionFrequency !== "not_scheduled";
-    const endpoint = isScheduled ? "/scheduled-transactions/" : "/transactions/";
+    const isScheduled = transactionFrequency !== 'not_scheduled';
+    const endpoint = isScheduled
+      ? '/scheduled-transactions/'
+      : '/transactions/';
 
     if (isScheduled) {
       payload.frequency = transactionFrequency;
-      payload.next_date = new Date("2317-10-10").toISOString();
+      payload.next_date = new Date('2317-10-10').toISOString();
     }
 
     try {
       const response = await fetch(`${apiUrl}${endpoint}`, {
-        method: "POST",
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(payload),
@@ -98,11 +100,11 @@ export function AddTransactionDialog({
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.detail || "Error adding transaction");
+        throw new Error(errorData.detail || 'Error adding transaction');
       }
 
-      setAmount("");
-      setDescription("");
+      setAmount('');
+      setDescription('');
       setOpen(false);
       setRefreshing((prev) => prev + 1);
     } catch (err) {
@@ -246,9 +248,7 @@ export function AddTransactionDialog({
         <DrawerHeader className="text-left">
           <DrawerTitle>Add New Transaction</DrawerTitle>
         </DrawerHeader>
-        <div className="px-4 pb-8">
-          {TransactionForm}
-        </div>
+        <div className="px-4 pb-8">{TransactionForm}</div>
       </DrawerContent>
     </Drawer>
   );

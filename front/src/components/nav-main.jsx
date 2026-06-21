@@ -1,14 +1,14 @@
-import { Link } from "react-router-dom";
-import { IconCirclePlusFilled, IconMail } from "@tabler/icons-react";
+import { Link } from 'react-router-dom';
+import { IconCirclePlusFilled, IconMail } from '@tabler/icons-react';
 
-import { Button } from "@/components/ui/button";
+import { Button } from '@/components/ui/button';
 import {
   SidebarGroup,
   SidebarGroupContent,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from "@/components/ui/sidebar";
+} from '@/components/ui/sidebar';
 
 export function NavMain({ items }) {
   return (

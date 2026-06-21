@@ -1,4 +1,4 @@
-import * as React from "react";
+import * as React from 'react';
 
 import {
   SidebarGroup,
@@ -6,8 +6,8 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from "@/components/ui/sidebar";
-import { Link } from "react-router-dom";
+} from '@/components/ui/sidebar';
+import { Link } from 'react-router-dom';
 
 export function NavSecondary({ items, ...props }) {
   return (

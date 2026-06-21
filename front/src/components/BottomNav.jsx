@@ -1,13 +1,22 @@
-import { useState } from "react";
-import { NavLink, useNavigate } from "react-router-dom";
-import { Home, ArrowRightLeft, PieChart, Settings, MoreHorizontal, Wallet, Target, Plus } from "lucide-react";
+import { useState } from 'react';
+import { NavLink, useNavigate } from 'react-router-dom';
+import {
+  Home,
+  ArrowRightLeft,
+  PieChart,
+  Settings,
+  MoreHorizontal,
+  Wallet,
+  Target,
+  Plus,
+} from 'lucide-react';
 import {
   Drawer,
   DrawerContent,
   DrawerHeader,
   DrawerTitle,
-} from "@/components/ui/drawer";
-import { AddTransactionDialog } from "@/components/AddTransactionDialog";
+} from '@/components/ui/drawer';
+import { AddTransactionDialog } from '@/components/AddTransactionDialog';
 
 export function BottomNav({
   token,
@@ -23,14 +32,14 @@ export function BottomNav({
   const linkStyles = ({ isActive }) =>
     `flex flex-col items-center justify-center text-[10px] sm:text-xs gap-1 py-2 transition-all active:scale-95 ${
       isActive
-        ? "text-primary font-semibold"
-        : "text-muted-foreground hover:text-foreground"
+        ? 'text-primary font-semibold'
+        : 'text-muted-foreground hover:text-foreground'
     }`;
 
   const moreLinks = [
-    { to: "/accounts", label: "Accounts", icon: Wallet },
-    { to: "/savings-goals", label: "Savings Goals", icon: Target },
-    { to: "/settings", label: "Settings", icon: Settings },
+    { to: '/accounts', label: 'Accounts', icon: Wallet },
+    { to: '/savings-goals', label: 'Savings Goals', icon: Target },
+    { to: '/settings', label: 'Settings', icon: Settings },
   ];
 
   return (
@@ -60,7 +69,9 @@ export function BottomNav({
                   <div className="flex size-14 items-center justify-center rounded-full bg-primary shadow-lg shadow-primary/30">
                     <Plus className="size-6 text-primary-foreground" />
                   </div>
-                  <span className="text-[10px] text-muted-foreground mt-1">Add</span>
+                  <span className="text-[10px] text-muted-foreground mt-1">
+                    Add
+                  </span>
                 </button>
               }
             />

@@ -1,19 +1,19 @@
-import { AddAccountDialog } from "@/components/AddAccountDialog";
+import { AddAccountDialog } from '@/components/AddAccountDialog';
 
 const formatAccountAmount = (amount, currencyCode) => {
-  const value = new Intl.NumberFormat("pl-PL", {
-    notation: "compact",
+  const value = new Intl.NumberFormat('pl-PL', {
+    notation: 'compact',
     maximumFractionDigits: 1,
   }).format(Math.abs(parseFloat(amount)).toFixed(2));
-  const code = (currencyCode || "PLN").toUpperCase();
+  const code = (currencyCode || 'PLN').toUpperCase();
   switch (code) {
-    case "USD":
+    case 'USD':
       return `$${value}`;
-    case "EUR":
+    case 'EUR':
       return `${value} €`;
-    case "GBP":
+    case 'GBP':
       return `£${value}`;
-    case "PLN":
+    case 'PLN':
       return `${value} zł`;
     default:
       return `${value} ${code}`;
@@ -60,7 +60,7 @@ export default function Accounts({
             if (!account) return null;
             const compactNumber = formatAccountAmount(
               account.current_balance,
-              account.currency_code,
+              account.currency_code
             );
 
             return (

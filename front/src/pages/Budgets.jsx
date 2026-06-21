@@ -1,20 +1,20 @@
-import { Progress } from "@/components/ui/progress";
-import { AddBudgetDialog } from "@/components/AddBudgetDialog";
+import { Progress } from '@/components/ui/progress';
+import { AddBudgetDialog } from '@/components/AddBudgetDialog';
 
 const formatBudgetAmount = (amount, currencyCode) => {
-  const value = new Intl.NumberFormat("pl-PL", {
-    notation: "compact",
+  const value = new Intl.NumberFormat('pl-PL', {
+    notation: 'compact',
     maximumFractionDigits: 1,
   }).format(Math.abs(parseFloat(amount)).toFixed(2));
-  const code = (currencyCode || "PLN").toUpperCase();
+  const code = (currencyCode || 'PLN').toUpperCase();
   switch (code) {
-    case "USD":
+    case 'USD':
       return `$${value}`;
-    case "EUR":
+    case 'EUR':
       return `${value} €`;
-    case "GBP":
+    case 'GBP':
       return `£${value}`;
-    case "PLN":
+    case 'PLN':
       return `${value} zł`;
     default:
       return `${value} ${code}`;
@@ -90,7 +90,7 @@ export default function BudgetsPage({
                     {formatBudgetAmount(spent.toFixed(2), budget.currency_code)}
                   </span>
                   <span className="text-sm text-muted-foreground">
-                    /{" "}
+                    /{' '}
                     {formatBudgetAmount(limit.toFixed(2), budget.currency_code)}
                   </span>
                 </div>

@@ -1,32 +1,32 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect } from 'react';
 
-import { IconArrowUp, IconArrowDown } from "@tabler/icons-react";
-import { getIconForCategory, DEFAULT_ICON } from "@/lib/categoryIcons";
+import { IconArrowUp, IconArrowDown } from '@tabler/icons-react';
+import { getIconForCategory, DEFAULT_ICON } from '@/lib/categoryIcons';
 
-import { Badge } from "@/components/ui/badge";
+import { Badge } from '@/components/ui/badge';
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { ScrollArea } from "@/components/ui/scroll-area";
+} from '@/components/ui/card';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 const formatTransactionAmount = (amount, currencyCode) => {
-  const value = new Intl.NumberFormat("pl-PL", {
-    notation: "compact",
+  const value = new Intl.NumberFormat('pl-PL', {
+    notation: 'compact',
     maximumFractionDigits: 1,
   }).format(Math.abs(parseFloat(amount)).toFixed(2));
-  const code = (currencyCode || "PLN").toUpperCase();
+  const code = (currencyCode || 'PLN').toUpperCase();
   switch (code) {
-    case "USD":
+    case 'USD':
       return `$${value}`;
-    case "EUR":
+    case 'EUR':
       return `${value} €`;
-    case "GBP":
+    case 'GBP':
       return `£${value}`;
-    case "PLN":
+    case 'PLN':
       return `${value} zł`;
     default:
       return `${value} ${code}`;
@@ -57,12 +57,12 @@ export function RecentTransactions({ transactions, loading }) {
             ) : (
               transactions.map((transaction) => {
                 const typeLower = transaction.type.toLowerCase();
-                const isIncome = typeLower === "income";
-                const catName = transaction.category_name || "Other";
+                const isIncome = typeLower === 'income';
+                const catName = transaction.category_name || 'Other';
                 const Icon = getIconForCategory(catName, typeLower);
                 const displayName = transaction.description || catName;
                 const displayDate = new Date(
-                  transaction.date,
+                  transaction.date
                 ).toLocaleDateString();
 
                 return (
@@ -93,13 +93,13 @@ export function RecentTransactions({ transactions, loading }) {
                     <div className="flex items-center gap-2">
                       <span
                         className={`font-semibold tabular-nums ${
-                          isIncome ? "text-primary" : "text-foreground"
+                          isIncome ? 'text-primary' : 'text-foreground'
                         }`}
                       >
-                        {isIncome ? "+" : "-"}
+                        {isIncome ? '+' : '-'}
                         {formatTransactionAmount(
                           transaction.amount,
-                          transaction.currency_code,
+                          transaction.currency_code
                         )}
                       </span>
                       {isIncome ? (

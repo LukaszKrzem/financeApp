@@ -39,7 +39,6 @@ function App() {
 
   const handleGoogleLogin = async (googleToken) => {
     try {
-      console.log("google token: ", googleToken.credential);
       const response = await fetch(`${API_URL}/auth/google`, {
         method: "POST",
         headers: {
@@ -84,7 +83,6 @@ function App() {
         if (response.ok) {
           const data = await response.json();
           setCurrencies(data);
-          console.log("Currencies:", data);
         }
       } catch (error) {
         console.error("Error fetching currencies:", error);
@@ -102,7 +100,6 @@ function App() {
         if (response.ok) {
           const data = await response.json();
           setCategories(data);
-          console.log("Categories:", data);
         } else {
           console.error("Failed to fetch categories");
         }
@@ -123,7 +120,6 @@ function App() {
         if (response.ok) {
           const data = await response.json();
           setTransactions(data);
-          console.log("Transactions:", data);
         } else {
           console.error("Failed to fetch transactions");
         }
@@ -145,7 +141,6 @@ function App() {
         if (response.ok) {
           const data = await response.json();
           setAccounts(data);
-          console.log("Accounts:", data);
         }
       } catch (error) {
         console.error("Failed to fetch accounts:", error);
@@ -168,7 +163,6 @@ function App() {
         if (response.ok) {
           const userData = await response.json();
           setUser(userData); //if token is invalid
-          console.log(userData);
         } else {
           handleLogout();
         }

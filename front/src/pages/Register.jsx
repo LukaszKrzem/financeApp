@@ -129,7 +129,7 @@ export function Register({
                   <GoogleLogin
                     onSuccess={handleGoogleLogin}
                     onError={() => {
-                      console.log("Login Failed");
+                      console.error("Login Failed");
                     }}
                   />
                 </GoogleOAuthProvider>

@@ -18,7 +18,7 @@ async def update_rates_from_nbp_internal(db: sqlalchemy.orm.Session):
     try:
         async with httpx.AsyncClient() as client:
             response = await client.get(NBP_API_URL, timeout=5.0)
-            
+
         if response.status_code == 200:
             nbp_data = response.json()
             rates = nbp_data[0].get("rates", [])
@@ -48,7 +48,7 @@ async def create_transaction(
     db: sqlalchemy.orm.Session = Depends(get_db),
     current_user=Depends(get_current_user),
 ):
-    
+
     await update_rates_from_nbp_internal(db)
 
     account = (
@@ -62,7 +62,7 @@ async def create_transaction(
 
     if account.User_id_user != current_user.id_user:
         raise HTTPException(status_code=403, detail="Brak dostępu do tego konta.")
-    
+
     currency_account = db.query(structure.Currency).filter(structure.Currency.id_currency == account.Currency_id_currency).first()
     currency_trans = db.query(structure.Currency).filter(structure.Currency.id_currency == transaction_data.Currency_id_currency).first()
 
@@ -137,7 +137,6 @@ def get_user_transactions(
         .order_by(structure.Transaction.date.desc())
         .all()
     )  # Fixed it to include join correctly
-    print(results)
     transactions_with_data = []
     for trans, cat, cur in results:
         transactions_with_data.append(

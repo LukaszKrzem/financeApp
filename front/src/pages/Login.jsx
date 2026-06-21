@@ -43,9 +43,7 @@ export function Login({
       }
 
       onLogin(data.token);
-      console.log(data.token);
     } catch (err) {
-      console.log("Invalid credentials");
       setError(err.message);
     }
   };
@@ -123,7 +121,7 @@ export function Login({
                   <GoogleLogin
                     onSuccess={handleGoogleLogin}
                     onError={() => {
-                      console.log("Login Failed");
+                      console.error("Login Failed");
                     }}
                   />
                 </GoogleOAuthProvider>

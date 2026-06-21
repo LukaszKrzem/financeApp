@@ -6,11 +6,19 @@ A personal finance management web application for tracking expenses, managing bu
 
 🔗 **Live demo**: [finance-app-lukaszkrzem.vercel.app](https://finance-app-lukaszkrzem.vercel.app)
 
-> **🚀 Try it out!** > Use the **"Login as Guest"** button on the login page, or use the test credentials:
+> **🚀 Try it out!** > Use the **"Try demo"** button on the login page, or use the test credentials:
 > **Email:** `demo@demo.com`
 > **Password:** `haslo`
 
 > ⚠️ The backend is hosted on Render's free tier and may take up to 50 seconds to wake up after a period of inactivity.
+
+---
+
+## Screenshots
+
+![Dashboard](./assets/budgets.png)
+![Transactions](./assets/charts.png)
+![Mobile](./assets/mobile.png)
 
 ---
 
@@ -31,7 +39,6 @@ A personal finance management web application for tracking expenses, managing bu
 **Frontend**
 
 - React + Vite
-- Redux Toolkit
 - React Router
 - Tailwind CSS + shadcn/ui
 - Recharts

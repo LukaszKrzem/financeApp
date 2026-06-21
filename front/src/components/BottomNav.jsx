@@ -15,22 +15,22 @@ export function BottomNav() {
 
         <NavLink to="/dashboard" className={linkStyles}>
           <Home className="h-5 w-5 sm:h-6 sm:w-6 mb-0.5" />
-          <span>Główna</span>
+          <span>Dashboard</span>
         </NavLink>
 
         <NavLink to="/transactions" className={linkStyles}>
           <ArrowRightLeft className="h-5 w-5 sm:h-6 sm:w-6 mb-0.5" />
-          <span>Transakcje</span>
+          <span>Transactions</span>
         </NavLink>
 
         <NavLink to="/budgets" className={linkStyles}>
           <PieChart className="h-5 w-5 sm:h-6 sm:w-6 mb-0.5" />
-          <span>Budżety</span>
+          <span>Budgets</span>
         </NavLink>
 
         <NavLink to="/settings" className={linkStyles}>
           <Settings className="h-5 w-5 sm:h-6 sm:w-6 mb-0.5" />
-          <span>Ustawienia</span>
+          <span>Settings</span>
         </NavLink>
 
       </div>

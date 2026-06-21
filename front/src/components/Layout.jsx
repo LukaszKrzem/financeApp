@@ -21,7 +21,9 @@ export default function Layout({
         "--header-height": "calc(var(--spacing) * 12)",
       }}
     >
-      <AppSidebar variant="inset" onLogout={onLogout} user={user} />
+      <div className="hidden md:block">
+        <AppSidebar variant="inset" onLogout={onLogout} user={user} />
+      </div>
       <SidebarInset>
         <SiteHeader
           user={user}

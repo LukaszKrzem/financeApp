@@ -30,6 +30,7 @@ export function BottomNav({
   const moreLinks = [
     { to: "/accounts", label: "Accounts", icon: Wallet },
     { to: "/savings-goals", label: "Savings Goals", icon: Target },
+    { to: "/settings", label: "Settings", icon: Settings },
   ];
 
   return (

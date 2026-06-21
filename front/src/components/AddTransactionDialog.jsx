@@ -9,12 +9,22 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import {
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+  DrawerFooter,
+  DrawerClose,
+} from "@/components/ui/drawer";
+import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export function AddTransactionDialog({
   token,
@@ -31,15 +41,13 @@ export function AddTransactionDialog({
   const [accountId, setAccountId] = useState("");
   const [categoryId, setCategoryId] = useState("");
   const [currencyId, setCurrencyId] = useState("");
-  const [transactionFrequency, setTransactionFrequency] =
-    useState("not_scheduled");
+  const [transactionFrequency, setTransactionFrequency] = useState("not_scheduled");
   const [error, setError] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // const selectedAccount =
-  //   accounts.length > 0
-  //     ? accounts.find((acc) => acc.id_account.toString() === accountId)
-  //     : null;
+
+  const isMobile = useIsMobile();
+  const isDesktop = !isMobile;
 
   useEffect(() => {
     if (!accountId && accounts.length > 0) {
@@ -70,9 +78,7 @@ export function AddTransactionDialog({
     };
 
     const isScheduled = transactionFrequency !== "not_scheduled";
-    const endpoint = isScheduled
-      ? "/scheduled-transactions/"
-      : "/transactions/";
+    const endpoint = isScheduled ? "/scheduled-transactions/" : "/transactions/";
 
     if (isScheduled) {
       payload.frequency = transactionFrequency;
@@ -105,118 +111,144 @@ export function AddTransactionDialog({
     }
   };
 
+  const TransactionForm = (
+    <form onSubmit={handleSubmit} className="space-y-4 mt-4">
+      <Select value={type} onValueChange={setType}>
+        <SelectTrigger>
+          <SelectValue placeholder="Type" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="EXPENSE">Expense</SelectItem>
+          <SelectItem value="INCOME">Income</SelectItem>
+        </SelectContent>
+      </Select>
+
+      <div className="flex gap-2">
+        <Input
+          placeholder="Amount"
+          id="amount"
+          type="number"
+          step="0.01"
+          min="0.01"
+          value={amount}
+          onChange={(e) => setAmount(e.target.value)}
+          className="flex-1"
+          required
+        />
+        <Select value={currencyId} onValueChange={setCurrencyId} required>
+          <SelectTrigger className="w-[100px]">
+            <SelectValue placeholder="Currency" />
+          </SelectTrigger>
+          <SelectContent>
+            {currencies.map((cur) => (
+              <SelectItem
+                key={cur.id_currency}
+                value={cur.id_currency.toString()}
+              >
+                {cur.code}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      <Input
+        type="text"
+        placeholder="Description"
+        value={description}
+        onChange={(e) => setDescription(e.target.value)}
+        required
+      />
+
+      <div className="grid gap-2">
+        <Select value={categoryId} onValueChange={setCategoryId} required>
+          <SelectTrigger>
+            <SelectValue placeholder="Choose category" />
+          </SelectTrigger>
+          <SelectContent>
+            {categories.map((cat) => (
+              <SelectItem
+                key={cat.id_category}
+                value={cat.id_category.toString()}
+              >
+                {cat.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      <div className="flex justify-between gap-2">
+        <Select value={accountId} onValueChange={setAccountId} required>
+          <SelectTrigger className="w-1/2">
+            <SelectValue placeholder="Select Account" />
+          </SelectTrigger>
+          <SelectContent>
+            {accounts.map((acc) => (
+              <SelectItem
+                key={acc.id_account}
+                value={acc.id_account.toString()}
+              >
+                {acc.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        <Select
+          value={transactionFrequency}
+          onValueChange={setTransactionFrequency}
+          required
+        >
+          <SelectTrigger className="w-1/2">
+            <SelectValue placeholder="Frequency" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="not_scheduled">Not scheduled</SelectItem>
+            <SelectItem value="DAILY">Daily</SelectItem>
+            <SelectItem value="WEEKLY">Weekly</SelectItem>
+            <SelectItem value="MONTHLY">Monthly</SelectItem>
+            <SelectItem value="YEARLY">Yearly</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      {error && <p className="text-red-500 text-sm">{error}</p>}
+      <Button type="submit" className="w-full" disabled={isSubmitting}>
+        Save
+      </Button>
+    </form>
+  );
+
+  if (isDesktop) {
+    return (
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogTrigger asChild>
+          <Button>+ Add Transaction</Button>
+        </DialogTrigger>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Add New Transaction</DialogTitle>
+          </DialogHeader>
+          {TransactionForm}
+        </DialogContent>
+      </Dialog>
+    );
+  }
+
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
+    <Drawer open={open} onOpenChange={setOpen}>
+      <DrawerTrigger asChild>
         <Button>+ Add Transaction</Button>
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
-        <DialogHeader>
-          <DialogTitle>Add New Transaction</DialogTitle>
-        </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4 mt-4">
-          <Select value={type} onValueChange={setType}>
-            <SelectTrigger>
-              <SelectValue placeholder="Type" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="EXPENSE">Expense</SelectItem>
-              <SelectItem value="INCOME">Income</SelectItem>
-            </SelectContent>
-          </Select>
-
-          <div className="flex gap-2">
-            <Input
-              placeholder="Amount"
-              id="amount"
-              type="number"
-              step="0.01"
-              min="0.01"
-              value={amount}
-              onChange={(e) => setAmount(e.target.value)}
-              className="flex-1"
-              required
-            />
-            <Select value={currencyId} onValueChange={setCurrencyId} required>
-              <SelectTrigger className="w-[100px]">
-                <SelectValue placeholder="Waluta" />
-              </SelectTrigger>
-              <SelectContent>
-                {currencies.map((cur) => (
-                  <SelectItem
-                    key={cur.id_currency}
-                    value={cur.id_currency.toString()}
-                  >
-                    {cur.code}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <Input
-            type="text"
-            placeholder="Description"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            required
-          />
-          <div className="grid gap-2">
-            <Select value={categoryId} onValueChange={setCategoryId} required>
-              <SelectTrigger>
-                <SelectValue placeholder="Choose category" />
-              </SelectTrigger>
-              <SelectContent>
-                {categories.map((cat) => (
-                  <SelectItem
-                    key={cat.id_category}
-                    value={cat.id_category.toString()}
-                  >
-                    {cat.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="flex justify-between">
-            <Select value={accountId} onValueChange={setAccountId} required>
-              <SelectTrigger>
-                <SelectValue placeholder="Select Account" />
-              </SelectTrigger>
-              <SelectContent>
-                {accounts.map((acc) => (
-                  <SelectItem
-                    key={acc.id_account}
-                    value={acc.id_account.toString()}
-                  >
-                    {acc.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Select
-              value={transactionFrequency}
-              onValueChange={setTransactionFrequency}
-              required
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select Transaction Frequency" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="not_scheduled">Not scheduled</SelectItem>
-                <SelectItem value="DAILY">Daily</SelectItem>
-                <SelectItem value="WEEKLY">Weekly</SelectItem>
-                <SelectItem value="MONTHLY">Monthly</SelectItem>
-                <SelectItem value="YEARLY">Yearly</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          {error && <p className="text-red-500 text-sm">{error}</p>}
-          <Button type="submit" className="w-full" disabled={isSubmitting}>
-            Save
-          </Button>
-        </form>
-      </DialogContent>
-    </Dialog>
+      </DrawerTrigger>
+      <DrawerContent>
+        <DrawerHeader className="text-left">
+          <DrawerTitle>Add New Transaction</DrawerTitle>
+        </DrawerHeader>
+        <div className="px-4 pb-8">
+          {TransactionForm}
+        </div>
+      </DrawerContent>
+    </Drawer>
   );
 }

@@ -24,6 +24,25 @@ export function Login({
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
 
+  const handleDemoLogin = async () => {
+    setError('');
+    try {
+      const response = await fetch(`${apiUrl}/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: import.meta.env.VITE_DEMO_EMAIL,
+          password: import.meta.env.VITE_DEMO_PASSWORD,
+        }),
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.detail || 'login error');
+      onLogin(data.token);
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
@@ -99,6 +118,14 @@ export function Login({
             <CardFooter className="flex-col gap-4 mt-6 px-0 pb-2">
               <Button type="submit" className="w-full">
                 Login
+              </Button>
+              <Button
+                type="button"
+                onClick={handleDemoLogin}
+                className="w-full"
+                variant="secondary"
+              >
+                Try demo
               </Button>
 
               <div className="relative w-full py-2">

@@ -150,7 +150,7 @@ export default function Transactions({ transactions, loading }) {
             No transactions found.
           </div>
         ) : isMobile ? (
-          <div className="flex flex-col gap-3">
+          <div className="flex flex-col rounded-lg border border-border/50 overflow-hidden">
             {filteredTransactions.map((t) => {
               const isExpense = t.type === 'EXPENSE';
               const formattedAmount = formatTransactionAmount(
@@ -160,42 +160,34 @@ export default function Transactions({ transactions, loading }) {
 
               return (
                 <div
-                  key={t.id_transaction || Math.random()}
-                  className="flex items-center justify-between p-3 border rounded-lg bg-background shadow-sm"
+                  key={t.id_transaction}
+                  className="flex items-center justify-between px-4 py-3 border-b border-border/50 last:border-0 bg-card"
                 >
                   <div className="flex items-center gap-3">
                     <div
-                      className={`p-2 rounded-full ${isExpense ? 'bg-red-100 text-red-600 dark:bg-red-900/30' : 'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30'}`}
-                    >
-                      {isExpense ? (
-                        <ArrowDownLeft className="h-4 w-4" />
-                      ) : (
-                        <ArrowUpRight className="h-4 w-4" />
-                      )}
-                    </div>
-
+                      className={`w-1 h-9 rounded-full flex-shrink-0 ${
+                        isExpense ? 'bg-red-500' : 'bg-emerald-500'
+                      }`}
+                    />
                     <div className="flex flex-col">
-                      <span className="font-semibold text-sm leading-none mb-1">
+                      <span className="text-sm font-medium text-foreground">
                         {t.description}
                       </span>
-                      <span className="text-xs text-muted-foreground flex items-center gap-1">
-                        {t.category_name || 'Uncategorized'}
+                      <span className="text-xs text-muted-foreground mt-0.5">
+                        {t.category_name || 'Uncategorized'} ·{' '}
+                        {new Date(t.date).toLocaleDateString('pl-PL')}
                       </span>
                     </div>
                   </div>
 
-                  <div className="flex flex-col items-end">
-                    <span
-                      className={`font-bold ${isExpense ? 'text-red-500' : 'text-emerald-500'}`}
-                    >
-                      {isExpense ? '-' : '+'}
-                      {formattedAmount}
-                    </span>
-                    <span className="text-[10px] text-muted-foreground flex items-center gap-1 mt-0.5">
-                      <Calendar className="h-3 w-3" />
-                      {new Date(t.date).toLocaleDateString('pl-PL')}
-                    </span>
-                  </div>
+                  <span
+                    className={`text-sm font-medium flex-shrink-0 ml-4 ${
+                      isExpense ? 'text-red-500' : 'text-emerald-500'
+                    }`}
+                  >
+                    {isExpense ? '-' : '+'}
+                    {formattedAmount}
+                  </span>
                 </div>
               );
             })}

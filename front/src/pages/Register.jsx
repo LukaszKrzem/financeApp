@@ -61,6 +61,7 @@ export function Register({
             </Button>
           </CardAction>
         </CardHeader>
+
         <CardContent>
           <form onSubmit={handleSubmit}>
             <div className="flex flex-col gap-6">
@@ -102,20 +103,37 @@ export function Register({
               </div>
               {error && <p className="text-sm text-red-500">{error}</p>}
             </div>
-            <CardFooter className="flex-col gap-2">
+
+            <CardFooter className="flex-col gap-4 mt-6 px-0 pb-2">
               <Button type="submit" className="w-full">
                 Sign Up
               </Button>
-              <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
-                <GoogleLogin
-                  variant="outline"
-                  className="w-full"
-                  onSuccess={handleGoogleLogin}
-                  onError={() => {
-                    console.log("Login Failed");
-                  }}
-                />
-              </GoogleOAuthProvider>
+
+              <div className="relative w-full py-2">
+                <div className="absolute inset-0 flex items-center">
+                  <span className="w-full border-t border-muted" />
+                </div>
+                <div className="relative flex justify-center text-xs uppercase">
+                  <span className="bg-background px-2 text-muted-foreground">
+                    LUB
+                  </span>
+                </div>
+              </div>
+
+              <div className="w-full flex justify-center">
+                <GoogleOAuthProvider
+                  clientId={
+                    GOOGLE_CLIENT_ID || import.meta.env.VITE_GOOGLE_CLIENT_ID
+                  }
+                >
+                  <GoogleLogin
+                    onSuccess={handleGoogleLogin}
+                    onError={() => {
+                      console.log("Login Failed");
+                    }}
+                  />
+                </GoogleOAuthProvider>
+              </div>
             </CardFooter>
           </form>
         </CardContent>
@@ -123,4 +141,5 @@ export function Register({
     </div>
   );
 }
+
 export default Register;

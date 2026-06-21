@@ -13,6 +13,7 @@ import { Label } from "@/components/ui/label";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { GoogleLogin, GoogleOAuthProvider } from "@react-oauth/google";
+
 export function Login({
   apiUrl,
   onLogin,
@@ -29,11 +30,9 @@ export function Login({
     try {
       const response = await fetch(`${apiUrl}/login`, {
         method: "POST",
-
         headers: {
           "Content-Type": "application/json",
         },
-
         body: JSON.stringify({ email: email, password: password }),
       });
 
@@ -50,8 +49,9 @@ export function Login({
       setError(err.message);
     }
   };
+
   return (
-    <div className="flex h-screen items-center justify-center ">
+    <div className="flex h-screen items-center justify-center">
       <Card className="w-full max-w-sm">
         <CardHeader>
           <CardTitle>Login to your account</CardTitle>
@@ -64,6 +64,7 @@ export function Login({
             </Button>
           </CardAction>
         </CardHeader>
+
         <CardContent>
           <form onSubmit={handleSubmit}>
             <div className="flex flex-col gap-6">
@@ -96,24 +97,37 @@ export function Login({
               </div>
               {error && <p className="text-sm text-red-500">{error}</p>}
             </div>
-            <CardFooter className="flex-col gap-2">
+
+            <CardFooter className="flex-col gap-4 mt-6 px-0 pb-2">
               <Button type="submit" className="w-full">
                 Login
               </Button>
-              <GoogleOAuthProvider
-                clientId={
-                  GOOGLE_CLIENT_ID || import.meta.env.VITE_GOOGLE_CLIENT_ID
-                }
-              >
-                <GoogleLogin
-                  variant="outline"
-                  className="w-full"
-                  onSuccess={handleGoogleLogin}
-                  onError={() => {
-                    console.log("Login Failed");
-                  }}
-                />
-              </GoogleOAuthProvider>
+
+              <div className="relative w-full py-2">
+                <div className="absolute inset-0 flex items-center">
+                  <span className="w-full border-t border-muted" />
+                </div>
+                <div className="relative flex justify-center text-xs uppercase">
+                  <span className="bg-background px-2 text-muted-foreground">
+                    OR
+                  </span>
+                </div>
+              </div>
+
+              <div className="w-full flex justify-center">
+                <GoogleOAuthProvider
+                  clientId={
+                    GOOGLE_CLIENT_ID || import.meta.env.VITE_GOOGLE_CLIENT_ID
+                  }
+                >
+                  <GoogleLogin
+                    onSuccess={handleGoogleLogin}
+                    onError={() => {
+                      console.log("Login Failed");
+                    }}
+                  />
+                </GoogleOAuthProvider>
+              </div>
             </CardFooter>
           </form>
         </CardContent>
@@ -121,4 +135,5 @@ export function Login({
     </div>
   );
 }
+
 export default Login;

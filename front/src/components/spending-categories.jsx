@@ -91,7 +91,12 @@ export function SpendingCategories({ transactions = [] }) {
         ) : (
           <div className="flex flex-col gap-6 lg:flex-row lg:items-center">
             <div className="mx-auto h-[180px] w-[180px] lg:mx-0">
-              <ResponsiveContainer width="100%" height="100%">
+              <ResponsiveContainer
+                width="100%"
+                height="100%"
+                minWidth={1}
+                minHeight={1}
+              >
                 <PieChart>
                   <Tooltip content={<CustomTooltip />} />
                   <Pie

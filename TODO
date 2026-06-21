@@ -1,9 +1,0 @@
-Random order 
-
-1. Check if what i wrote works for sure i mean it should i tested it but idk you never know 
-2. Make some req file to write all needed liabreis for this project  
-3. Maybe try to better organise files in backend (idk if dataabse structure dependencies should be left in main folder or should we create new folder for some of them coz similar files will be crated later idk)
-
-Preferably after doing points before can do this
-4. Make tests for backend
-5. Frontend for 1. Main menu (after opening in without being logged in its takes you there) with 2 buttons for now login and register 2. Login with login 3. Zarejestruj się with register 4. Dashboard with only Wyloguj button for now. Make sure to automaticlly move user from dashboard to Main menu if not logged in and automatticly move user to dashboard if logged in

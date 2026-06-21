@@ -2,6 +2,7 @@ import { AppSidebar } from "@/components/app-sidebar";
 import { SiteHeader } from "@/components/site-header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { Outlet } from "react-router-dom";
+import BottomNav from "./BottomNav";
 
 export default function Layout({
   user,
@@ -32,10 +33,12 @@ export default function Layout({
           apiUrl={apiUrl}
         />
 
-        <div className="flex flex-1 flex-col">
+        <div className="flex flex-1 flex-col pb-24 md:pb-0">
           <Outlet />
         </div>
       </SidebarInset>
+
+      <BottomNav />
     </SidebarProvider>
   );
 }

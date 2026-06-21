@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/select";
 import { IconPlus } from "@tabler/icons-react";
 
-export function AddAccountDialog({ token, onAccountAdded, currencies = [] }) {
+export function AddAccountDialog({ token, onAccountAdded, currencies = [], apiUrl }) {
     const [open, setOpen] = useState(false);
     const [name, setName] = useState("");
     const [balance, setBalance] = useState("");
@@ -26,7 +26,7 @@ export function AddAccountDialog({ token, onAccountAdded, currencies = [] }) {
         if (!name || !balance || !currencyId) return;
 
         try {
-            const response = await fetch("http://localhost:8000/accounts/", {
+            const response = await fetch(`${apiUrl}/accounts/`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

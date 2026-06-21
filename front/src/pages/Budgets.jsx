@@ -1,7 +1,3 @@
-import { useState, useEffect } from "react";
-import { AppSidebar } from "@/components/app-sidebar";
-import { SiteHeader } from "@/components/site-header";
-import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { Progress } from "@/components/ui/progress";
 import { AddBudgetDialog } from "@/components/AddBudgetDialog";
 
@@ -30,6 +26,7 @@ export default function BudgetsPage({
   budgets,
   setRefreshing,
   loading,
+  apiUrl,
 }) {
   return (
     <div className="flex flex-1 flex-col p-4 lg:p-6 gap-6">
@@ -48,6 +45,7 @@ export default function BudgetsPage({
             setRefreshing((prev) => prev + 1);
           }}
           categories={categories}
+          apiUrl={apiUrl}
         />
       </div>
 

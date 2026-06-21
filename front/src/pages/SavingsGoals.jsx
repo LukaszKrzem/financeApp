@@ -1,8 +1,6 @@
 import { useEffect, useState } from "react";
 import { IconPlus, IconTrash } from "@tabler/icons-react";
 
-import { AppSidebar } from "@/components/app-sidebar";
-import { SiteHeader } from "@/components/site-header";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -12,9 +10,6 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Progress } from "@/components/ui/progress";
-import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
-
-const API_URL = "http://localhost:8000";
 
 const formatMoney = (value, currencyCode = "PLN") =>
   new Intl.NumberFormat("en-US", {
@@ -22,7 +17,7 @@ const formatMoney = (value, currencyCode = "PLN") =>
     currency: currencyCode,
   }).format(Number(value) || 0);
 
-export default function SavingsGoals({ user, onLogout, token }) {
+export default function SavingsGoals({ user, onLogout, token, apiUrl }) {
   const [goals, setGoals] = useState([]);
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
@@ -36,7 +31,7 @@ export default function SavingsGoals({ user, onLogout, token }) {
     if (!token) return;
 
     try {
-      const response = await fetch(`${API_URL}/savings-goals/`, {
+      const response = await fetch(`${apiUrl}/savings-goals/`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -58,7 +53,7 @@ export default function SavingsGoals({ user, onLogout, token }) {
       if (!token) return;
 
       try {
-        const response = await fetch(`${API_URL}/savings-goals/`, {
+        const response = await fetch(`${apiUrl}/savings-goals/`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -82,7 +77,7 @@ export default function SavingsGoals({ user, onLogout, token }) {
     event.preventDefault();
 
     try {
-      const response = await fetch(`${API_URL}/savings-goals/`, {
+      const response = await fetch(`${apiUrl}/savings-goals/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -115,7 +110,7 @@ export default function SavingsGoals({ user, onLogout, token }) {
     if (amount <= 0) return;
 
     try {
-      const response = await fetch(`${API_URL}/savings-goals/${goalId}/add`, {
+      const response = await fetch(`${apiUrl}/savings-goals/${goalId}/add`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
@@ -140,7 +135,7 @@ export default function SavingsGoals({ user, onLogout, token }) {
 
   const handleDeleteGoal = async (goalId) => {
     try {
-      const response = await fetch(`${API_URL}/savings-goals/${goalId}`, {
+      const response = await fetch(`${apiUrl}/savings-goals/${goalId}`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${token}`,

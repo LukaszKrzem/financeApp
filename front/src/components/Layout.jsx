@@ -11,6 +11,7 @@ export default function Layout({
   categories,
   currencies,
   setRefreshing,
+  apiUrl,
 }) {
   return (
     <SidebarProvider
@@ -28,6 +29,7 @@ export default function Layout({
           categories={categories}
           currencies={currencies}
           accounts={accounts}
+          apiUrl={apiUrl}
         />
 
         <div className="flex flex-1 flex-col">

@@ -14,7 +14,7 @@ import Transactions from "./pages/Transactions";
 import Settings from "./pages/Settings";
 import Layout from "./components/Layout";
 
-const API_URL = "http://localhost:8000";
+const API_URL = import.meta.env.VITE_API_URL;
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
 function App() {
@@ -78,7 +78,7 @@ function App() {
     const fetchCurrencies = async () => {
       if (!token) return;
       try {
-        const response = await fetch("http://localhost:8000/currencies", {
+        const response = await fetch(`${API_URL}/currencies`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (response.ok) {
@@ -240,6 +240,7 @@ function App() {
                 categories={categories}
                 currencies={currencies}
                 setRefreshing={setRefreshing}
+                apiUrl={API_URL}
               />
             }
           >
@@ -279,6 +280,7 @@ function App() {
                     budgets={budgets}
                     setRefreshing={setRefreshing}
                     loading={loading}
+                    apiUrl={API_URL}
                   />
                 ) : (
                   <Navigate to="/" replace />
@@ -295,6 +297,7 @@ function App() {
                     loading={loading}
                     setRefreshing={setRefreshing}
                     currencies={currencies}
+                    apiUrl={API_URL}
                   />
                 ) : (
                   <Navigate to="/" replace />
@@ -309,6 +312,7 @@ function App() {
                     onLogout={handleLogout}
                     user={user}
                     token={token}
+                    apiUrl={API_URL}
                   />
                 ) : (
                   <Navigate to="/" replace />

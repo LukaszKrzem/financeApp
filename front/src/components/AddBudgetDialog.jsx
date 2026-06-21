@@ -21,6 +21,7 @@ export function AddBudgetDialog({
   onBudgetAdded,
   categories = [],
   setRefreshing,
+  apiUrl,
 }) {
   const [open, setOpen] = useState(false);
   const [amount, setAmount] = useState("");
@@ -61,7 +62,7 @@ export function AddBudgetDialog({
     const endDate = nextMonth.toISOString().split("T")[0];
 
     try {
-      const response = await fetch("http://localhost:8000/budgets/", {
+      const response = await fetch(`${apiUrl}/budgets/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

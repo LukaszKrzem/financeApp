@@ -16,7 +16,6 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { no } from "zod/locales";
 
 export function SiteHeader({
   user,
@@ -25,6 +24,7 @@ export function SiteHeader({
   categories = [],
   accounts = [],
   currencies = [],
+  apiUrl,
 }) {
   const [notifications, setNotifications] = useState([]);
 
@@ -32,7 +32,7 @@ export function SiteHeader({
     const fetchNotifications = async () => {
       if (!token) return;
       try {
-        const response = await fetch("http://localhost:8000/notifications", {
+        const response = await fetch(`${apiUrl}/notifications`, {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
@@ -53,8 +53,7 @@ export function SiteHeader({
 
   const handleMarkAsRead = async (id) => {
     try {
-      const response = await fetch(
-        `http://localhost:8000/notifications/${id}/read`,
+      const response = await fetch(`${apiUrl}/notifications/${id}/read`,
         {
           method: "PATCH",
           headers: {
@@ -155,6 +154,7 @@ export function SiteHeader({
               categories={categories}
               accounts={accounts}
               currencies={currencies}
+              apiUrl={apiUrl}
             />
           )}
         </div>

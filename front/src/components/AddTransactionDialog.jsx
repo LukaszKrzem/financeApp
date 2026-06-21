@@ -22,6 +22,7 @@ export function AddTransactionDialog({
   accounts = [],
   categories = [],
   currencies = [],
+  apiUrl,
 }) {
   const [open, setOpen] = useState(false);
   const [amount, setAmount] = useState("");
@@ -79,7 +80,7 @@ export function AddTransactionDialog({
     }
 
     try {
-      const response = await fetch(`http://localhost:8000${endpoint}`, {
+      const response = await fetch(`${apiUrl}${endpoint}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -40,7 +40,14 @@ export default function Layout({
         </div>
       </SidebarInset>
 
-      <BottomNav />
+      <BottomNav
+        token={token}
+        setRefreshing={setRefreshing}
+        accounts={accounts}
+        categories={categories}
+        currencies={currencies}
+        apiUrl={apiUrl}
+      />
     </SidebarProvider>
   );
 }

@@ -33,6 +33,7 @@ export function AddTransactionDialog({
   categories = [],
   currencies = [],
   apiUrl,
+  trigger,
 }) {
   const [open, setOpen] = useState(false);
   const [amount, setAmount] = useState("");
@@ -224,7 +225,7 @@ export function AddTransactionDialog({
     return (
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>
-          <Button>+ Add Transaction</Button>
+          {trigger || <Button>+ Add Transaction</Button>}
         </DialogTrigger>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
@@ -239,7 +240,7 @@ export function AddTransactionDialog({
   return (
     <Drawer open={open} onOpenChange={setOpen}>
       <DrawerTrigger asChild>
-        <Button>+ Add Transaction</Button>
+        {trigger || <Button>+ Add Transaction</Button>}
       </DrawerTrigger>
       <DrawerContent>
         <DrawerHeader className="text-left">

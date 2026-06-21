@@ -148,6 +148,7 @@ export function SiteHeader({
           </Popover>
 
           {token && (
+          <div className="hidden md:flex">
             <AddTransactionDialog
               token={token}
               setRefreshing={setRefreshing}
@@ -156,6 +157,7 @@ export function SiteHeader({
               currencies={currencies}
               apiUrl={apiUrl}
             />
+          </div>
           )}
         </div>
       </div>

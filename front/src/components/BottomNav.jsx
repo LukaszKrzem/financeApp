@@ -1,14 +1,22 @@
 import { useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
-import { Home, ArrowRightLeft, PieChart, Settings, MoreHorizontal, Wallet, Target } from "lucide-react";
+import { Home, ArrowRightLeft, PieChart, Settings, MoreHorizontal, Wallet, Target, Plus } from "lucide-react";
 import {
   Drawer,
   DrawerContent,
   DrawerHeader,
   DrawerTitle,
 } from "@/components/ui/drawer";
+import { AddTransactionDialog } from "@/components/AddTransactionDialog";
 
-export function BottomNav() {
+export function BottomNav({
+  token,
+  setRefreshing,
+  accounts = [],
+  categories = [],
+  currencies = [],
+  apiUrl,
+}) {
   const [moreOpen, setMoreOpen] = useState(false);
   const navigate = useNavigate();
 
@@ -27,7 +35,7 @@ export function BottomNav() {
   return (
     <>
       <nav className="fixed bottom-0 left-0 right-0 z-50 border-t bg-background shadow-[0_-5px_15px_rgba(0,0,0,0.05)] md:hidden pb-6 pt-2 px-2">
-        <div className="grid w-full grid-cols-5 mx-auto max-w-md">
+        <div className="grid w-full grid-cols-5 mx-auto max-w-md items-end">
           <NavLink to="/dashboard" className={linkStyles}>
             <Home className="h-5 w-5 sm:h-6 sm:w-6 mb-0.5" />
             <span>Dashboard</span>
@@ -38,14 +46,28 @@ export function BottomNav() {
             <span>Transactions</span>
           </NavLink>
 
+          <div className="flex flex-col items-center justify-end pb-1">
+            <AddTransactionDialog
+              token={token}
+              setRefreshing={setRefreshing}
+              accounts={accounts}
+              categories={categories}
+              currencies={currencies}
+              apiUrl={apiUrl}
+              trigger={
+                <button className="flex flex-col items-center justify-center -mt-6 transition-all active:scale-95">
+                  <div className="flex size-14 items-center justify-center rounded-full bg-primary shadow-lg shadow-primary/30">
+                    <Plus className="size-6 text-primary-foreground" />
+                  </div>
+                  <span className="text-[10px] text-muted-foreground mt-1">Add</span>
+                </button>
+              }
+            />
+          </div>
+
           <NavLink to="/budgets" className={linkStyles}>
             <PieChart className="h-5 w-5 sm:h-6 sm:w-6 mb-0.5" />
             <span>Budgets</span>
-          </NavLink>
-
-          <NavLink to="/settings" className={linkStyles}>
-            <Settings className="h-5 w-5 sm:h-6 sm:w-6 mb-0.5" />
-            <span>Settings</span>
           </NavLink>
 
           <button

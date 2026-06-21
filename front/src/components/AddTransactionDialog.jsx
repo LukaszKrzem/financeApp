@@ -50,6 +50,11 @@ export function AddTransactionDialog({
   const isMobile = useIsMobile();
   const isDesktop = !isMobile;
 
+  const filteredCategories = categories.filter((cat) => cat.type === type);
+  useEffect(() => {
+    setCategoryId('');
+  }, [type]);
+
   useEffect(() => {
     if (!accountId && accounts.length > 0) {
       setAccountId(accounts[0].id_account.toString());
@@ -169,7 +174,7 @@ export function AddTransactionDialog({
             <SelectValue placeholder="Choose category" />
           </SelectTrigger>
           <SelectContent>
-            {categories.map((cat) => (
+            {filteredCategories.map((cat) => (
               <SelectItem
                 key={cat.id_category}
                 value={cat.id_category.toString()}

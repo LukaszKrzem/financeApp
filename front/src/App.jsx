@@ -192,7 +192,13 @@ function App() {
         <Routes>
           <Route
             path="/"
-            element={token ? <Navigate to="/dashboard" replace /> : <Home />}
+            element={
+              token ? (
+                <Navigate to="/dashboard" replace />
+              ) : (
+                <Home apiUrl={API_URL} onLogin={handleLogin} />
+              )
+            }
           />
           <Route
             path="/login"
@@ -240,7 +246,13 @@ function App() {
           >
             <Route
               path="/"
-              element={token ? <Navigate to="/dashboard" replace /> : <Home />}
+              element={
+                token ? (
+                  <Navigate to="/dashboard" replace />
+                ) : (
+                  <Home apiUrl={API_URL} onLogin={handleLogin} />
+                )
+              }
             />
 
             <Route

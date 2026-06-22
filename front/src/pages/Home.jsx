@@ -37,7 +37,7 @@ function Home({ apiUrl, onLogin }) {
           SmartBudget
         </h1>
         <p className="text-lg text-muted-foreground">
-          Aplikacja do zarządzania Twoimi finansami
+          Manage your finances, smarter.
         </p>
       </div>
 

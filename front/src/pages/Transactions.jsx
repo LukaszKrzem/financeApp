@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { ArrowUpRight, ArrowDownLeft, Calendar } from 'lucide-react';
+import { CategoryBadge } from '@/lib/categoryBadge';
 
 const formatTransactionAmount = (amount, currencyCode) => {
   const value = new Intl.NumberFormat('pl-PL', {
@@ -41,6 +42,9 @@ export const columns = [
   {
     accessorKey: 'category_name',
     header: 'Category',
+    cell: ({ row }) => (
+      <CategoryBadge category={row.getValue('category_name')} />
+    ),
   },
   {
     id: 'amount',
@@ -59,7 +63,7 @@ export const columns = [
 
       return (
         <div
-          className={`font-medium ${isExpense ? 'text-red-500' : 'text-emerald-500'}`}
+          className={`font-semibold ${isExpense ? 'text-red-500' : 'text-emerald-500'}`}
         >
           {isExpense ? '-' : '+'}
           {formatted}
@@ -144,7 +148,9 @@ export default function Transactions({ transactions, loading }) {
         </div>
 
         {loading ? (
-          <div className="text-center py-10">Loading transactions...</div>
+          <div className="text-center py-10 text-muted-foreground">
+            Loading transactions...
+          </div>
         ) : filteredTransactions.length === 0 ? (
           <div className="text-center py-10 text-muted-foreground">
             No transactions found.
@@ -169,19 +175,21 @@ export default function Transactions({ transactions, loading }) {
                         isExpense ? 'bg-red-500' : 'bg-emerald-500'
                       }`}
                     />
-                    <div className="flex flex-col">
+                    <div className="flex flex-col gap-1.5">
                       <span className="text-sm font-medium text-foreground">
                         {t.description}
                       </span>
-                      <span className="text-xs text-muted-foreground mt-0.5">
-                        {t.category_name || 'Uncategorized'} ·{' '}
-                        {new Date(t.date).toLocaleDateString('pl-PL')}
-                      </span>
+                      <div className="flex items-center gap-2">
+                        <CategoryBadge category={t.category_name} />
+                        <span className="text-xs text-muted-foreground">
+                          · {new Date(t.date).toLocaleDateString('pl-PL')}
+                        </span>
+                      </div>
                     </div>
                   </div>
 
                   <span
-                    className={`text-sm font-medium flex-shrink-0 ml-4 ${
+                    className={`text-sm font-semibold flex-shrink-0 ml-4 ${
                       isExpense ? 'text-red-500' : 'text-emerald-500'
                     }`}
                   >

@@ -4,6 +4,7 @@ import { TooltipProvider } from '@/components/ui/tooltip';
 import './App.css';
 
 import Layout from './components/Layout';
+import { PageSkeleton } from './components/page-skeleton';
 
 const Home = lazy(() => import('./pages/Home'));
 const Login = lazy(() => import('./pages/Login'));
@@ -190,13 +191,7 @@ function App() {
   return (
     <TooltipProvider>
       <BrowserRouter>
-        <Suspense
-          fallback={
-            <div className="flex min-h-screen items-center justify-center">
-              Loading...
-            </div>
-          }
-        >
+        <Suspense fallback={<PageSkeleton />}>
           <Routes>
             <Route
               path="/"

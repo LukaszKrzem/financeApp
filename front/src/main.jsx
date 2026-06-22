@@ -9,7 +9,7 @@ createRoot(document.getElementById('root')).render(
   <StrictMode>
     <ThemeProvider
       defaultTheme="system"
-      storageKey="spendwise-ui-theme"
+      storageKey="smartbudget-ui-theme"
       attribute="class"
     >
       <App />

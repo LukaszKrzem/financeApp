@@ -21,7 +21,7 @@ export default function Settings({ user, token, onLogout }) {
         <div className="bg-card border-border/50 border rounded-xl p-6">
           <h2 className="text-lg font-semibold mb-4">Appearance</h2>
           <p className="text-sm text-muted-foreground mb-4">
-            Customize how SpendWise looks on your device.
+            Customize how SmartBudget looks on your device.
           </p>
 
           <div className="flex flex-wrap gap-4">

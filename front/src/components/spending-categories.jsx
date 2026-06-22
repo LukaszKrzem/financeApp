@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from 'recharts';
 import { getIconForCategory, DEFAULT_ICON } from '@/lib/categoryIcons';
+import { categoryColorMap, DEFAULT_CATEGORY_COLOR } from '@/lib/categoryBadge';
 
 import {
   Card,
@@ -63,10 +64,10 @@ export function SpendingCategories({ transactions = [] }) {
       }, {});
 
     return Object.entries(categories)
-      .map(([name, value], index) => ({
+      .map(([name, value]) => ({
         name,
         value,
-        color: chartColors[index % chartColors.length],
+        color: categoryColorMap[name] ?? DEFAULT_CATEGORY_COLOR,
         icon: getIconForCategory(name),
       }))
       .sort((a, b) => b.value - a.value);

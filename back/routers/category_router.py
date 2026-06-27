@@ -1,8 +1,7 @@
 import sqlalchemy.orm
-from fastapi import APIRouter, Depends
-
 from back import structure
 from back.database import get_db
+from fastapi import APIRouter, Depends
 
 router = APIRouter(prefix="/categories", tags=["Categories"])
 

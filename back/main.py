@@ -7,12 +7,12 @@ from back.routers import (
     account_router,
     budget_router,
     category_router,
-    scheduled_router,
+    currency_router,
+    notification_router,
     savings_goal_router,
+    scheduled_router,
     transaction_router,
     user_router,
-    notification_router,
-    currency_router,
 )
 
 # ! Important !

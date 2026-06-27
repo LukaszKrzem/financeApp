@@ -1,5 +1,5 @@
-from fastapi import HTTPException
 import sqlalchemy.orm
+from fastapi import HTTPException
 
 import back.dto.savings_goal_dto as savings_goal_dto
 import back.structure as structure

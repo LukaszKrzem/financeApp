@@ -1,11 +1,10 @@
 from typing import List
 
-import sqlalchemy.orm
-from fastapi import APIRouter, Depends
-
 import back.dto.currency_dto as currency_dto
 import back.structure as structure
+import sqlalchemy.orm
 from back.database import get_db
+from fastapi import APIRouter, Depends
 
 router = APIRouter(prefix="/currencies", tags=["Currencies"])
 

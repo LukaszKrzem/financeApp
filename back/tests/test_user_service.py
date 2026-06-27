@@ -1,6 +1,7 @@
 import pytest
-from back.service import user_service
+
 from back.dto.user_dto import UserCreate
+from back.service import user_service
 
 
 def test_create_user():

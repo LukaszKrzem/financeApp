@@ -2,14 +2,13 @@ from datetime import datetime, timedelta
 from decimal import Decimal
 from typing import List
 
-import httpx
-import sqlalchemy.orm
-from fastapi import APIRouter, Depends, HTTPException
-
 import back.dto.transaction_dto as transaction_dto
 import back.structure as structure
+import httpx
+import sqlalchemy.orm
 from back.database import get_db
 from back.dependencies import get_current_user
+from fastapi import APIRouter, Depends, HTTPException
 
 router = APIRouter(prefix="/transactions", tags=["Transactions"])
 

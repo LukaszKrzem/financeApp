@@ -1,12 +1,11 @@
 from typing import List
 
-import sqlalchemy.orm
-from fastapi import APIRouter, Depends, status
-
 import back.dto.budget_dto as budget_dto
+import sqlalchemy.orm
 from back.database import get_db
 from back.dependencies import get_current_user
 from back.service import budget_service
+from fastapi import APIRouter, Depends, status
 
 router = APIRouter(prefix="/budgets", tags=["Budgets"])
 

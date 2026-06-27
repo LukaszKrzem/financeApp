@@ -1,11 +1,10 @@
 import pytest
 import sqlalchemy
-from sqlalchemy.orm import sessionmaker
-from back.database import Base
-from back.main import app
 from fastapi.testclient import TestClient
-from back.database import get_db
+from sqlalchemy.orm import sessionmaker
 
+from back.database import Base, get_db
+from back.main import app
 
 DB_URL = "sqlite:///:memory:"
 

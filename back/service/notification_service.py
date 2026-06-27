@@ -1,6 +1,8 @@
+from typing import List
+
 import sqlalchemy.orm
 from fastapi import HTTPException
-from typing import List
+
 import back.structure as structure
 
 

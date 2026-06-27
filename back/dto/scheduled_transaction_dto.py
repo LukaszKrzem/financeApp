@@ -1,7 +1,9 @@
-import pydantic
 from datetime import date
 from decimal import Decimal
 from typing import Optional
+
+import pydantic
+
 from back.structure import TransactionType
 
 

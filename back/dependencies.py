@@ -1,5 +1,6 @@
-from fastapi import Depends, HTTPException, status
 import sqlalchemy.orm
+from fastapi import Depends, HTTPException, status
+
 import back.database
 import back.structure
 from back.service import auth_service, user_service

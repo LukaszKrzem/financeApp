@@ -1,12 +1,11 @@
 from typing import List
 
-import sqlalchemy.orm
-from fastapi import APIRouter, Depends, status
-
 import back.dto.savings_goal_dto as savings_goal_dto
+import sqlalchemy.orm
 from back.database import get_db
 from back.dependencies import get_current_user
 from back.service import savings_goal_service
+from fastapi import APIRouter, Depends, status
 
 router = APIRouter(prefix="/savings-goals", tags=["Savings Goals"])
 

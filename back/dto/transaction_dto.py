@@ -21,7 +21,7 @@ class TransactionOut(pydantic.BaseModel):
     amount: Decimal
     date: datetime
     description: Optional[str]
-    type: TransactionType  # Made it TransactionType to avoid confusion and better work with structure
+    type: TransactionType  # Made it TransactionType to avoid confusion
     Account_id_account: int
     category_name: Optional[str] = None
     exchange_rate: Optional[float] = None

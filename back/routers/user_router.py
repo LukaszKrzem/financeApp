@@ -1,14 +1,13 @@
 import secrets
 import string
 
-import sqlalchemy.orm
-from fastapi import APIRouter, Depends, HTTPException, status
-from pydantic import BaseModel, EmailStr
-
 import back.dto.user_dto
+import sqlalchemy.orm
 from back.database import get_db
 from back.dependencies import get_current_user
 from back.service import auth_service, user_service
+from fastapi import APIRouter, Depends, HTTPException, status
+from pydantic import BaseModel, EmailStr
 
 # To group user endpoints
 router = APIRouter(tags=["Users"])
@@ -57,7 +56,7 @@ def login(
     return {"token": token, "token_type": "bearer", "user": user}
 
 
-# Endpoint to get current user info based on the provided JWT token. Used for getting user info
+# Endpoint to get current userinfo based on provided JWT token. Used for gettin userinfo
 @router.get("/me", response_model=back.dto.user_dto.UserOut)
 def read_users_me(current_user=Depends(get_current_user)):
     return current_user

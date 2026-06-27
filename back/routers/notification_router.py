@@ -1,12 +1,11 @@
 from typing import List
 
-import sqlalchemy.orm
-from fastapi import APIRouter, Depends
-
 import back.dto.notification_dto as notification_dto
+import sqlalchemy.orm
 from back.database import get_db
 from back.dependencies import get_current_user
 from back.service import notification_service
+from fastapi import APIRouter, Depends
 
 router = APIRouter(prefix="/notifications", tags=["Notifications"])
 

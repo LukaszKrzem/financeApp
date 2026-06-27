@@ -1,6 +1,8 @@
-from jose import jwt
-from freezegun import freeze_time
 from datetime import datetime, timedelta, timezone
+
+from freezegun import freeze_time
+from jose import jwt
+
 from back.service import auth_service
 
 

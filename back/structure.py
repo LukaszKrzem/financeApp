@@ -1,5 +1,6 @@
 # IMPORTANT
-# I know it's fucked but unloko we need to have a meeting and decide how we want Transaction type to work
+# I know it's fucked but unloko we need to have a meeting and decide how we want
+# Transaction type to work
 # IMPORTANT
 
 
@@ -88,7 +89,8 @@ class Transaction(back.database.Base):
         nullable=False,
     )
 
-    # For now to avoid changing the existing code, we will use this column to determine if it's an income or expense transaction
+    # For now to avoid changing the existing code, we will use this column to determine
+    # if it's an income or expense transaction
     # Not sure which option better so we need to debate later
     @property
     def type(self):

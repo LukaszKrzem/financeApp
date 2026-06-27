@@ -1,13 +1,12 @@
 from typing import List
 
-import sqlalchemy
-import sqlalchemy.orm
-from fastapi import APIRouter, Depends, HTTPException, status
-
 import back.dto.account_dto as account_dto
 import back.structure as structure
+import sqlalchemy
+import sqlalchemy.orm
 from back.database import get_db
 from back.dependencies import get_current_user
+from fastapi import APIRouter, Depends, HTTPException, status
 
 router = APIRouter(prefix="/accounts", tags=["Accounts"])
 

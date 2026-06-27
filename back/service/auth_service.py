@@ -5,6 +5,7 @@ from google.auth.transport import requests
 from google.oauth2 import id_token
 from jose import JWTError, jwt
 from passlib.context import CryptContext
+
 from back.config import GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
@@ -16,7 +17,8 @@ ACCESS_TOKEN_EXPIRE_MINUTES = (
 )
 
 # Sets up password hashing using Argon2 #
-# Used Argon2 coz Bcrypt generated some errors with length and i could not bother to fix that so unlucky we use Argon2
+# Used Argon2 coz Bcrypt generated some errors with length and i could not bother to fix
+# that so unlucky we use Argon2
 pwd_context = CryptContext(schemes=["argon2"], deprecated="auto")
 
 

@@ -1,6 +1,7 @@
 import { getIconForCategory } from '@/lib/categoryIcons';
 import { CategoryBadge } from '@/lib/categoryBadge';
 import { Link } from 'react-router-dom';
+import { formatTransactionAmount } from '@/lib/formatMoney';
 
 import {
   Card,
@@ -9,15 +10,6 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-
-const formatTransactionAmount = (amount, currencyCode = 'PLN') => {
-  return new Intl.NumberFormat('pl-PL', {
-    style: 'currency',
-    currency: currencyCode.toUpperCase(),
-    notation: 'compact',
-    maximumFractionDigits: 2,
-  }).format(Math.abs(parseFloat(amount)));
-};
 
 export function RecentTransactions({ transactions, loading }) {
   if (loading) {

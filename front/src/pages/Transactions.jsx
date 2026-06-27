@@ -5,26 +5,7 @@ import { Input } from '@/components/ui/input';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { ArrowUpRight, ArrowDownLeft, Calendar } from 'lucide-react';
 import { CategoryBadge } from '@/lib/categoryBadge';
-
-const formatTransactionAmount = (amount, currencyCode) => {
-  const value = new Intl.NumberFormat('pl-PL', {
-    notation: 'compact',
-    maximumFractionDigits: 1,
-  }).format(Math.abs(parseFloat(amount)).toFixed(2));
-  const code = (currencyCode || 'PLN').toUpperCase();
-  switch (code) {
-    case 'USD':
-      return `$${value}`;
-    case 'EUR':
-      return `${value} €`;
-    case 'GBP':
-      return `£${value}`;
-    case 'PLN':
-      return `${value} zł`;
-    default:
-      return `${value} ${code}`;
-  }
-};
+import { formatTransactionAmount } from '@/lib/formatMoney';
 
 export const columns = [
   {

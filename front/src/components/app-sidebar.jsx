@@ -117,7 +117,6 @@ export function AppSidebar({ user, onLogout, ...props }) {
       <SidebarContent className="overflow-hidden">
         <ScrollArea className="h-full w-full">
           <NavMain items={data.navMain} />
-          {/* <NavDocuments items={data.documents} />*/}
           <NavSecondary items={data.navSecondary} className="mt-auto" />
         </ScrollArea>
       </SidebarContent>

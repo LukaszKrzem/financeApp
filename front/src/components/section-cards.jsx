@@ -80,7 +80,6 @@ export function SectionCards({ transactions = [], budgets = [] }) {
             </span>
             Total Spent
           </CardDescription>
-          {/* Zwróć uwagę: Poprawione klasy dla tytułów (bez ucinania) */}
           <CardTitle className="text-xl font-semibold tabular-nums break-words @[250px]/card:text-2xl">
             {formatMoney(totals.spent)}
           </CardTitle>

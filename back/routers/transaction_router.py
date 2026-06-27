@@ -1,8 +1,7 @@
 from decimal import Decimal
-
+from datetime import datetime, timedelta
 import httpx
 from typing import List
-
 import sqlalchemy.orm
 from fastapi import APIRouter, Depends, HTTPException, status
 
@@ -14,7 +13,18 @@ from back.dependencies import get_current_user
 router = APIRouter(prefix="/transactions", tags=["Transactions"])
 
 NBP_API_URL = "http://api.nbp.pl/api/exchangerates/tables/A/?format=json"
+LAST_NBP_UPDATE = None
+CACHE_DURATION_HOURS = 12
+
+
 async def update_rates_from_nbp_internal(db: sqlalchemy.orm.Session):
+    global LAST_NBP_UPDATE
+    now = datetime.now()
+
+    if LAST_NBP_UPDATE is not None:
+        if now - LAST_NBP_UPDATE < timedelta(hours=CACHE_DURATION_HOURS):
+            return
+
     try:
         async with httpx.AsyncClient() as client:
             response = await client.get(NBP_API_URL, timeout=5.0)
@@ -26,9 +36,11 @@ async def update_rates_from_nbp_internal(db: sqlalchemy.orm.Session):
                 currency_code = rate.get("code")
                 currency_name = rate.get("currency")
                 mid_rate = Decimal(str(rate.get("mid")))
+
                 db_currency = db.query(structure.Currency).filter(
                     structure.Currency.code == currency_code
                 ).first()
+
                 if db_currency:
                     db_currency.exchange_rate = mid_rate
                 else:
@@ -38,7 +50,10 @@ async def update_rates_from_nbp_internal(db: sqlalchemy.orm.Session):
                         exchange_rate=mid_rate
                     )
                     db.add(new_currency)
+
             db.commit()
+            LAST_NBP_UPDATE = now
+
     except Exception as e:
         print(f"Couldnt update rates from NBP: {e}")
 

@@ -116,27 +116,6 @@ async def create_transaction(
     return new_transaction
 
 
-# ??? Not sure
-# Idk why we need this if it gets overriten just underneath
-"""
-@router.get("/", response_model=List[transaction_dto.TransactionOut])
-def get_transactions(
-    db: sqlalchemy.orm.Session = Depends(get_db),
-    current_user = Depends(get_current_user)
-):
-    transactions = (
-        db.query(structure.Transaction)
-        .join(structure.Account)
-        .filter(structure.Account.User_id_user == current_user.id_user)
-        .all()
-    )
-
-    return transactions
-
-from typing import List
-"""
-
-
 @router.get("/", response_model=List[transaction_dto.TransactionOut])
 def get_user_transactions(
     db: sqlalchemy.orm.Session = Depends(get_db), current_user=Depends(get_current_user)

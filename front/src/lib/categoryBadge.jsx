@@ -44,7 +44,7 @@ const categoryColors = {
     'bg-slate-100 text-slate-700 border-slate-200 dark:bg-slate-900/30 dark:text-slate-400 dark:border-slate-800',
 };
 
-export function CategoryBadge({ category }) {
+export function CategoryBadge({ category, className = '' }) {
   const name = category || 'Uncategorized';
   const colorClass =
     categoryColors[name] ||
@@ -53,7 +53,7 @@ export function CategoryBadge({ category }) {
   return (
     <Badge
       variant="outline"
-      className={`font-normal rounded-md px-2.5 py-0.5 ${colorClass}`}
+      className={`font-normal rounded-md px-2.5 py-0.5 ${colorClass} ${className}`}
     >
       {name}
     </Badge>

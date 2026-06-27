@@ -62,15 +62,18 @@ export function RecentTransactions({ transactions, loading }) {
                         {displayName}
                       </span>
                     </div>
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <CategoryBadge category={catName} />
+                    <div className="flex items-center gap-1 text-sm text-muted-foreground flex-wrap">
+                      <CategoryBadge
+                        category={catName}
+                        className="text-[10px] px-1.5 py-0 sm:text-xs sm:px-2.5 sm:py-0.5"
+                      />
                       <span>•</span>
-                      <span>{displayDate}</span>
+                      <span className="whitespace-nowrap">{displayDate}</span>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 shrink-0 ml-2">
                     <span
-                      className={`font-semibold tabular-nums ${
+                      className={`font-semibold tabular-nums whitespace-nowrap ${
                         isIncome ? 'text-emerald-500' : 'text-red-500'
                       }`}
                     >

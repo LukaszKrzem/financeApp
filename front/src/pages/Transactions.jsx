@@ -150,27 +150,33 @@ export default function Transactions({ transactions, loading }) {
                   key={t.id_transaction}
                   className="flex items-center justify-between px-4 py-3 border-b border-border/50 last:border-0 bg-card"
                 >
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-3 min-w-0">
                     <div
                       className={`w-1 h-9 rounded-full flex-shrink-0 ${
                         isExpense ? 'bg-red-500' : 'bg-emerald-500'
                       }`}
                     />
-                    <div className="flex flex-col gap-1.5">
-                      <span className="text-sm font-medium text-foreground">
+                    <div className="flex flex-col gap-1 min-w-0">
+                      <span className="text-sm font-medium text-foreground truncate">
                         {t.description}
                       </span>
-                      <div className="flex items-center gap-2">
-                        <CategoryBadge category={t.category_name} />
-                        <span className="text-xs text-muted-foreground">
-                          · {new Date(t.date).toLocaleDateString('pl-PL')}
+                      <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
+                        <CategoryBadge
+                          category={t.category_name}
+                          className="text-[10px] px-1.5 py-0 sm:text-xs"
+                        />
+                        <span className="text-muted-foreground/50 hidden sm:inline">
+                          •
+                        </span>
+                        <span className="whitespace-nowrap">
+                          {new Date(t.date).toLocaleDateString('pl-PL')}
                         </span>
                       </div>
                     </div>
                   </div>
 
                   <span
-                    className={`text-sm font-semibold flex-shrink-0 ml-4 ${
+                    className={`text-sm font-semibold flex-shrink-0 ml-4 whitespace-nowrap ${
                       isExpense ? 'text-red-500' : 'text-emerald-500'
                     }`}
                   >

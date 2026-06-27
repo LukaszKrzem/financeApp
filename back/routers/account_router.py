@@ -1,10 +1,8 @@
-from fastapi import APIRouter, Depends
-import sqlalchemy.orm
-import sqlalchemy
 from typing import List
 
+import sqlalchemy
 import sqlalchemy.orm
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException, status
 
 import back.dto.account_dto as account_dto
 import back.structure as structure
@@ -21,18 +19,21 @@ def get_user_accounts(
     try:
         db.execute(
             sqlalchemy.text("CALL catch_up_scheduled_transactions(:user_id)"),
-            {"user_id": current_user.id_user}
+            {"user_id": current_user.id_user},
         )
         db.commit()
     except Exception as e:
         db.rollback()
         print(f"Error with starting procedure: {e}")
-    results = db.query(structure.Account, structure.Currency).join(
-        structure.Currency,
-        structure.Account.Currency_id_currency == structure.Currency.id_currency
-    ).filter(
-        structure.Account.User_id_user == current_user.id_user
-    ).all()
+    results = (
+        db.query(structure.Account, structure.Currency)
+        .join(
+            structure.Currency,
+            structure.Account.Currency_id_currency == structure.Currency.id_currency,
+        )
+        .filter(structure.Account.User_id_user == current_user.id_user)
+        .all()
+    )
 
     accounts_with_currency = []
     for account, currency in results:
@@ -47,9 +48,6 @@ def get_user_accounts(
         )
 
     return accounts_with_currency
-
-
-from fastapi import HTTPException, status
 
 
 @router.post("/", response_model=account_dto.AccountOut)

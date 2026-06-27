@@ -29,7 +29,7 @@ def add_user(db: sqlalchemy.orm.Session, new_user: back.structure.User):
         db.commit()
         db.refresh(new_user)
         return new_user
-    except sqlalchemy.exc.SQLAlchemyError as e:
+    except sqlalchemy.exc.SQLAlchemyError:
         db.rollback()
         raise HTTPException(
             status_code=500, detail="Database error while creating user"

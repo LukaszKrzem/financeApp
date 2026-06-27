@@ -3,11 +3,9 @@ import string
 
 import sqlalchemy.orm
 from fastapi import APIRouter, Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordRequestForm
 from pydantic import BaseModel, EmailStr
 
 import back.dto.user_dto
-from back import structure
 from back.database import get_db
 from back.dependencies import get_current_user
 from back.service import auth_service, user_service
@@ -38,7 +36,7 @@ def register(
             detail="Podany email jest już używany",
         )
     new_user = user_service.create_user(user_data)
-    add_user = user_service.add_user(db, new_user)
+    user_service.add_user(db, new_user)
 
     token = auth_service.create_access_token({"sub": new_user.email})
     return {"token": token, "token_type": "bearer", "user": new_user}

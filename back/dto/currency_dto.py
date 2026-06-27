@@ -1,6 +1,7 @@
 from pydantic import BaseModel
 from decimal import Decimal
 
+
 class CurrencyOut(BaseModel):
     id_currency: int
     code: str

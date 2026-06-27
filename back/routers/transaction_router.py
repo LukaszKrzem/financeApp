@@ -1,9 +1,10 @@
-from decimal import Decimal
 from datetime import datetime, timedelta
-import httpx
+from decimal import Decimal
 from typing import List
+
+import httpx
 import sqlalchemy.orm
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException
 
 import back.dto.transaction_dto as transaction_dto
 import back.structure as structure
@@ -37,17 +38,17 @@ async def update_rates_from_nbp_internal(db: sqlalchemy.orm.Session):
                 currency_name = rate.get("currency")
                 mid_rate = Decimal(str(rate.get("mid")))
 
-                db_currency = db.query(structure.Currency).filter(
-                    structure.Currency.code == currency_code
-                ).first()
+                db_currency = (
+                    db.query(structure.Currency)
+                    .filter(structure.Currency.code == currency_code)
+                    .first()
+                )
 
                 if db_currency:
                     db_currency.exchange_rate = mid_rate
                 else:
                     new_currency = structure.Currency(
-                        code=currency_code,
-                        name=currency_name,
-                        exchange_rate=mid_rate
+                        code=currency_code, name=currency_name, exchange_rate=mid_rate
                     )
                     db.add(new_currency)
 
@@ -56,6 +57,7 @@ async def update_rates_from_nbp_internal(db: sqlalchemy.orm.Session):
 
     except Exception as e:
         print(f"Couldnt update rates from NBP: {e}")
+
 
 @router.post("/", response_model=transaction_dto.TransactionOut)
 async def create_transaction(
@@ -78,8 +80,16 @@ async def create_transaction(
     if account.User_id_user != current_user.id_user:
         raise HTTPException(status_code=403, detail="Brak dostępu do tego konta.")
 
-    currency_account = db.query(structure.Currency).filter(structure.Currency.id_currency == account.Currency_id_currency).first()
-    currency_trans = db.query(structure.Currency).filter(structure.Currency.id_currency == transaction_data.Currency_id_currency).first()
+    currency_account = (
+        db.query(structure.Currency)
+        .filter(structure.Currency.id_currency == account.Currency_id_currency)
+        .first()
+    )
+    currency_trans = (
+        db.query(structure.Currency)
+        .filter(structure.Currency.id_currency == transaction_data.Currency_id_currency)
+        .first()
+    )
 
     amount_decimal = Decimal(str(transaction_data.amount))
     rate_trans = Decimal(str(currency_trans.exchange_rate))

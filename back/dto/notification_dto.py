@@ -1,6 +1,7 @@
 from datetime import datetime
 import pydantic
 
+
 class NotificationOut(pydantic.BaseModel):
     id_notification: int
     message: str

@@ -1,7 +1,7 @@
 from typing import List
 
-from fastapi import APIRouter, Depends, status
 import sqlalchemy.orm
+from fastapi import APIRouter, Depends, status
 
 import back.dto.savings_goal_dto as savings_goal_dto
 from back.database import get_db

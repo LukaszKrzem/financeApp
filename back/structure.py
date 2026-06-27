@@ -138,21 +138,40 @@ class ScheduledTransaction(back.database.Base):
         nullable=False,
     )
 
+
 class Budget(back.database.Base):
     __tablename__ = "budget"
-    
-    id_budget = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, autoincrement=True)
+
+    id_budget = sqlalchemy.Column(
+        sqlalchemy.Integer, primary_key=True, autoincrement=True
+    )
     limit = sqlalchemy.Column(sqlalchemy.Numeric(20, 2), nullable=False)
     start_date = sqlalchemy.Column(sqlalchemy.Date, nullable=False)
     end = sqlalchemy.Column(sqlalchemy.Date, nullable=False)
-    User_id_user = sqlalchemy.Column("user_id_user", sqlalchemy.Integer, sqlalchemy.ForeignKey("User.id_user"), nullable=False)
-    Categories_id_category = sqlalchemy.Column("categories_id_category", sqlalchemy.Integer, sqlalchemy.ForeignKey("categories.id_category"), nullable=False)
-    Currency_id_currency = sqlalchemy.Column("currency_id_currency", sqlalchemy.Integer, sqlalchemy.ForeignKey("currency.id_currency"), nullable=False)
+    User_id_user = sqlalchemy.Column(
+        "user_id_user",
+        sqlalchemy.Integer,
+        sqlalchemy.ForeignKey("User.id_user"),
+        nullable=False,
+    )
+    Categories_id_category = sqlalchemy.Column(
+        "categories_id_category",
+        sqlalchemy.Integer,
+        sqlalchemy.ForeignKey("categories.id_category"),
+        nullable=False,
+    )
+    Currency_id_currency = sqlalchemy.Column(
+        "currency_id_currency",
+        sqlalchemy.Integer,
+        sqlalchemy.ForeignKey("currency.id_currency"),
+        nullable=False,
+    )
+
 
 # This is a view that we will pretty much exclusivly use for frontend to display budgets
 class BudgetAnalytics(back.database.Base):
     __tablename__ = "v_budget_analytics"
-    
+
     id_budget = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True)
     limit = sqlalchemy.Column(sqlalchemy.Numeric(20, 2))
     start_date = sqlalchemy.Column(sqlalchemy.Date)
@@ -164,6 +183,7 @@ class BudgetAnalytics(back.database.Base):
     currency_code = sqlalchemy.Column(sqlalchemy.String)
     current_spent = sqlalchemy.Column(sqlalchemy.Numeric(20, 2))
     percent_used = sqlalchemy.Column(sqlalchemy.Float)
+
 
 class SavingsGoal(back.database.Base):
     __tablename__ = "savinggoal"
@@ -187,11 +207,23 @@ class SavingsGoal(back.database.Base):
         nullable=False,
     )
 
+
 class Notification(back.database.Base):
     __tablename__ = "notification"
 
-    id_notification = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, index=True)
+    id_notification = sqlalchemy.Column(
+        sqlalchemy.Integer, primary_key=True, index=True
+    )
     message = sqlalchemy.Column("message", sqlalchemy.String(400), nullable=False)
-    date = sqlalchemy.Column("date", sqlalchemy.DateTime, nullable=False, default=datetime.utcnow)
-    is_read = sqlalchemy.Column("is_read", sqlalchemy.CHAR(1), nullable=False, default="F")
-    User_id_user = sqlalchemy.Column("user_id_user",sqlalchemy.Integer, sqlalchemy.ForeignKey("User.id_user", ondelete="CASCADE"),nullable=False,)
+    date = sqlalchemy.Column(
+        "date", sqlalchemy.DateTime, nullable=False, default=datetime.utcnow
+    )
+    is_read = sqlalchemy.Column(
+        "is_read", sqlalchemy.CHAR(1), nullable=False, default="F"
+    )
+    User_id_user = sqlalchemy.Column(
+        "user_id_user",
+        sqlalchemy.Integer,
+        sqlalchemy.ForeignKey("User.id_user", ondelete="CASCADE"),
+        nullable=False,
+    )

@@ -1,5 +1,6 @@
 import pydantic
 
+
 class AccountOut(pydantic.BaseModel):
     id_account: int
     name: str
@@ -9,6 +10,7 @@ class AccountOut(pydantic.BaseModel):
 
     class Config:
         from_attributes = True
+
 
 class AccountCreate(pydantic.BaseModel):
     name: str

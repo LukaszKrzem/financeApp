@@ -73,7 +73,7 @@ export function RecentTransactions({ transactions, loading }) {
                   </div>
                   <div className="flex items-center gap-2 shrink-0 ml-2">
                     <span
-                      className={`font-semibold tabular-nums whitespace-nowrap ${
+                      className={`text-sm sm:text-base font-semibold flex-shrink-0 ml-4 whitespace-nowrap ${
                         isIncome ? 'text-emerald-500' : 'text-red-500'
                       }`}
                     >

@@ -1,4 +1,4 @@
-name: Backend Pipeline
+name: Full Project Pipeline
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
     branches: [main]
 
 jobs:
-  test-and-lint:
+  backend-test:
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -22,7 +22,25 @@ jobs:
         run: |
           pip install ruff
           pip install -r requirements.txt
-      - name: Lint with Ruff
-        run: ruff check .
-      - name: Format Check
-        run: ruff format --check .
+      - name: Lint and Format Check
+        run: |
+          ruff check .
+          ruff format --check .
+
+frontend-test:
+  runs-on: ubuntu-latest
+  defaults:
+    run:
+      working-directory: front
+  steps:
+    - uses: actions/checkout@v4
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: "20"
+    - name: Install dependencies
+      run: npm install
+    - name: Prettier Check
+      run: npx prettier --check .
+    - name: Build
+      run: npm run build

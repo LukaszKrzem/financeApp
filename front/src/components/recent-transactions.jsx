@@ -1,9 +1,6 @@
-import { useState, useEffect } from 'react';
+import { getIconForCategory } from '@/lib/categoryIcons';
+import { CategoryBadge } from '@/lib/categoryBadge';
 
-import { IconArrowUp, IconArrowDown } from '@tabler/icons-react';
-import { getIconForCategory, DEFAULT_ICON } from '@/lib/categoryIcons';
-
-import { Badge } from '@/components/ui/badge';
 import {
   Card,
   CardContent,
@@ -13,25 +10,15 @@ import {
 } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
-const formatTransactionAmount = (amount, currencyCode) => {
-  const value = new Intl.NumberFormat('pl-PL', {
+const formatTransactionAmount = (amount, currencyCode = 'PLN') => {
+  return new Intl.NumberFormat('pl-PL', {
+    style: 'currency',
+    currency: currencyCode.toUpperCase(),
     notation: 'compact',
-    maximumFractionDigits: 1,
-  }).format(Math.abs(parseFloat(amount)).toFixed(2));
-  const code = (currencyCode || 'PLN').toUpperCase();
-  switch (code) {
-    case 'USD':
-      return `$${value}`;
-    case 'EUR':
-      return `${value} €`;
-    case 'GBP':
-      return `£${value}`;
-    case 'PLN':
-      return `${value} zł`;
-    default:
-      return `${value} ${code}`;
-  }
+    maximumFractionDigits: 2,
+  }).format(Math.abs(parseFloat(amount)));
 };
+
 export function RecentTransactions({ transactions, loading }) {
   if (loading) {
     return (
@@ -85,7 +72,7 @@ export function RecentTransactions({ transactions, loading }) {
                         </span>
                       </div>
                       <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <span>{catName}</span>
+                        <CategoryBadge category={catName} />
                         <span>•</span>
                         <span>{displayDate}</span>
                       </div>
@@ -93,7 +80,7 @@ export function RecentTransactions({ transactions, loading }) {
                     <div className="flex items-center gap-2">
                       <span
                         className={`font-semibold tabular-nums ${
-                          isIncome ? 'text-primary' : 'text-foreground'
+                          isIncome ? 'text-emerald-500' : 'text-red-500'
                         }`}
                       >
                         {isIncome ? '+' : '-'}
@@ -102,21 +89,6 @@ export function RecentTransactions({ transactions, loading }) {
                           transaction.currency_code
                         )}
                       </span>
-                      {isIncome ? (
-                        <Badge
-                          variant="outline"
-                          className="border-primary/30 text-primary text-xs"
-                        >
-                          <IconArrowDown className="size-3 rotate-180" />
-                        </Badge>
-                      ) : (
-                        <Badge
-                          variant="outline"
-                          className="border-destructive/30 text-destructive text-xs"
-                        >
-                          <IconArrowUp className="size-3 rotate-180" />
-                        </Badge>
-                      )}
                     </div>
                   </div>
                 );

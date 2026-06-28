@@ -3,9 +3,11 @@ import { SimpleDataTable } from '@/components/simple-data-table';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { ArrowUpRight, ArrowDownLeft, Calendar } from 'lucide-react';
+import { Download } from 'lucide-react';
 import { CategoryBadge } from '@/lib/categoryBadge';
 import { formatTransactionAmount } from '@/lib/formatMoney';
+
+const API_URL = import.meta.env.VITE_API_URL;
 
 export const columns = [
   {
@@ -54,12 +56,26 @@ export const columns = [
   },
 ];
 
-export default function Transactions({ transactions, loading }) {
+export default function Transactions({ transactions, loading, token }) {
   const [typeFilter, setTypeFilter] = useState('ALL');
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo, setDateTo] = useState('');
 
   const isMobile = useIsMobile();
+
+  const handleExport = async () => {
+    const res = await fetch(`${API_URL}/export/csv`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (!res.ok) return;
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `SmartBudget_export_${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
 
   const filteredTransactions = transactions
     .filter((t) => typeFilter === 'ALL' || t.type === typeFilter)
@@ -70,13 +86,24 @@ export default function Transactions({ transactions, loading }) {
 
   return (
     <div className="flex flex-1 flex-col p-4 md:p-6 gap-6">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">
-          Transaction history
-        </h1>
-        <p className="text-muted-foreground">
-          Review all your expenses and income.
-        </p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight">
+            Transaction history
+          </h1>
+          <p className="text-muted-foreground">
+            Review all your expenses and income.
+          </p>
+        </div>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={handleExport}
+          className="flex items-center gap-2"
+        >
+          <Download className="size-4" />
+          Export CSV
+        </Button>
       </div>
 
       <div className="bg-card border-border/50 border rounded-xl p-4">

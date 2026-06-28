@@ -8,6 +8,7 @@ from back.routers import (
     budget_router,
     category_router,
     currency_router,
+    export_router,
     notification_router,
     savings_goal_router,
     scheduled_router,
@@ -57,6 +58,7 @@ app.include_router(budget_router.router)
 app.include_router(notification_router.router)
 app.include_router(savings_goal_router.router)
 app.include_router(currency_router.router)
+app.include_router(export_router.router)
 
 
 # For testing if app is alive, can be removed later

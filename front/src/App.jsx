@@ -354,6 +354,7 @@ function App() {
                     <Transactions
                       transactions={transactions}
                       loading={loading}
+                      token={token}
                     />
                   ) : (
                     <Navigate to="/" replace />

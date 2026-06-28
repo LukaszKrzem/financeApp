@@ -65,6 +65,10 @@ function App() {
         const response = await fetch(`${API_URL}/budgets/`, {
           headers: { Authorization: `Bearer ${token}` },
         });
+        if (response.status === 401) {
+          handleLogout();
+          return;
+        }
         if (response.ok) {
           const data = await response.json();
           setBudgets(Array.isArray(data) ? data : []);
@@ -82,6 +86,10 @@ function App() {
         const response = await fetch(`${API_URL}/currencies`, {
           headers: { Authorization: `Bearer ${token}` },
         });
+        if (response.status === 401) {
+          handleLogout();
+          return;
+        }
         if (response.ok) {
           const data = await response.json();
           setCurrencies(data);
@@ -95,10 +103,12 @@ function App() {
       if (!token) return;
       try {
         const response = await fetch(`${API_URL}/categories/`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
         });
+        if (response.status === 401) {
+          handleLogout();
+          return;
+        }
         if (response.ok) {
           const data = await response.json();
           setCategories(data);
@@ -109,16 +119,17 @@ function App() {
         console.error('Error fetching categories:', error);
       }
     };
+
     const fetchTransactions = async () => {
       if (!token) return;
-
       try {
         const response = await fetch(`${API_URL}/transactions/`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
         });
-
+        if (response.status === 401) {
+          handleLogout();
+          return;
+        }
         if (response.ok) {
           const data = await response.json();
           setTransactions(data);
@@ -131,15 +142,18 @@ function App() {
         setLoading(false);
       }
     };
-
     const fetchAccounts = async () => {
+      if (!token) return;
       try {
         const response = await fetch(`${API_URL}/accounts/`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
-
+        if (response.status === 401) {
+          handleLogout();
+          return;
+        }
         if (response.ok) {
           const data = await response.json();
           setAccounts(data);
@@ -148,6 +162,7 @@ function App() {
         console.error('Failed to fetch accounts:', error);
       }
     };
+
     const fetchUser = async () => {
       if (!token) {
         setUser(null);
@@ -162,9 +177,13 @@ function App() {
             'Content-Type': 'application/json',
           },
         });
+        if (response.status === 401) {
+          handleLogout();
+          return;
+        }
         if (response.ok) {
           const userData = await response.json();
-          setUser(userData); //if token is invalid
+          setUser(userData);
         } else {
           handleLogout();
         }

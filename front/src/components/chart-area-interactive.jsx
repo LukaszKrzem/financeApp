@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from 'recharts';
-
 import { useIsMobile } from '@/hooks/use-mobile';
+import { Button } from '@/components/ui/button';
 import {
   Card,
   CardAction,
@@ -22,156 +22,121 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
-import { useMemo } from 'react';
 
 const chartConfig = {
-  spending: {
-    label: 'Spending',
-    color: 'var(--chart-4)',
-  },
-  income: {
-    label: 'Income',
-    color: 'var(--chart-1)',
-  },
+  spending: { label: 'Spending', color: 'var(--chart-4)' },
+  income: { label: 'Income', color: 'var(--chart-1)' },
 };
-const formatCompactMoney = (value) => {
-  if (value <= 1) return '0 PLN';
 
+const formatCompactMoney = (value, currency = 'PLN') => {
   return new Intl.NumberFormat('pl-PL', {
     style: 'currency',
-    currency: 'PLN',
+    currency,
     notation: 'compact',
     maximumFractionDigits: 1,
   }).format(value);
 };
-export function ChartAreaInteractive({ transactions }) {
+
+const MONTHS_MAP = { '5m': 5, '3m': 3, '1m': 1 };
+
+export function ChartAreaInteractive({ transactions, accounts = [] }) {
   const isMobile = useIsMobile();
   const [timeRange, setTimeRange] = React.useState('5m');
+  const [accountId, setAccountId] = React.useState('ALL');
+  const [seriesFilter, setSeriesFilter] = React.useState('BOTH');
 
   React.useEffect(() => {
-    if (isMobile) {
-      setTimeRange('3m');
-    }
+    if (isMobile) setTimeRange('3m');
   }, [isMobile]);
 
-  const getLocalDateString = (date) => {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
-  };
+  const selectedAccount = accounts.find(
+    (a) => String(a.id_account) === accountId
+  );
+  const currency = selectedAccount?.currency_code || 'PLN';
+
   const chartData = React.useMemo(() => {
     const endDate = new Date();
     endDate.setHours(23, 59, 59, 999);
-
-    const startDate = new Date(endDate);
-    let monthsToSubtract = 5;
-    if (timeRange === '3m') monthsToSubtract = 3;
-    if (timeRange === '1m') monthsToSubtract = 1;
-    startDate.setMonth(startDate.getMonth() - monthsToSubtract);
+    const startDate = new Date();
+    startDate.setMonth(startDate.getMonth() - (MONTHS_MAP[timeRange] ?? 5));
     startDate.setHours(0, 0, 0, 0);
 
     const grouped = {};
-    if (transactions && transactions.length > 0) {
-      transactions.forEach((tx) => {
-        const rawDate = tx.transaction_date || tx.date;
-        if (!rawDate) return;
+    transactions?.forEach((tx) => {
+      if (accountId !== 'ALL' && String(tx.Account_id_account) !== accountId)
+        return;
 
-        const txDate = new Date(rawDate);
-        if (txDate >= startDate && txDate <= endDate) {
-          const dateStr = getLocalDateString(txDate);
+      const txDate = new Date(tx.transaction_date || tx.date);
+      if (txDate < startDate || txDate > endDate) return;
 
-          if (!grouped[dateStr]) {
-            //grouped[dateStr] = { date: dateStr, spending: 0, income: 0 };
-            grouped[dateStr] = { date: dateStr, spending: 1, income: 1 };
-          }
+      const monthStr = `${txDate.getFullYear()}-${String(txDate.getMonth() + 1).padStart(2, '0')}`;
 
-          const amount = parseFloat(tx.amount) || 0;
-          const exchangeRate = parseFloat(tx.exchange_rate) || 1;
+      if (!grouped[monthStr])
+        grouped[monthStr] = { date: monthStr, spending: 0, income: 0 };
 
-          if (
-            tx.type === 'INCOME' ||
-            tx.is_income === 'T' ||
-            tx.is_income === 'Y'
-          ) {
-            grouped[dateStr].income += amount * exchangeRate;
-          } else {
-            grouped[dateStr].spending += amount * exchangeRate;
-          }
-        }
-      });
-    }
+      const amount = parseFloat(tx.amount) || 0;
+      const exchangeRate = parseFloat(tx.exchange_rate) || 1;
+      const isIncome =
+        tx.type === 'INCOME' || tx.is_income === 'T' || tx.is_income === 'Y';
+
+      if (isIncome) grouped[monthStr].income += amount * exchangeRate;
+      else grouped[monthStr].spending += amount * exchangeRate;
+    });
 
     const filledData = [];
-    let currentDate = new Date(startDate);
-
-    while (currentDate <= endDate) {
-      const dateStr = getLocalDateString(currentDate);
-      if (grouped[dateStr]) {
-        filledData.push(grouped[dateStr]);
-      } else {
-        filledData.push({ date: dateStr, spending: 1, income: 1 });
-      }
-      currentDate.setDate(currentDate.getDate() + 1);
+    const current = new Date(startDate.getFullYear(), startDate.getMonth(), 1);
+    while (current <= endDate) {
+      const monthStr = `${current.getFullYear()}-${String(current.getMonth() + 1).padStart(2, '0')}`;
+      filledData.push(
+        grouped[monthStr] ?? { date: monthStr, spending: 0, income: 0 }
+      );
+      current.setMonth(current.getMonth() + 1);
     }
 
     return filledData;
-  }, [transactions, timeRange]);
-
-  const startDate = new Date();
-  let monthsToSubtract = 5;
-  if (timeRange === '3m') monthsToSubtract = 3;
-  if (timeRange === '1m') monthsToSubtract = 1;
-  startDate.setMonth(startDate.getMonth() - monthsToSubtract);
-
-  const filteredData = chartData.filter((item) => {
-    const date = new Date(item.date);
-    return date >= startDate;
-  });
+  }, [transactions, timeRange, accountId]);
 
   return (
     <Card className="@container/card border-border/50">
       <CardHeader>
         <CardTitle>Spending Overview</CardTitle>
         <CardDescription>
-          <span className="hidden @[540px]/card:block">
-            Comparing income vs spending over time
-          </span>
-          <span className="@[540px]/card:hidden">Income vs Spending</span>
+          Comparing income vs spending over time
         </CardDescription>
-        <CardAction>
-          <ToggleGroup
-            type="single"
-            value={timeRange}
-            onValueChange={setTimeRange}
-            variant="outline"
-            className="hidden *:data-[slot=toggle-group-item]:px-4! @[767px]/card:flex"
-          >
-            <ToggleGroupItem value="5m">5 months</ToggleGroupItem>
-            <ToggleGroupItem value="3m">3 months</ToggleGroupItem>
-            <ToggleGroupItem value="1m">1 month</ToggleGroupItem>
-          </ToggleGroup>
-          <Select value={timeRange} onValueChange={setTimeRange}>
-            <SelectTrigger
-              className="flex w-32 **:data-[slot=select-value]:block **:data-[slot=select-value]:truncate @[767px]/card:hidden"
-              size="sm"
-              aria-label="Select a value"
-            >
-              <SelectValue placeholder="5 months" />
+        <CardAction className="flex flex-wrap gap-2 pt-2">
+          <Select value={accountId} onValueChange={(val) => setAccountId(val)}>
+            <SelectTrigger className="w-36 h-8 text-xs">
+              <SelectValue placeholder="All accounts" />
             </SelectTrigger>
-            <SelectContent className="rounded-xl">
-              <SelectItem value="5m" className="rounded-lg">
-                5 months
-              </SelectItem>
-              <SelectItem value="3m" className="rounded-lg">
-                3 months
-              </SelectItem>
-              <SelectItem value="1m" className="rounded-lg">
-                1 month
-              </SelectItem>
+            <SelectContent>
+              <SelectItem value="ALL">All accounts</SelectItem>
+              {accounts.map((acc) => (
+                <SelectItem
+                  key={String(acc.id_account)}
+                  value={String(acc.id_account)}
+                >
+                  {acc.name}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
+          <div className="flex gap-1">
+            {['BOTH', 'INCOME', 'SPENDING'].map((filter) => (
+              <Button
+                key={filter}
+                variant={seriesFilter === filter ? 'default' : 'outline'}
+                size="sm"
+                className="h-8 px-3 text-xs w-[72px]"
+                onClick={() => setSeriesFilter(filter)}
+              >
+                {filter === 'BOTH'
+                  ? 'All'
+                  : filter === 'INCOME'
+                    ? 'Income'
+                    : 'Spending'}
+              </Button>
+            ))}
+          </div>
         </CardAction>
       </CardHeader>
       <CardContent className="px-2 pt-4 sm:px-6 sm:pt-6">
@@ -179,7 +144,7 @@ export function ChartAreaInteractive({ transactions }) {
           config={chartConfig}
           className="aspect-auto h-[250px] w-full"
         >
-          <AreaChart data={filteredData}>
+          <AreaChart data={chartData}>
             <defs>
               <linearGradient id="fillSpending" x1="0" y1="0" x2="0" y2="1">
                 <stop
@@ -216,22 +181,21 @@ export function ChartAreaInteractive({ transactions }) {
               tickLine={false}
               axisLine={false}
               tickMargin={8}
-              minTickGap={32}
-              tickFormatter={(value) => {
-                const date = new Date(value);
-                return date.toLocaleDateString('en-US', {
-                  day: 'numeric',
+              tickFormatter={(v) => {
+                const [year, month] = v.split('-');
+                return new Date(year, month - 1).toLocaleDateString('en-US', {
                   month: 'short',
+                  year: '2-digit',
                 });
               }}
             />
             <YAxis
-              scale="log"
-              domain={[1, 'auto']}
+              type="number"
+              domain={[0, 'auto']}
               tickLine={false}
               axisLine={false}
               tickMargin={8}
-              tickFormatter={(value) => formatCompactMoney(value)}
+              tickFormatter={(val) => formatCompactMoney(val, currency)}
               width={65}
             />
             <ChartTooltip
@@ -239,38 +203,42 @@ export function ChartAreaInteractive({ transactions }) {
               content={
                 <ChartTooltipContent
                   labelFormatter={(value) => {
-                    return new Date(value).toLocaleDateString('pl-PL', {
-                      day: 'numeric',
-                      month: 'long',
-                      year: 'numeric',
-                    });
+                    const [year, month] = value.split('-');
+                    return new Date(year, month - 1).toLocaleDateString(
+                      'en-US',
+                      {
+                        month: 'long',
+                        year: 'numeric',
+                      }
+                    );
                   }}
-                  formatter={(value, name) => (
-                    <div className="flex items-center gap-2">
-                      <span className="capitalize">{name}</span>
-                      <span className="font-medium">
-                        {formatCompactMoney(value)}
-                      </span>
-                    </div>
-                  )}
-                  indicator="dot"
+                  formatter={(val, name) => [
+                    formatCompactMoney(Number(val), currency),
+                    <span key={name} className="ml-2">
+                      {name}
+                    </span>,
+                  ]}
                 />
               }
             />
-            <Area
-              dataKey="income"
-              type="monotone"
-              fill="url(#fillIncome)"
-              stroke="var(--color-income)"
-              strokeWidth={2}
-            />
-            <Area
-              dataKey="spending"
-              type="monotone"
-              fill="url(#fillSpending)"
-              stroke="var(--color-spending)"
-              strokeWidth={2}
-            />
+            {(seriesFilter === 'BOTH' || seriesFilter === 'INCOME') && (
+              <Area
+                dataKey="income"
+                type="monotone"
+                fill="url(#fillIncome)"
+                stroke="var(--color-income)"
+                strokeWidth={2}
+              />
+            )}
+            {(seriesFilter === 'BOTH' || seriesFilter === 'SPENDING') && (
+              <Area
+                dataKey="spending"
+                type="monotone"
+                fill="url(#fillSpending)"
+                stroke="var(--color-spending)"
+                strokeWidth={2}
+              />
+            )}
           </AreaChart>
         </ChartContainer>
       </CardContent>

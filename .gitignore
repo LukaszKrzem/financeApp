@@ -6,3 +6,5 @@ modelV1/
 .vscode/
 t/
 back/.env
+*.pem
+enable_banking.pem

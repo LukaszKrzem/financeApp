@@ -5,8 +5,9 @@ import time
 
 import jwt
 import requests
+from back.dependencies import get_current_user
 from dotenv import load_dotenv
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 
 load_dotenv()
 
@@ -58,7 +59,7 @@ def get_bank_token() -> str:
 
 
 @router.get("/transactions")
-def get_recent_transactions():
+def get_recent_transactions(current_user=Depends(get_current_user)):
     token = get_bank_token()
     url = f"https://api.enablebanking.com/accounts/{ACCOUNT_UID}/transactions"
     headers = {"Authorization": f"Bearer {token}"}

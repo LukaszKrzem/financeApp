@@ -1,4 +1,7 @@
+import { useState } from 'react';
 import { AddAccountDialog } from '@/components/AddAccountDialog';
+import { Button } from '@/components/ui/button';
+import { IconRefresh } from '@tabler/icons-react';
 
 const formatAccountAmount = (amount, currencyCode) => {
   const value = new Intl.NumberFormat('pl-PL', {
@@ -25,7 +28,32 @@ export default function Accounts({
   setRefreshing,
   loading,
   currencies,
+  apiUrl,
 }) {
+  const [syncing, setSyncing] = useState(false);
+  const [syncError, setSyncError] = useState(null);
+
+  const handleBankSync = async () => {
+    setSyncing(true);
+    setSyncError(null);
+    try {
+      const response = await fetch(`${apiUrl}/api/banking/sync`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.detail || 'Sync failed');
+      }
+      setRefreshing((prev) => prev + 1);
+    } catch (error) {
+      console.error('Error syncing bank transactions:', error);
+      setSyncError(error.message);
+    } finally {
+      setSyncing(false);
+    }
+  };
+
   return (
     <div className="flex flex-1 flex-col p-4 lg:p-6 gap-6">
       <div className="flex items-center justify-between">
@@ -37,14 +65,30 @@ export default function Accounts({
             Monitor and manage your available wallets and balances
           </p>
         </div>
-        <AddAccountDialog
-          token={token}
-          onAccountAdded={() => {
-            setRefreshing((prev) => prev + 1);
-          }}
-          currencies={currencies}
-        />
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            onClick={handleBankSync}
+            disabled={syncing}
+            className="flex items-center gap-2"
+          >
+            <IconRefresh
+              className={`size-4 ${syncing ? 'animate-spin' : ''}`}
+            />
+            {syncing ? 'Syncing...' : 'Sync with bank'}
+          </Button>
+          <AddAccountDialog
+            token={token}
+            onAccountAdded={() => {
+              setRefreshing((prev) => prev + 1);
+            }}
+            currencies={currencies}
+            apiUrl={apiUrl}
+          />
+        </div>
       </div>
+
+      {syncError && <p className="text-sm text-destructive">{syncError}</p>}
 
       {loading ? (
         <p className="text-sm text-muted-foreground text-center py-8">

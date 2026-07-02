@@ -9,347 +9,347 @@
 
 -- predefined type, no DDL - XMLTYPE
 
-CREATE TABLE Account 
-    ( 
-     id_account           SERIAL  NOT NULL , 
-     "name"                 VARCHAR (255)  NOT NULL , 
-     current_balance      NUMERIC (20,2)  NOT NULL , 
-     Currency_id_currency INTEGER  NOT NULL , 
-     User_id_user         INTEGER  NOT NULL 
-    ) 
+CREATE TABLE Account
+    (
+     id_account           SERIAL  NOT NULL ,
+     "name"                 VARCHAR (255)  NOT NULL ,
+     current_balance      NUMERIC (20,2)  NOT NULL ,
+     Currency_id_currency INTEGER  NOT NULL ,
+     User_id_user         INTEGER  NOT NULL
+    )
 ;
 
-ALTER TABLE Account 
+ALTER TABLE Account
     ADD CONSTRAINT Account_PK PRIMARY KEY ( id_account ) ;
 
-CREATE TABLE Budget 
-    ( 
-     id_budget              SERIAL  NOT NULL , 
-     "limit"                  NUMERIC (20,2)  NOT NULL , 
-     "start_date"             DATE  NOT NULL , 
-     "end"                  DATE  NOT NULL , 
-     User_id_user           INTEGER  NOT NULL , 
-     Categories_id_category INTEGER  NOT NULL , 
-     Currency_id_currency   INTEGER  NOT NULL 
-    ) 
+CREATE TABLE Budget
+    (
+     id_budget              SERIAL  NOT NULL ,
+     "limit"                  NUMERIC (20,2)  NOT NULL ,
+     "start_date"             DATE  NOT NULL ,
+     "end"                  DATE  NOT NULL ,
+     User_id_user           INTEGER  NOT NULL ,
+     Categories_id_category INTEGER  NOT NULL ,
+     Currency_id_currency   INTEGER  NOT NULL
+    )
 ;
 
-ALTER TABLE Budget 
+ALTER TABLE Budget
     ADD CONSTRAINT Budget_PK PRIMARY KEY ( id_budget ) ;
 
-CREATE TABLE Categories 
-    ( 
-     id_category SERIAL  NOT NULL , 
-     "name"        VARCHAR (200)  NOT NULL , 
-     "type"        VARCHAR (100)  NOT NULL 
-    ) 
+CREATE TABLE Categories
+    (
+     id_category SERIAL  NOT NULL ,
+     "name"        VARCHAR (200)  NOT NULL ,
+     "type"        VARCHAR (100)  NOT NULL
+    )
 ;
 
-ALTER TABLE Categories 
+ALTER TABLE Categories
     ADD CONSTRAINT Categories_PK PRIMARY KEY ( id_category ) ;
 
-CREATE TABLE Currency 
-    ( 
-     id_currency   SERIAL  NOT NULL , 
-     code          CHAR (3)  NOT NULL , 
-     "name"          VARCHAR (100)  NOT NULL , 
-     exchange_rate NUMERIC (10,4)  NOT NULL 
-    ) 
+CREATE TABLE Currency
+    (
+     id_currency   SERIAL  NOT NULL ,
+     code          CHAR (3)  NOT NULL ,
+     "name"          VARCHAR (100)  NOT NULL ,
+     exchange_rate NUMERIC (10,4)  NOT NULL
+    )
 ;
 
-ALTER TABLE Currency 
+ALTER TABLE Currency
     ADD CONSTRAINT Currency_PK PRIMARY KEY ( id_currency ) ;
 
-CREATE TABLE InflationHistory 
-    ( 
-     id_inflation SERIAL  NOT NULL , 
-     rate         NUMERIC (5,2)  NOT NULL , 
-     "date"       DATE  NOT NULL 
-    ) 
+CREATE TABLE InflationHistory
+    (
+     id_inflation SERIAL  NOT NULL ,
+     rate         NUMERIC (5,2)  NOT NULL ,
+     "date"       DATE  NOT NULL
+    )
 ;
 
-ALTER TABLE InflationHistory 
+ALTER TABLE InflationHistory
     ADD CONSTRAINT InflationHistory_PK PRIMARY KEY ( id_inflation ) ;
 
-CREATE TABLE Notification 
-    ( 
-     id_notification SERIAL  NOT NULL , 
-     "message"         VARCHAR (400)  NOT NULL , 
-     "date"          TIMESTAMP (0)  NOT NULL , 
-     is_read         CHAR (1)  NOT NULL , 
-     User_id_user    INTEGER  NOT NULL 
-    ) 
+CREATE TABLE Notification
+    (
+     id_notification SERIAL  NOT NULL ,
+     "message"         VARCHAR (400)  NOT NULL ,
+     "date"          TIMESTAMP (0)  NOT NULL ,
+     is_read         CHAR (1)  NOT NULL ,
+     User_id_user    INTEGER  NOT NULL
+    )
 ;
 
-ALTER TABLE Notification 
+ALTER TABLE Notification
     ADD CONSTRAINT Notification_PK PRIMARY KEY ( id_notification ) ;
 
-CREATE TABLE Relation_14 
-    ( 
-     User_id_user       INTEGER  NOT NULL , 
-     UserGroup_id_group INTEGER  NOT NULL 
-    ) 
+CREATE TABLE Relation_14
+    (
+     User_id_user       INTEGER  NOT NULL ,
+     UserGroup_id_group INTEGER  NOT NULL
+    )
 ;
 
-ALTER TABLE Relation_14 
+ALTER TABLE Relation_14
     ADD CONSTRAINT Relation_14_PK PRIMARY KEY ( User_id_user, UserGroup_id_group ) ;
 
-CREATE TABLE SavingGoal 
-    ( 
-     id_saving_goal       SERIAL  NOT NULL , 
-     "name"                 VARCHAR (200)  NOT NULL , 
-     "target"               NUMERIC (20,2)  NOT NULL , 
-     current_amount       NUMERIC (20,2)  NOT NULL , 
-     time_limit           DATE , 
-     User_id_user         INTEGER  NOT NULL , 
-     Currency_id_currency INTEGER  NOT NULL 
-    ) 
+CREATE TABLE SavingGoal
+    (
+     id_saving_goal       SERIAL  NOT NULL ,
+     "name"                 VARCHAR (200)  NOT NULL ,
+     "target"               NUMERIC (20,2)  NOT NULL ,
+     current_amount       NUMERIC (20,2)  NOT NULL ,
+     time_limit           DATE ,
+     User_id_user         INTEGER  NOT NULL ,
+     Currency_id_currency INTEGER  NOT NULL
+    )
 ;
 
-ALTER TABLE SavingGoal 
+ALTER TABLE SavingGoal
     ADD CONSTRAINT SavingGoal_PK PRIMARY KEY ( id_saving_goal ) ;
 
-CREATE TABLE Scheduled_Transaction 
-    ( 
-     id_schedule_transaction SERIAL  NOT NULL , 
-     frequency               VARCHAR (50)  NOT NULL , 
-     next_date               DATE  NOT NULL , 
-     amount                  NUMERIC (20,2)  NOT NULL , 
-     Account_id_account      INTEGER  NOT NULL , 
-     Currency_id_currency    INTEGER  NOT NULL , 
-     Categories_id_category  INTEGER  NOT NULL 
-    ) 
+CREATE TABLE Scheduled_Transaction
+    (
+     id_schedule_transaction SERIAL  NOT NULL ,
+     frequency               VARCHAR (50)  NOT NULL ,
+     next_date               DATE  NOT NULL ,
+     amount                  NUMERIC (20,2)  NOT NULL ,
+     Account_id_account      INTEGER  NOT NULL ,
+     Currency_id_currency    INTEGER  NOT NULL ,
+     Categories_id_category  INTEGER  NOT NULL
+    )
 ;
 
-ALTER TABLE Scheduled_Transaction 
+ALTER TABLE Scheduled_Transaction
     ADD CONSTRAINT Scheduled_Transaction_PK PRIMARY KEY ( id_schedule_transaction ) ;
 
-CREATE TABLE Transaction 
-    ( 
-     id_transaction         SERIAL  NOT NULL , 
-     amount                 NUMERIC (20,2)  NOT NULL , 
-     transaction_date       TIMESTAMP (0)  NOT NULL , 
-     "description"            VARCHAR (400) , 
-     is_income              CHAR (1)  NOT NULL , 
-     Account_id_account     INTEGER  NOT NULL , 
-     Categories_id_category INTEGER  NOT NULL , 
-     Currency_id_currency   INTEGER  NOT NULL 
-    ) 
+CREATE TABLE Transaction
+    (
+     id_transaction         SERIAL  NOT NULL ,
+     amount                 NUMERIC (20,2)  NOT NULL ,
+     transaction_date       TIMESTAMP (0)  NOT NULL ,
+     "description"            VARCHAR (400) ,
+     is_income              CHAR (1)  NOT NULL ,
+     Account_id_account     INTEGER  NOT NULL ,
+     Categories_id_category INTEGER  NOT NULL ,
+     Currency_id_currency   INTEGER  NOT NULL
+    )
 ;
 
-ALTER TABLE Transaction 
+ALTER TABLE Transaction
     ADD CONSTRAINT Transaction_PK PRIMARY KEY ( id_transaction ) ;
 
-CREATE TABLE "User" 
-    ( 
-     id_user  SERIAL  NOT NULL , 
-     email    VARCHAR (255)  NOT NULL , 
-     "password" VARCHAR (255)  NOT NULL , 
-     "name"     VARCHAR (255)  NOT NULL 
-    ) 
+CREATE TABLE "User"
+    (
+     id_user  SERIAL  NOT NULL ,
+     email    VARCHAR (255)  NOT NULL ,
+     "password" VARCHAR (255)  NOT NULL ,
+     "name"     VARCHAR (255)  NOT NULL
+    )
 ;
 
-ALTER TABLE "User" 
+ALTER TABLE "User"
     ADD CONSTRAINT User_PK PRIMARY KEY ( id_user ) ;
 
-CREATE TABLE UserGroup 
-    ( 
-     id_group SERIAL  NOT NULL , 
+CREATE TABLE UserGroup
+    (
+     id_group SERIAL  NOT NULL ,
      "name"     VARCHAR (200)  NOT NULL
-    ) 
+    )
 ;
 
-ALTER TABLE UserGroup 
+ALTER TABLE UserGroup
     ADD CONSTRAINT UserGroup_PK PRIMARY KEY ( id_group ) ;
 
-ALTER TABLE Account 
-    ADD CONSTRAINT Account_Currency_FK FOREIGN KEY 
-    ( 
+ALTER TABLE Account
+    ADD CONSTRAINT Account_Currency_FK FOREIGN KEY
+    (
      Currency_id_currency
-    ) 
-    REFERENCES Currency 
-    ( 
+    )
+    REFERENCES Currency
+    (
      id_currency
-    ) 
+    )
 ;
 
-ALTER TABLE Account 
-    ADD CONSTRAINT Account_User_FK FOREIGN KEY 
-    ( 
+ALTER TABLE Account
+    ADD CONSTRAINT Account_User_FK FOREIGN KEY
+    (
      User_id_user
-    ) 
-    REFERENCES "User" 
-    ( 
+    )
+    REFERENCES "User"
+    (
      id_user
-    ) 
-    ON DELETE CASCADE 
+    )
+    ON DELETE CASCADE
 ;
 
-ALTER TABLE Budget 
-    ADD CONSTRAINT Budget_Categories_FK FOREIGN KEY 
-    ( 
+ALTER TABLE Budget
+    ADD CONSTRAINT Budget_Categories_FK FOREIGN KEY
+    (
      Categories_id_category
-    ) 
-    REFERENCES Categories 
-    ( 
+    )
+    REFERENCES Categories
+    (
      id_category
-    ) 
+    )
 ;
 
-ALTER TABLE Budget 
-    ADD CONSTRAINT Budget_Currency_FK FOREIGN KEY 
-    ( 
+ALTER TABLE Budget
+    ADD CONSTRAINT Budget_Currency_FK FOREIGN KEY
+    (
      Currency_id_currency
-    ) 
-    REFERENCES Currency 
-    ( 
+    )
+    REFERENCES Currency
+    (
      id_currency
-    ) 
+    )
 ;
 
-ALTER TABLE Budget 
-    ADD CONSTRAINT Budget_User_FK FOREIGN KEY 
-    ( 
+ALTER TABLE Budget
+    ADD CONSTRAINT Budget_User_FK FOREIGN KEY
+    (
      User_id_user
-    ) 
-    REFERENCES "User" 
-    ( 
+    )
+    REFERENCES "User"
+    (
      id_user
-    ) 
-    ON DELETE CASCADE 
+    )
+    ON DELETE CASCADE
 ;
 
-ALTER TABLE Notification 
-    ADD CONSTRAINT Notification_User_FK FOREIGN KEY 
-    ( 
+ALTER TABLE Notification
+    ADD CONSTRAINT Notification_User_FK FOREIGN KEY
+    (
      User_id_user
-    ) 
-    REFERENCES "User" 
-    ( 
+    )
+    REFERENCES "User"
+    (
      id_user
-    ) 
-    ON DELETE CASCADE 
+    )
+    ON DELETE CASCADE
 ;
 
-ALTER TABLE Relation_14 
-    ADD CONSTRAINT Relation_14_User_FK FOREIGN KEY 
-    ( 
+ALTER TABLE Relation_14
+    ADD CONSTRAINT Relation_14_User_FK FOREIGN KEY
+    (
      User_id_user
-    ) 
-    REFERENCES "User" 
-    ( 
+    )
+    REFERENCES "User"
+    (
      id_user
-    ) 
+    )
 ;
 
-ALTER TABLE Relation_14 
-    ADD CONSTRAINT Relation_14_UserGroup_FK FOREIGN KEY 
-    ( 
+ALTER TABLE Relation_14
+    ADD CONSTRAINT Relation_14_UserGroup_FK FOREIGN KEY
+    (
      UserGroup_id_group
-    ) 
-    REFERENCES UserGroup 
-    ( 
+    )
+    REFERENCES UserGroup
+    (
      id_group
-    ) 
+    )
 ;
 
-ALTER TABLE SavingGoal 
-    ADD CONSTRAINT SavingGoal_Currency_FK FOREIGN KEY 
-    ( 
+ALTER TABLE SavingGoal
+    ADD CONSTRAINT SavingGoal_Currency_FK FOREIGN KEY
+    (
      Currency_id_currency
-    ) 
-    REFERENCES Currency 
-    ( 
+    )
+    REFERENCES Currency
+    (
      id_currency
-    ) 
+    )
 ;
 
-ALTER TABLE SavingGoal 
-    ADD CONSTRAINT SavingGoal_User_FK FOREIGN KEY 
-    ( 
+ALTER TABLE SavingGoal
+    ADD CONSTRAINT SavingGoal_User_FK FOREIGN KEY
+    (
      User_id_user
-    ) 
-    REFERENCES "User" 
-    ( 
+    )
+    REFERENCES "User"
+    (
      id_user
-    ) 
-    ON DELETE CASCADE 
+    )
+    ON DELETE CASCADE
 ;
 
---  ERROR: FK name length exceeds maximum allowed length(30) 
-ALTER TABLE Scheduled_Transaction 
-    ADD CONSTRAINT Scheduled_Transaction_Account_FK FOREIGN KEY 
-    ( 
+--  ERROR: FK name length exceeds maximum allowed length(30)
+ALTER TABLE Scheduled_Transaction
+    ADD CONSTRAINT Scheduled_Transaction_Account_FK FOREIGN KEY
+    (
      Account_id_account
-    ) 
-    REFERENCES Account 
-    ( 
+    )
+    REFERENCES Account
+    (
      id_account
-    ) 
+    )
 ;
 
---  ERROR: FK name length exceeds maximum allowed length(30) 
-ALTER TABLE Scheduled_Transaction 
-    ADD CONSTRAINT Scheduled_Transaction_Categories_FK FOREIGN KEY 
-    ( 
+--  ERROR: FK name length exceeds maximum allowed length(30)
+ALTER TABLE Scheduled_Transaction
+    ADD CONSTRAINT Scheduled_Transaction_Categories_FK FOREIGN KEY
+    (
      Categories_id_category
-    ) 
-    REFERENCES Categories 
-    ( 
+    )
+    REFERENCES Categories
+    (
      id_category
-    ) 
+    )
 ;
 
---  ERROR: FK name length exceeds maximum allowed length(30) 
-ALTER TABLE Scheduled_Transaction 
-    ADD CONSTRAINT Scheduled_Transaction_Currency_FK FOREIGN KEY 
-    ( 
+--  ERROR: FK name length exceeds maximum allowed length(30)
+ALTER TABLE Scheduled_Transaction
+    ADD CONSTRAINT Scheduled_Transaction_Currency_FK FOREIGN KEY
+    (
      Currency_id_currency
-    ) 
-    REFERENCES Currency 
-    ( 
+    )
+    REFERENCES Currency
+    (
      id_currency
-    ) 
+    )
 ;
 
-ALTER TABLE Transaction 
-    ADD CONSTRAINT Transaction_Account_FK FOREIGN KEY 
-    ( 
+ALTER TABLE Transaction
+    ADD CONSTRAINT Transaction_Account_FK FOREIGN KEY
+    (
      Account_id_account
-    ) 
-    REFERENCES Account 
-    ( 
+    )
+    REFERENCES Account
+    (
      id_account
-    ) 
-    ON DELETE CASCADE 
+    )
+    ON DELETE CASCADE
 ;
 
-ALTER TABLE Transaction 
-    ADD CONSTRAINT Transaction_Categories_FK FOREIGN KEY 
-    ( 
+ALTER TABLE Transaction
+    ADD CONSTRAINT Transaction_Categories_FK FOREIGN KEY
+    (
      Categories_id_category
-    ) 
-    REFERENCES Categories 
-    ( 
+    )
+    REFERENCES Categories
+    (
      id_category
-    ) 
+    )
 ;
 
-ALTER TABLE Transaction 
-    ADD CONSTRAINT Transaction_Currency_FK FOREIGN KEY 
-    ( 
+ALTER TABLE Transaction
+    ADD CONSTRAINT Transaction_Currency_FK FOREIGN KEY
+    (
      Currency_id_currency
-    ) 
-    REFERENCES Currency 
-    ( 
+    )
+    REFERENCES Currency
+    (
      id_currency
-    ) 
+    )
 ;
 
 
 
--- Oracle SQL Developer Data Modeler Summary Report: 
--- 
+-- Oracle SQL Developer Data Modeler Summary Report:
+--
 -- CREATE TABLE                            12
 -- CREATE INDEX                             0
 -- ALTER TABLE                             28
@@ -378,16 +378,16 @@ ALTER TABLE Transaction
 -- CREATE SYNONYM                           0
 -- CREATE TABLESPACE                        0
 -- CREATE USER                              0
--- 
+--
 -- DROP TABLESPACE                         0
 -- DROP DATABASE                           0
--- 
+--
 -- REDACTION POLICY                         0
--- 
+--
 -- ORDS DROP SCHEMA                         0
 -- ORDS ENABLE SCHEMA                       0
 -- ORDS ENABLE OBJECT                       0
--- 
+--
 -- ERRORS                                   3
 -- WARNINGS                                 0
 
@@ -411,7 +411,7 @@ FOR EACH ROW
 EXECUTE FUNCTION create_def_acc();
 
 
-INSERT INTO categories (name, "type") VALUES 
+INSERT INTO categories (name, "type") VALUES
 ('Jedzenie i Kawiarnie', 'EXPENSE');
 
 SELECT setval('categories_id_category_seq', (SELECT MAX(id_category) FROM categories));
@@ -431,7 +431,7 @@ DECLARE
     v_current_next_date DATE;
     v_final_description VARCHAR(255);
 BEGIN
-    FOR r_sched IN 
+    FOR r_sched IN
         SELECT st.* FROM scheduled_transaction st
         JOIN account a ON st.account_id_account = a.id_account
         WHERE a.user_id_user = p_user_id AND st.next_date <= CURRENT_DATE
@@ -450,10 +450,10 @@ BEGIN
         SELECT exchange_rate INTO v_sched_rate FROM currency WHERE id_currency = r_sched.currency_id_currency;
         v_converted_amount := r_sched.amount * (v_sched_rate / v_acc_rate);
         v_current_next_date := r_sched.next_date;
-        WHILE v_current_next_date <= CURRENT_DATE LOOP            
+        WHILE v_current_next_date <= CURRENT_DATE LOOP
             INSERT INTO Transaction (amount, transaction_date, description, is_income, Account_id_account, Categories_id_category, Currency_id_currency)
             VALUES (
-                ABS(r_sched.amount), 
+                ABS(r_sched.amount),
                 v_current_next_date,
                 v_final_description,
                 v_is_income,
@@ -461,8 +461,8 @@ BEGIN
                 r_sched.categories_id_category,
                 r_sched.currency_id_currency
             );
-            UPDATE Account 
-            SET current_balance = current_balance + v_converted_amount 
+            UPDATE Account
+            SET current_balance = current_balance + v_converted_amount
             WHERE id_account = r_sched.account_id_account;
             IF UPPER(r_sched.frequency) = 'DAILY' THEN
                 v_current_next_date := v_current_next_date + INTERVAL '1 day';
@@ -476,7 +476,7 @@ BEGIN
                 v_current_next_date := v_current_next_date + INTERVAL '1 month';
             END IF;
         END LOOP;
-        UPDATE scheduled_transaction 
+        UPDATE scheduled_transaction
         SET next_date = v_current_next_date
         WHERE id_schedule_transaction = r_sched.id_schedule_transaction;
     END LOOP;
@@ -484,17 +484,17 @@ END;
 $$;
 
 -- to add cascade delete to scheduled transactions, so when account is deleted, scheduled transactions are also deleted
-ALTER TABLE Scheduled_Transaction 
+ALTER TABLE Scheduled_Transaction
     DROP CONSTRAINT IF EXISTS Scheduled_Transaction_Account_FK;
 
-ALTER TABLE Scheduled_Transaction 
-    ADD CONSTRAINT Scheduled_Transaction_Account_FK FOREIGN KEY ( Account_id_account ) 
-    REFERENCES Account ( id_account ) 
+ALTER TABLE Scheduled_Transaction
+    ADD CONSTRAINT Scheduled_Transaction_Account_FK FOREIGN KEY ( Account_id_account )
+    REFERENCES Account ( id_account )
     ON DELETE CASCADE;
 
--- view for budget 
+-- view for budget
 CREATE OR REPLACE VIEW v_budget_analytics AS
-SELECT 
+SELECT
     b.id_budget,
     b.limit,
     b.start_date,
@@ -504,7 +504,7 @@ SELECT
     c.name AS category_name,
     b.currency_id_currency,
     curr.code AS currency_code,
-    
+
     -- Sum of expenses
     COALESCE( -- to make sure we dont get null
         (
@@ -521,7 +521,7 @@ SELECT
         ), 0.00
     ) AS current_spent,
     -- calculate procent of buget used to make job of my frontend easier coz it requiers some work
-    ROUND((COALESCE( 
+    ROUND((COALESCE(
         (
             SELECT SUM(t.amount*(curr_trans.exchange_rate/curr_budget.exchange_rate))
             FROM transaction t
@@ -534,13 +534,13 @@ SELECT
               AND t.transaction_date >= b.start_date::timestamp
               AND t.transaction_date <= b.end::timestamp
         ), 0.00
-    ) / b.limit) * 100, 2)::float AS percent_used 
+    ) / b.limit) * 100, 2)::float AS percent_used
 
 FROM budget b
 JOIN categories c ON b.categories_id_category = c.id_category
 JOIN currency curr ON b.currency_id_currency = curr.id_currency;
 
---notif logic 
+--notif logic
 
 CREATE OR REPLACE FUNCTION check_budget_overflow()
 RETURNS TRIGGER AS $$
@@ -552,8 +552,8 @@ DECLARE
     v_current_spent NUMERIC(20, 2);
 BEGIN
     IF NEW.is_income = 'F' THEN
-        SELECT user_id_user INTO v_user_id 
-        FROM account 
+        SELECT user_id_user INTO v_user_id
+        FROM account
         WHERE id_account = NEW.account_id_account;
         SELECT id_budget, "limit", currency_id_currency INTO v_budget_id, v_budget_limit, v_budget_currency_id
         FROM budget
@@ -578,7 +578,7 @@ BEGIN
                 VALUES (
                     'Limit surpassed. Current spending is: ' || v_current_spent || ' while limit is: ' || v_budget_limit || ' (Procentage used: ' || ROUND((v_current_spent / v_budget_limit) * 100, 2) || '%)',
                     NOW(),
-                    'F', 
+                    'F',
                     v_user_id
                 );
             END IF;
@@ -599,4 +599,9 @@ EXECUTE FUNCTION check_budget_overflow();
 
 ALTER TABLE SavingGoal ADD COLUMN start_date DATE DEFAULT CURRENT_DATE NOT NULL;
 
+-- for Enable Banking integration, we will add a new column to store the external transaction ID from the bank API. This will help us avoid duplicate transactions when syncing with the bank.
+ALTER TABLE transaction ADD COLUMN external_id VARCHAR(255);
 
+CREATE UNIQUE INDEX ux_transaction_account_external_id
+ON transaction (account_id_account, external_id)
+WHERE external_id IS NOT NULL;

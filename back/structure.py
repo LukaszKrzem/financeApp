@@ -88,6 +88,9 @@ class Transaction(back.database.Base):
         sqlalchemy.ForeignKey("currency.id_currency"),
         nullable=False,
     )
+    external_id = sqlalchemy.Column(
+        sqlalchemy.String(255), nullable=True
+    )  # to store the external transaction ID from the bank API
 
     # For now to avoid changing the existing code, we will use this column to determine
     # if it's an income or expense transaction

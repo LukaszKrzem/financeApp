@@ -1,4 +1,5 @@
 import base64
+import hashlib
 import logging
 import os
 import time
@@ -125,7 +126,6 @@ def _fetch_bank_transactions() -> list:
 
 @router.get("/transactions")
 def get_recent_transactions(current_user=Depends(get_current_user)):
-    """Podgląd transakcji z banku, bez zapisu do bazy. Przydatne do debugowania."""
     transactions = _fetch_bank_transactions()
 
     formatted_transactions = []
@@ -169,24 +169,58 @@ def _get_or_create_uncategorized(
     return category.id_category
 
 
+def _build_external_id(tx: dict) -> str:
+    entry_reference = tx.get("entry_reference")
+    if entry_reference:
+        return f"er:{entry_reference}"
+
+    amount = tx.get("transaction_amount", {}).get("amount", "")
+    date = tx.get("booking_date", "")
+    indicator = tx.get("credit_debit_indicator", "")
+    description_list = tx.get("remittance_information", [])
+    description = description_list[0] if description_list else ""
+
+    raw = f"{date}|{amount}|{indicator}|{description}"
+    return "fb:" + hashlib.sha256(raw.encode("utf-8")).hexdigest()[:32]
+
+
 @router.post("/sync")
 def sync_bank_transactions(
     db: sqlalchemy.orm.Session = Depends(get_db),
     current_user=Depends(get_current_user),
 ):
-
     _validate_sync_config()
 
-    raw_transactions = _fetch_bank_transactions()
-    category_cache = {}
+    account_id = int(LOCAL_ACCOUNT_ID_FOR_BANK_SYNC)
+    currency_id = int(LOCAL_CURRENCY_ID_FOR_BANK_SYNC)
 
+    raw_transactions = _fetch_bank_transactions()
+
+    existing_ids = {
+        row[0]
+        for row in db.query(structure.Transaction.external_id)
+        .filter(
+            structure.Transaction.Account_id_account == account_id,
+            structure.Transaction.external_id.isnot(None),
+        )
+        .all()
+    }
+
+    category_cache = {}
     imported = 0
+    skipped = 0
+    seen_in_this_batch = set()
 
     for tx in raw_transactions:
+        external_id = _build_external_id(tx)
+
+        if external_id in existing_ids or external_id in seen_in_this_batch:
+            skipped += 1
+            continue
+        seen_in_this_batch.add(external_id)
+
         amount = tx.get("transaction_amount", {}).get("amount")
-        indicator = tx.get(
-            "credit_debit_indicator"
-        )  # "CRDT" (przychód) / "DBIT" (wydatek)
+        indicator = tx.get("credit_debit_indicator")
 
         description_list = tx.get("remittance_information", ["No description"])
         description = description_list[0] if description_list else "No description"
@@ -204,9 +238,10 @@ def sync_bank_transactions(
             amount=abs(float(amount)) if amount else 0.0,
             date=tx.get("booking_date"),
             description=description.strip(),
-            Account_id_account=int(LOCAL_ACCOUNT_ID_FOR_BANK_SYNC),
+            Account_id_account=account_id,
             Category_id_category=category_cache[tx_type],
-            Currency_id_currency=int(LOCAL_CURRENCY_ID_FOR_BANK_SYNC),
+            Currency_id_currency=currency_id,
+            external_id=external_id,
         )
         new_transaction.type = tx_type
 
@@ -215,4 +250,4 @@ def sync_bank_transactions(
 
     db.commit()
 
-    return {"imported": imported}
+    return {"imported": imported, "skipped": skipped}

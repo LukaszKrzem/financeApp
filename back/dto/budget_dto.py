@@ -15,9 +15,7 @@ class BudgetCreate(pydantic.BaseModel):
     @pydantic.model_validator(mode="after")
     def validate_dates(self):
         if self.end < self.start_date:
-            raise ValueError(
-                "Data zakończenia nie może być wcześniejsza niż data rozpoczęcia!"
-            )
+            raise ValueError("End date cannot be earlier than start date!")
         return self
 
 

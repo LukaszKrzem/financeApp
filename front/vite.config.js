@@ -17,7 +17,7 @@ export default defineConfig({
       manifest: {
         name: 'SmartBudget App',
         short_name: 'SmartBudget',
-        description: 'Twój osobisty menedżer finansów',
+        description: 'Your personal finance management app',
         theme_color: '#ffffff',
         background_color: '#ffffff',
         display: 'standalone',

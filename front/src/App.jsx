@@ -204,7 +204,7 @@ function App() {
   if (loading) {
     return (
       <div className="flex h-screen items-center justify-center">
-        Ładowanie aplikacji...
+        Loading...
       </div>
     );
   }

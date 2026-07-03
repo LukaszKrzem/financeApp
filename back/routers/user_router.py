@@ -32,7 +32,7 @@ def register(
     if existing_user:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Podany email jest już używany",
+            detail="Email already registered",
         )
     new_user = user_service.create_user(user_data)
     user_service.add_user(db, new_user)

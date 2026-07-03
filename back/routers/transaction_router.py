@@ -74,10 +74,10 @@ async def create_transaction(
     )
 
     if not account:
-        raise HTTPException(status_code=404, detail="Konto nie zostało znalezione.")
+        raise HTTPException(status_code=404, detail="Account not found.")
 
     if account.User_id_user != current_user.id_user:
-        raise HTTPException(status_code=403, detail="Brak dostępu do tego konta.")
+        raise HTTPException(status_code=403, detail="Access denied to this account.")
 
     currency_account = (
         db.query(structure.Currency)

@@ -15,7 +15,7 @@ def get_current_user(
 ):
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Sesja wygasła",
+        detail="Session expired or invalid credentials",
         headers={"WWW-Authenticate": "Bearer"},
     )
 

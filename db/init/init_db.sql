@@ -612,3 +612,28 @@ ALTER TABLE transaction ADD COLUMN external_id VARCHAR(255);
 CREATE UNIQUE INDEX ux_transaction_account_external_id
 ON transaction (account_id_account, external_id)
 WHERE external_id IS NOT NULL;
+
+
+-- New table to store bank connection information for each user. This will allow us to manage multiple bank connections per user and handle session management for syncing transactions.
+CREATE TABLE bank_connection (
+    id_connection SERIAL PRIMARY KEY,
+    user_id_user INTEGER NOT NULL REFERENCES "User"(id_user) ON DELETE CASCADE,
+    bank_name VARCHAR(100),
+    session_id VARCHAR(255) NOT NULL,
+    valid_until TIMESTAMP NOT NULL,
+    created_at TIMESTAMP DEFAULT NOW()
+);
+
+-- Add a foreign key to the Account table to link it to the bank_connection table. This will allow us to associate each account with a specific bank connection.
+ALTER TABLE Account
+    ADD COLUMN bank_connection_id INTEGER REFERENCES bank_connection(id_connection) ON DELETE SET NULL,
+    ADD COLUMN bank_account_uid VARCHAR(255);
+
+
+-- Add a unique constraint to ensure that each bank account UID is unique across all accounts. This will help prevent duplicate accounts from being created when syncing with the bank.
+ALTER TABLE Account
+    ADD CONSTRAINT uq_bank_account_uid UNIQUE (bank_account_uid);
+
+-- Create an index on the bank_connection_id column in the Account table to improve query performance when filtering or joining on this column.
+CREATE INDEX idx_account_bank_connection
+    ON Account (bank_connection_id);

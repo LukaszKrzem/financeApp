@@ -4,11 +4,13 @@
 # IMPORTANT
 
 
+import datetime
 import enum
 from datetime import date, datetime
 
 import sqlalchemy
 from sqlalchemy import Enum
+from sqlalchemy.orm import relationship
 
 import back.database
 
@@ -29,8 +31,31 @@ class User(back.database.Base):
     name = sqlalchemy.Column(sqlalchemy.String(255), nullable=False)
 
 
+class BankConnection(back.database.Base):
+    __tablename__ = "bank_connection"
+
+    id_connection = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, index=True)
+    user_id_user = sqlalchemy.Column(
+        sqlalchemy.Integer,
+        sqlalchemy.ForeignKey("User.id_user", ondelete="CASCADE"),
+        nullable=False,
+    )
+    bank_name = sqlalchemy.Column(sqlalchemy.String(100), nullable=True)
+    session_id = sqlalchemy.Column(sqlalchemy.String(255), nullable=False)
+    valid_until = sqlalchemy.Column(sqlalchemy.DateTime, nullable=False)
+    created_at = sqlalchemy.Column(
+        sqlalchemy.DateTime, default=datetime.datetime.utcnow
+    )
+
+    user = relationship("User", backref="bank_connections")
+
+
 class Account(back.database.Base):
     __tablename__ = "account"
+    __table_args__ = (
+        sqlalchemy.UniqueConstraint("bank_account_uid", name="uq_bank_account_uid"),
+    )
+
     id_account = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, index=True)
     name = sqlalchemy.Column(sqlalchemy.String(255), nullable=False)
     current_balance = sqlalchemy.Column(sqlalchemy.Numeric(20, 2), nullable=False)
@@ -46,6 +71,19 @@ class Account(back.database.Base):
         sqlalchemy.ForeignKey("User.id_user", ondelete="CASCADE"),
         nullable=False,
     )
+    bank_connection_id = sqlalchemy.Column(
+        "bank_connection_id",
+        sqlalchemy.Integer,
+        sqlalchemy.ForeignKey("bank_connection.id_connection", ondelete="SET NULL"),
+        nullable=True,
+    )
+    bank_account_uid = sqlalchemy.Column(
+        "bank_account_uid",
+        sqlalchemy.String(255),
+        nullable=True,
+    )
+
+    bank = relationship("BankConnection", backref="accounts")
 
 
 class TransactionType(enum.Enum):

@@ -5,6 +5,7 @@ import './App.css';
 
 import Layout from './components/Layout';
 import { PageSkeleton } from './components/page-skeleton';
+import { Toaster } from '@/components/ui/sonner';
 
 const Home = lazy(() => import('./pages/Home'));
 const Login = lazy(() => import('./pages/Login'));
@@ -379,6 +380,7 @@ function App() {
           </Routes>
         </Suspense>
       </BrowserRouter>
+      <Toaster position="bottom-right" richColors />
     </TooltipProvider>
   );
 }

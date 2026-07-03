@@ -520,7 +520,7 @@ SELECT
               AND t.transaction_date <= b.end::timestamp
         ), 0.00
     ) AS current_spent,
-    -- calculate procent of buget used to make job of my frontend easier coz it requiers some work
+    -- calculate percentage of budget used to make job of my frontend easier coz it requiers some work
     ROUND((COALESCE(
         (
             SELECT SUM(t.amount*(curr_trans.exchange_rate/curr_budget.exchange_rate))
@@ -550,6 +550,7 @@ DECLARE
     v_budget_limit NUMERIC(20, 2);
     v_budget_currency_id INT;
     v_current_spent NUMERIC(20, 2);
+    v_new_tx_converted NUMERIC(20, 2);
 BEGIN
     IF NEW.is_income = 'F' THEN
         SELECT user_id_user INTO v_user_id
@@ -573,10 +574,16 @@ BEGIN
               AND t.is_income = 'F'
               AND t.transaction_date >= (SELECT start_date FROM budget WHERE id_budget = v_budget_id)::timestamp
               AND t.transaction_date <= (SELECT "end" FROM budget WHERE id_budget = v_budget_id)::timestamp;
-            IF v_current_spent > v_budget_limit THEN
+
+            SELECT (NEW.amount * (curr_trans.exchange_rate / curr_budget.exchange_rate)) INTO v_new_tx_converted
+            FROM currency curr_trans, currency curr_budget
+            WHERE curr_trans.id_currency = NEW.currency_id_currency
+              AND curr_budget.id_currency = v_budget_currency_id;
+
+            IF v_current_spent > v_budget_limit AND (v_current_spent - COALESCE(v_new_tx_converted, 0)) <= v_budget_limit THEN
                 INSERT INTO notification (message, "date", is_read, user_id_user)
                 VALUES (
-                    'Limit surpassed. Current spending is: ' || v_current_spent || ' while limit is: ' || v_budget_limit || ' (Procentage used: ' || ROUND((v_current_spent / v_budget_limit) * 100, 2) || '%)',
+                    'Limit surpassed. Current spending is: ' || v_current_spent || ' while limit is: ' || v_budget_limit || ' (Percentage used: ' || ROUND((v_current_spent / v_budget_limit) * 100, 2) || '%)',
                     NOW(),
                     'F',
                     v_user_id

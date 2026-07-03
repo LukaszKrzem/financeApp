@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { AddAccountDialog } from '@/components/AddAccountDialog';
 import { Button } from '@/components/ui/button';
 import { IconRefresh } from '@tabler/icons-react';
+import { toast } from 'sonner';
 
 const formatAccountAmount = (amount, currencyCode) => {
   const value = new Intl.NumberFormat('pl-PL', {
@@ -45,6 +46,9 @@ export default function Accounts({
       if (!response.ok) {
         throw new Error(data.detail || 'Sync failed');
       }
+      toast.success('Sync successful', {
+        description: `Imported: ${data.imported}, Skipped: ${data.skipped}.`,
+      });
       setRefreshing((prev) => prev + 1);
     } catch (error) {
       console.error('Error syncing bank transactions:', error);
@@ -89,7 +93,6 @@ export default function Accounts({
       </div>
 
       {syncError && <p className="text-sm text-destructive">{syncError}</p>}
-
       {loading ? (
         <p className="text-sm text-muted-foreground text-center py-8">
           Loading accounts...

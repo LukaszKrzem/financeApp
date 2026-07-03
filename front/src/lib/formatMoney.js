@@ -1,8 +1,15 @@
-export const formatTransactionAmount = (amount, currencyCode = 'PLN') => {
+export const formatTransactionAmount = (
+  amount,
+  currencyCode = 'PLN',
+  preserveSign = false
+) => {
+  const numericAmount = parseFloat(amount);
+  const amountToFormat = preserveSign ? numericAmount : Math.abs(numericAmount);
+
   const value = new Intl.NumberFormat('pl-PL', {
     notation: 'compact',
     maximumFractionDigits: 2,
-  }).format(Math.abs(parseFloat(amount)));
+  }).format(amountToFormat);
 
   const code = (currencyCode || 'PLN').toUpperCase();
 

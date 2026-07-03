@@ -3,26 +3,8 @@ import { AddAccountDialog } from '@/components/AddAccountDialog';
 import { Button } from '@/components/ui/button';
 import { IconRefresh } from '@tabler/icons-react';
 import { toast } from 'sonner';
+import { formatTransactionAmount } from '@/lib/formatMoney';
 
-const formatAccountAmount = (amount, currencyCode) => {
-  const value = new Intl.NumberFormat('pl-PL', {
-    notation: 'compact',
-    maximumFractionDigits: 1,
-  }).format(Math.abs(parseFloat(amount)).toFixed(2));
-  const code = (currencyCode || 'PLN').toUpperCase();
-  switch (code) {
-    case 'USD':
-      return `$${value}`;
-    case 'EUR':
-      return `${value} €`;
-    case 'GBP':
-      return `£${value}`;
-    case 'PLN':
-      return `${value} zł`;
-    default:
-      return `${value} ${code}`;
-  }
-};
 export default function Accounts({
   token,
   accounts,
@@ -106,9 +88,10 @@ export default function Accounts({
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {accounts.map((account) => {
             if (!account) return null;
-            const compactNumber = formatAccountAmount(
+            const compactNumber = formatTransactionAmount(
               account.current_balance,
-              account.currency_code
+              account.currency_code,
+              true
             );
 
             return (

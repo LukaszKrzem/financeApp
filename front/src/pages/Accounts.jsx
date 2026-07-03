@@ -53,6 +53,7 @@ export default function Accounts({
     } catch (error) {
       console.error('Error syncing bank transactions:', error);
       setSyncError(error.message);
+      toast.error('Sync failed', { description: error.message });
     } finally {
       setSyncing(false);
     }

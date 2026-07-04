@@ -14,8 +14,6 @@ export default function Accounts({
   apiUrl,
 }) {
   const [syncing, setSyncing] = useState(false);
-  const [syncError, setSyncError] = useState(null);
-
   const [connecting, setConnecting] = useState(false);
 
   const handleConnectBank = async () => {
@@ -53,7 +51,6 @@ export default function Accounts({
 
   const handleBankSync = async () => {
     setSyncing(true);
-    setSyncError(null);
     try {
       // TODO: Let user choose account to sync
       const bankAccount = (accounts || []).find((a) => a.bank_account_uid);
@@ -84,7 +81,6 @@ export default function Accounts({
       setRefreshing((prev) => prev + 1);
     } catch (error) {
       console.error('Error syncing bank transactions:', error);
-      setSyncError(error.message);
       toast.error('Sync failed', { description: error.message });
     } finally {
       setSyncing(false);
@@ -133,7 +129,6 @@ export default function Accounts({
         </div>
       </div>
 
-      {syncError && <p className="text-sm text-destructive">{syncError}</p>}
       {loading ? (
         <p className="text-sm text-muted-foreground text-center py-8">
           Loading accounts...

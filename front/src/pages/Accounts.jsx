@@ -16,11 +16,46 @@ export default function Accounts({
   const [syncing, setSyncing] = useState(false);
   const [syncError, setSyncError] = useState(null);
 
+  const [connecting, setConnecting] = useState(false);
+
+  const handleConnectBank = async () => {
+    setConnecting(true);
+    try {
+      const redirectUri = `${window.location.origin}/bank-callback`;
+      const response = await fetch(`${apiUrl}/api/banking/auth-url`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          redirect_uri: redirectUri,
+          bank_name: 'Millennium', // TODO: Let user choose bank from a list
+          country: 'PL',
+        }),
+      });
+      const data = await response.json();
+
+      if (!response.ok) {
+        const message = Array.isArray(data.detail)
+          ? data.detail.map((d) => d.msg).join(', ')
+          : data.detail || 'Could not start bank connection';
+        throw new Error(message);
+      }
+
+      window.location.href = data.auth_url;
+    } catch (error) {
+      console.error('Error starting bank connection:', error);
+      toast.error('Connection failed', { description: error.message });
+      setConnecting(false);
+    }
+  };
+
   const handleBankSync = async () => {
     setSyncing(true);
     setSyncError(null);
     try {
-      // TODO: choose the bank account to sync if there are multiple
+      // TODO: Let user choose account to sync
       const bankAccount = (accounts || []).find((a) => a.bank_account_uid);
       if (!bankAccount) {
         throw new Error('No bank-connected account found');
@@ -68,6 +103,14 @@ export default function Accounts({
           </p>
         </div>
         <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            onClick={handleConnectBank}
+            disabled={connecting}
+            className="flex items-center gap-2"
+          >
+            {connecting ? 'Connecting...' : 'Connect bank'}
+          </Button>
           <Button
             variant="outline"
             onClick={handleBankSync}

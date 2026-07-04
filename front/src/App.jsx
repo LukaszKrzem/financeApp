@@ -16,6 +16,7 @@ const Accounts = lazy(() => import('./pages/Accounts'));
 const SavingsGoals = lazy(() => import('./pages/SavingsGoals'));
 const Transactions = lazy(() => import('./pages/Transactions'));
 const Settings = lazy(() => import('./pages/Settings'));
+const BankCallback = lazy(() => import('./pages/BankCallback'));
 
 const API_URL = import.meta.env.VITE_API_URL;
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
@@ -369,6 +370,20 @@ function App() {
                       onLogout={handleLogout}
                       user={user}
                       token={token}
+                    />
+                  ) : (
+                    <Navigate to="/" replace />
+                  )
+                }
+              />
+              <Route
+                path="/bank-callback"
+                element={
+                  token ? (
+                    <BankCallback
+                      token={token}
+                      apiUrl={API_URL}
+                      setRefreshing={setRefreshing}
                     />
                   ) : (
                     <Navigate to="/" replace />

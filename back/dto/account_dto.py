@@ -7,6 +7,7 @@ class AccountOut(pydantic.BaseModel):
     current_balance: float
     Currency_id_currency: int
     currency_code: str
+    bank_account_uid: str | None = None
 
     class Config:
         from_attributes = True

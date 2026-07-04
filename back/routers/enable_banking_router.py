@@ -41,7 +41,7 @@ class SyncRequest(BaseModel):
 
 class AuthUrlRequest(BaseModel):
     redirect_uri: str
-    bank_name: str
+    bank_name: str | None = None
     country: str = "PL"
 
 
@@ -303,15 +303,15 @@ def generate_auth_url(request: AuthUrlRequest, current_user=Depends(get_current_
                 datetime.now(timezone.utc) + timedelta(days=90)
             ).isoformat(),
         },
-        "aspsp": {
-            "name": request.bank_name,
-            "country": request.country,
-        },
         "state": state,
         "redirect_url": request.redirect_uri,
         "psu_type": "personal",
     }
-
+    if request.bank_name:
+        payload["aspsp"] = {
+            "name": request.bank_name,
+            "country": request.country,
+        }
     try:
         response = requests.post(
             "https://api.enablebanking.com/auth",

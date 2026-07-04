@@ -29,9 +29,9 @@ export default function Accounts({
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
-          redirect_uri: redirectUri,
-          bank_name: 'Millennium', // TODO: Let user choose bank from a list
-          country: 'PL',
+          redirect_uri: redirectUri, // TODO: Let user choose bank from a list
+          //bank_name: 'Millennium',
+          //country: 'PL',
         }),
       });
       const data = await response.json();

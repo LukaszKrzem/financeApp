@@ -20,14 +20,29 @@ export default function Accounts({
     setSyncing(true);
     setSyncError(null);
     try {
+      // TODO: choose the bank account to sync if there are multiple
+      const bankAccount = (accounts || []).find((a) => a.bank_account_uid);
+      if (!bankAccount) {
+        throw new Error('No bank-connected account found');
+      }
+
       const response = await fetch(`${apiUrl}/api/banking/sync`, {
         method: 'POST',
-        headers: { Authorization: `Bearer ${token}` },
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ account_id: bankAccount.id_account }),
       });
       const data = await response.json();
+
       if (!response.ok) {
-        throw new Error(data.detail || 'Sync failed');
+        const message = Array.isArray(data.detail)
+          ? data.detail.map((d) => d.msg).join(', ')
+          : data.detail || 'Sync failed';
+        throw new Error(message);
       }
+
       toast.success('Sync successful', {
         description: `Imported: ${data.imported}, Skipped: ${data.skipped}.`,
       });

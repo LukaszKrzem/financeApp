@@ -43,6 +43,8 @@ def get_user_accounts(
                 "current_balance": account.current_balance,
                 "Currency_id_currency": account.Currency_id_currency,
                 "currency_code": currency.code,
+                "bank_account_uid": account.bank_account_uid,
+                "bank_connection_id": account.bank_connection_id,
             }
         )
 
@@ -83,4 +85,6 @@ def create_account(
         "current_balance": new_account.current_balance,
         "Currency_id_currency": new_account.Currency_id_currency,
         "currency_code": currency.code,
+        "bank_account_uid": new_account.bank_account_uid,
+        "bank_connection_id": new_account.bank_connection_id,
     }

@@ -6,7 +6,7 @@
 
 import datetime
 import enum
-from datetime import date, datetime
+from datetime import date, datetime, timezone
 
 import sqlalchemy
 from sqlalchemy import Enum
@@ -42,9 +42,11 @@ class BankConnection(back.database.Base):
     )
     bank_name = sqlalchemy.Column(sqlalchemy.String(100), nullable=True)
     session_id = sqlalchemy.Column(sqlalchemy.String(255), nullable=False)
-    valid_until = sqlalchemy.Column(sqlalchemy.DateTime, nullable=False)
+    valid_until = sqlalchemy.Column(
+        sqlalchemy.DateTime, default=lambda: datetime.now(timezone.utc)
+    )
     created_at = sqlalchemy.Column(
-        sqlalchemy.DateTime, default=datetime.datetime.utcnow
+        sqlalchemy.DateTime, default=lambda: datetime.now(timezone.utc)
     )
 
     user = relationship("User", backref="bank_connections")

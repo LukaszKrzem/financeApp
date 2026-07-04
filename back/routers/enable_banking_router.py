@@ -3,6 +3,7 @@ import hashlib
 import logging
 import os
 import time
+from datetime import datetime, timedelta, timezone
 
 import back.structure as structure
 import jwt
@@ -12,6 +13,7 @@ from back.database import get_db
 from back.dependencies import get_current_user
 from dotenv import load_dotenv
 from fastapi import APIRouter, Depends, HTTPException
+from pydantic import BaseModel
 
 load_dotenv()
 
@@ -20,38 +22,33 @@ logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/banking", tags=["Banking"])
 
 APP_ID = os.getenv("ENABLE_BANKING_APP_ID")
-ACCOUNT_UID = os.getenv("ENABLE_BANKING_ACCOUNT_UID")
 _b64 = os.getenv("ENABLE_BANKING_PRIVATE_KEY_B64")
 PRIVATE_KEY = base64.b64decode(_b64).decode("utf-8") if _b64 else None
-# TODO: change that hardcoded values
-LOCAL_ACCOUNT_ID_FOR_BANK_SYNC = os.getenv("LOCAL_ACCOUNT_ID_FOR_BANK_SYNC")
-LOCAL_CURRENCY_ID_FOR_BANK_SYNC = os.getenv("LOCAL_CURRENCY_ID_FOR_BANK_SYNC")
 
 REQUEST_TIMEOUT = 10
+
+
+class SyncRequest(BaseModel):
+    account_id: int
+
+
+class AuthUrlRequest(BaseModel):
+    redirect_uri: str
+    bank_name: str | None = None
+    country: str = "PL"
+
+
+class AuthCallbackRequest(BaseModel):
+    code: str
+    bank_name: str | None = None
 
 
 def _validate_config():
     missing = []
     if not APP_ID:
         missing.append("ENABLE_BANKING_APP_ID")
-    if not ACCOUNT_UID:
-        missing.append("ENABLE_BANKING_ACCOUNT_UID")
     if not PRIVATE_KEY:
         missing.append("ENABLE_BANKING_PRIVATE_KEY")
-
-    if missing:
-        raise HTTPException(
-            status_code=500,
-            detail=f"Missing configuration: {', '.join(missing)}",
-        )
-
-
-def _validate_sync_config():
-    missing = []
-    if not LOCAL_ACCOUNT_ID_FOR_BANK_SYNC:
-        missing.append("LOCAL_ACCOUNT_ID_FOR_BANK_SYNC")
-    if not LOCAL_CURRENCY_ID_FOR_BANK_SYNC:
-        missing.append("LOCAL_CURRENCY_ID_FOR_BANK_SYNC")
 
     if missing:
         raise HTTPException(
@@ -79,9 +76,9 @@ def get_bank_token() -> str:
         raise HTTPException(status_code=500, detail="Error generating access token")
 
 
-def _fetch_bank_transactions() -> list:
+def _fetch_bank_transactions(bank_account_uid: str) -> list:
     token = get_bank_token()
-    base_url = f"https://api.enablebanking.com/accounts/{ACCOUNT_UID}/transactions"
+    base_url = f"https://api.enablebanking.com/accounts/{bank_account_uid}/transactions"
     headers = {"Authorization": f"Bearer {token}"}
 
     all_transactions = []
@@ -103,6 +100,13 @@ def _fetch_bank_transactions() -> list:
             logger.error("Error connecting to Enable Banking: %s", exc)
             raise HTTPException(status_code=502, detail="Failed to connect to the bank")
 
+        if response.status_code == 429:
+            logger.warning("Bank rate limit exceeded for account: %s", bank_account_uid)
+            raise HTTPException(
+                status_code=429,
+                detail="Bank rate limit exceeded.",
+            )
+
         if response.status_code != 200:
             logger.error(
                 "Error fetching transactions (status %s): %s",
@@ -122,31 +126,6 @@ def _fetch_bank_transactions() -> list:
             break
 
     return all_transactions
-
-
-@router.get("/transactions")
-def get_recent_transactions(current_user=Depends(get_current_user)):
-    transactions = _fetch_bank_transactions()
-
-    formatted_transactions = []
-
-    for tx in transactions:
-        amount = tx.get("transaction_amount", {}).get("amount")
-        indicator = tx.get("credit_debit_indicator")
-
-        description_list = tx.get("remittance_information", ["No description"])
-        description = description_list[0] if description_list else "No description"
-
-        formatted_transactions.append(
-            {
-                "date": tx.get("booking_date"),
-                "amount": float(amount) if amount else 0.0,
-                "type": indicator,
-                "description": description.strip(),
-            }
-        )
-
-    return {"transactions": formatted_transactions}
 
 
 def _get_or_create_uncategorized(
@@ -186,15 +165,32 @@ def _build_external_id(tx: dict) -> str:
 
 @router.post("/sync")
 def sync_bank_transactions(
+    request: SyncRequest,
     db: sqlalchemy.orm.Session = Depends(get_db),
     current_user=Depends(get_current_user),
 ):
-    _validate_sync_config()
+    account = (
+        db.query(structure.Account)
+        .filter(
+            structure.Account.id_account == request.account_id,
+            structure.Account.User_id_user == current_user.id_user,
+        )
+        .first()
+    )
 
-    account_id = int(LOCAL_ACCOUNT_ID_FOR_BANK_SYNC)
-    currency_id = int(LOCAL_CURRENCY_ID_FOR_BANK_SYNC)
+    if not account:
+        raise HTTPException(status_code=404, detail="Account not found.")
 
-    raw_transactions = _fetch_bank_transactions()
+    if not account.bank_account_uid:
+        raise HTTPException(
+            status_code=400,
+            detail="This account is not linked to a bank (missing bank_account_uid).",
+        )
+
+    account_id = account.id_account
+    currency_id = account.Currency_id_currency
+
+    raw_transactions = _fetch_bank_transactions(account.bank_account_uid)
 
     existing_ids = {
         row[0]
@@ -251,3 +247,139 @@ def sync_bank_transactions(
     db.commit()
 
     return {"imported": imported, "skipped": skipped}
+
+
+@router.post("/auth-url")
+def generate_auth_url(request: AuthUrlRequest, current_user=Depends(get_current_user)):
+    token = get_bank_token()
+    headers = {"Authorization": f"Bearer {token}", "Content-Type": "application/json"}
+
+    payload = {
+        "access": {
+            "balances": True,
+            "transactions": True,
+            "valid_until": (
+                datetime.now(timezone.utc) + timedelta(days=90)
+            ).isoformat(),
+        },
+        "aspsp": {
+            "name": request.bank_name or "Pekao",
+            "country": request.country or "PL",
+        },
+        "state": "random_state_string",
+        "redirect_url": request.redirect_uri,
+    }
+
+    try:
+        response = requests.post(
+            "https://api.enablebanking.com/auth",
+            headers=headers,
+            json=payload,
+            timeout=REQUEST_TIMEOUT,
+        )
+        print("STATUS:", response.status_code)
+        print("BODY:", response.text)
+        response.raise_for_status()
+        data = response.json()
+
+        return {"auth_url": data["url"]}
+
+    except requests.exceptions.RequestException as exc:
+        logger.error(f"Error generating Auth URL: {exc}")
+        raise HTTPException(status_code=500, detail="Could not generate auth URL.")
+
+
+@router.post("/callback")
+def handle_bank_callback(
+    request: AuthCallbackRequest,
+    db: sqlalchemy.orm.Session = Depends(get_db),
+    current_user=Depends(get_current_user),
+):
+    token = get_bank_token()
+    headers = {"Authorization": f"Bearer {token}", "Content-Type": "application/json"}
+
+    try:
+        session_resp = requests.post(
+            "https://api.enablebanking.com/sessions",
+            headers=headers,
+            json={"code": request.code},
+            timeout=REQUEST_TIMEOUT,
+        )
+        session_resp.raise_for_status()
+        session_data = session_resp.json()
+    except requests.exceptions.RequestException as exc:
+        logger.error(f"Error exchanging callback code: {exc}")
+        raise HTTPException(
+            status_code=400, detail="Invalid authorization code from the bank."
+        )
+
+    session_id = session_data.get("session_id")
+    valid_until_str = session_data.get("access", {}).get("valid_until")
+
+    try:
+        valid_until = datetime.fromisoformat(valid_until_str.replace("Z", "+00:00"))
+    except Exception:
+        valid_until = datetime.now(timezone.utc)
+
+    new_connection = structure.BankConnection(
+        user_id_user=current_user.id_user,
+        bank_name=request.bank_name
+        or session_data.get("aspsp", {}).get("name", "Unknown Bank"),
+        session_id=session_id,
+        valid_until=valid_until,
+    )
+    db.add(new_connection)
+    db.flush()
+
+    session_headers = {"Authorization": f"Bearer {token}"}
+
+    try:
+        accounts_resp = requests.get(
+            "https://api.enablebanking.com/accounts",
+            headers=session_headers,
+            timeout=REQUEST_TIMEOUT,
+        )
+        accounts_resp.raise_for_status()
+        bank_accounts_data = accounts_resp.json().get("accounts", [])
+    except requests.exceptions.RequestException as exc:
+        logger.error(f"Error fetching account details: {exc}")
+        raise HTTPException(
+            status_code=500, detail="Could not fetch account details from the bank."
+        )
+
+    imported_accounts = 0
+
+    for acc in bank_accounts_data:
+        acc_uid = acc.get("account_id")
+        currency_code = acc.get("currency", "PLN")
+        balance = (
+            acc.get("balances", [{}])[0].get("balanceAmount", {}).get("amount", 0.0)
+        )
+
+        existing_acc = (
+            db.query(structure.Account).filter_by(bank_account_uid=acc_uid).first()
+        )
+        if existing_acc:
+            continue
+
+        db_currency = db.query(structure.Currency).filter_by(code=currency_code).first()
+        if not db_currency:
+            db_currency = db.query(structure.Currency).first()
+
+        new_account = structure.Account(
+            name=f"Bank Account ({acc_uid[-4:]})",
+            current_balance=float(balance) if balance else 0.0,
+            currency_id_currency=db_currency.id_currency,
+            user_id_user=current_user.id_user,
+            bank_connection_id=new_connection.id_connection,
+            bank_account_uid=acc_uid,
+        )
+        db.add(new_account)
+        imported_accounts += 1
+
+    db.commit()
+
+    return {
+        "message": "Authorization completed successfully!",
+        "imported_accounts": imported_accounts,
+    }

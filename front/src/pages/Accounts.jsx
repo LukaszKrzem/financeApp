@@ -156,9 +156,16 @@ export default function Accounts({
                   <span className="font-semibold text-lg text-foreground">
                     {account.name}
                   </span>
-                  <span className="text-xs font-mono px-2 py-0.5 rounded bg-muted text-muted-foreground">
-                    {account.currency_code}
-                  </span>
+                  <div className="flex items-center gap-1">
+                    {account.bank_account_uid && (
+                      <span className="text-xs px-2 py-0.5 rounded bg-emerald-100 text-emerald-700 dark:bg-emerald-900 dark:text-emerald-300">
+                        Connected
+                      </span>
+                    )}
+                    <span className="text-xs font-mono px-2 py-0.5 rounded bg-muted text-muted-foreground">
+                      {account.currency_code}
+                    </span>
+                  </div>
                 </div>
                 <div className="mt-2">
                   <span className="text-sm text-muted-foreground block">

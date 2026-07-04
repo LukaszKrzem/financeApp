@@ -4,9 +4,8 @@
 # IMPORTANT
 
 
-import datetime
 import enum
-from datetime import date, timezone
+from datetime import date, datetime, timezone
 
 import sqlalchemy
 from sqlalchemy import Enum
@@ -105,7 +104,10 @@ class Transaction(back.database.Base):
     id_transaction = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, index=True)
     amount = sqlalchemy.Column(sqlalchemy.Numeric(20, 2), nullable=False)
     date = sqlalchemy.Column(
-        "transaction_date", sqlalchemy.DateTime, default=datetime.utcnow, nullable=False
+        "transaction_date",
+        sqlalchemy.DateTime,
+        default=lambda: datetime.now(timezone.utc),
+        nullable=False,
     )
     description = sqlalchemy.Column(sqlalchemy.String(255), nullable=True)
     # type = sqlalchemy.Column("type", Enum(TransactionType), nullable=False)
@@ -261,7 +263,10 @@ class Notification(back.database.Base):
     )
     message = sqlalchemy.Column("message", sqlalchemy.String(400), nullable=False)
     date = sqlalchemy.Column(
-        "date", sqlalchemy.DateTime, nullable=False, default=datetime.utcnow
+        "date",
+        sqlalchemy.DateTime,
+        nullable=False,
+        default=lambda: datetime.now(timezone.utc),
     )
     is_read = sqlalchemy.Column(
         "is_read", sqlalchemy.CHAR(1), nullable=False, default="F"

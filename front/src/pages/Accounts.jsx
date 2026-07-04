@@ -30,8 +30,8 @@ export default function Accounts({
         },
         body: JSON.stringify({
           redirect_uri: redirectUri, // TODO: Let user choose bank from a list
-          //bank_name: 'Millennium',
-          //country: 'PL',
+          bank_name: 'Bank Millennium',
+          country: 'PL',
         }),
       });
       const data = await response.json();

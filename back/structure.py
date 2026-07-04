@@ -6,7 +6,7 @@
 
 import datetime
 import enum
-from datetime import date, datetime, timezone
+from datetime import date, timezone
 
 import sqlalchemy
 from sqlalchemy import Enum

@@ -1,9 +1,7 @@
 import secrets
-import ssl
 import string
 
 import back.dto.user_dto
-import certifi
 import requests
 import sqlalchemy.orm
 from back.database import get_db
@@ -91,15 +89,14 @@ def auth_google(
 
 @router.get("/debug/google-connectivity")
 def debug_google():
-
-    result = {
-        "python_ssl_version": ssl.OPENSSL_VERSION,
-        "certifi_path": certifi.where(),
-    }
-    try:
-        r = requests.get("https://www.googleapis.com/oauth2/v1/certs", timeout=10)
-        result["status"] = r.status_code
-    except Exception as e:
-        result["error_type"] = type(e).__name__
-        result["error"] = str(e)
+    result = {}
+    for url in [
+        "https://www.googleapis.com/oauth2/v1/certs",
+        "https://www.googleapis.com/oauth2/v3/certs",
+    ]:
+        try:
+            r = requests.get(url, timeout=10)
+            result[url] = r.status_code
+        except Exception as e:
+            result[url] = f"{type(e).__name__}: {e}"
     return result

@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta, timezone
 
 from fastapi.security import OAuth2PasswordBearer
-from google.auth.transport import requests
+from google.auth.transport import requests as google_requests
 from google.oauth2 import id_token
 from jose import JWTError, jwt
 from passlib.context import CryptContext
@@ -52,7 +52,10 @@ def verify_token(token: str):
 def verify_google_token(token: str):
     try:
         payload = id_token.verify_oauth2_token(
-            token, requests.Request(), GOOGLE_CLIENT_ID
+            token,
+            google_requests.Request(),
+            GOOGLE_CLIENT_ID,
+            certs_url="https://www.googleapis.com/oauth2/v3/certs",
         )
         user_email = payload["email"]
         user_name = payload["name"]

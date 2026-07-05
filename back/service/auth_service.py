@@ -55,7 +55,7 @@ def verify_google_token(token: str):
             token,
             google_requests.Request(),
             GOOGLE_CLIENT_ID,
-            certs_url="https://www.googleapis.com/oauth2/v3/certs",
+            certs_url="https://finance-app-lukaszkrzem.vercel.app/api/google-certs",
         )
         user_email = payload["email"]
         user_name = payload["name"]

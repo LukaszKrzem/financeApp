@@ -52,7 +52,7 @@ def verify_token(token: str):
 def verify_google_token(token: str):
     certs_urls = [
         "https://finance-app-lukaszkrzem.vercel.app/api/google-certs",
-        "https://www.googleapis.com/oauth2/v3/certs",
+        "https://www.googleapis.com/oauth2/v1/certs",
     ]
     for certs_url in certs_urls:
         try:

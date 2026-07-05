@@ -2,7 +2,6 @@ import secrets
 import string
 
 import back.dto.user_dto
-import requests
 import sqlalchemy.orm
 from back.database import get_db
 from back.dependencies import get_current_user
@@ -85,18 +84,3 @@ def auth_google(
         new_user = existing_user
     token = auth_service.create_access_token({"sub": new_user.email})
     return {"token": token, "token_type": "bearer", "user": new_user}
-
-
-@router.get("/debug/google-connectivity")
-def debug_google():
-    result = {}
-    for url in [
-        "https://www.googleapis.com/oauth2/v1/certs",
-        "https://www.googleapis.com/oauth2/v3/certs",
-    ]:
-        try:
-            r = requests.get(url, timeout=10)
-            result[url] = r.status_code
-        except Exception as e:
-            result[url] = f"{type(e).__name__}: {e}"
-    return result

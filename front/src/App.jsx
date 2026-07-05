@@ -395,7 +395,7 @@ function App() {
           </Routes>
         </Suspense>
       </BrowserRouter>
-      <Toaster position="bottom-right" richColors />
+      <Toaster position="top-center" richColors pauseOnHover />
     </TooltipProvider>
   );
 }

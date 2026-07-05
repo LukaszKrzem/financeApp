@@ -1,6 +1,3 @@
-import { SiteHeader } from '@/components/site-header';
-import { AppSidebar } from '@/components/app-sidebar';
-import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
 import { useTheme } from '@/components/theme-provider';
 import { Button } from '@/components/ui/button';
 import { IconSun, IconMoon, IconDeviceDesktop } from '@tabler/icons-react';
@@ -52,6 +49,15 @@ export default function Settings({ user, token, onLogout }) {
               System
             </Button>
           </div>
+        </div>
+        <div className="bg-card border-border/50 border rounded-xl p-6">
+          <h2 className="text-lg font-semibold mb-4">Account</h2>
+          <p className="text-sm text-muted-foreground mb-4">
+            Manage your account settings.
+          </p>
+          <Button variant="destructive" onClick={onLogout}>
+            Log out
+          </Button>
         </div>
 
         <div className="bg-card border-border/50 border rounded-xl p-6">

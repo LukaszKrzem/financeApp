@@ -1,7 +1,21 @@
 import { useState } from 'react';
 import { AddAccountDialog } from '@/components/AddAccountDialog';
 import { Button } from '@/components/ui/button';
-import { IconRefresh } from '@tabler/icons-react';
+import { Input } from '@/components/ui/input';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from '@/components/ui/dialog';
+import { IconRefresh, IconDotsVertical, IconPencil } from '@tabler/icons-react';
 import { toast } from 'sonner';
 import { formatTransactionAmount } from '@/lib/formatMoney';
 
@@ -13,8 +27,11 @@ export default function Accounts({
   currencies,
   apiUrl,
 }) {
-  const [syncing, setSyncing] = useState(false);
   const [connecting, setConnecting] = useState(false);
+  const [syncingAccountId, setSyncingAccountId] = useState(null);
+  const [renamingAccount, setRenamingAccount] = useState(null);
+  const [newName, setNewName] = useState('');
+  const [savingName, setSavingName] = useState(false);
 
   const handleConnectBank = async () => {
     setConnecting(true);
@@ -49,22 +66,16 @@ export default function Accounts({
     }
   };
 
-  const handleBankSync = async () => {
-    setSyncing(true);
+  const handleSyncAccount = async (accountId) => {
+    setSyncingAccountId(accountId);
     try {
-      // TODO: Let user choose account to sync
-      const bankAccount = (accounts || []).find((a) => a.bank_account_uid);
-      if (!bankAccount) {
-        throw new Error('No bank-connected account found');
-      }
-
       const response = await fetch(`${apiUrl}/api/banking/sync`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ account_id: bankAccount.id_account }),
+        body: JSON.stringify({ account_id: accountId }),
       });
       const data = await response.json();
 
@@ -83,7 +94,47 @@ export default function Accounts({
       console.error('Error syncing bank transactions:', error);
       toast.error('Sync failed', { description: error.message });
     } finally {
-      setSyncing(false);
+      setSyncingAccountId(null);
+    }
+  };
+
+  const openRenameDialog = (account) => {
+    setRenamingAccount(account);
+    setNewName(account.name);
+  };
+
+  const handleSaveName = async () => {
+    if (!renamingAccount || !newName.trim()) return;
+    setSavingName(true);
+    try {
+      const response = await fetch(
+        `${apiUrl}/accounts/${renamingAccount.id_account}`,
+        {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ name: newName.trim() }),
+        }
+      );
+      const data = await response.json();
+
+      if (!response.ok) {
+        const message = Array.isArray(data.detail)
+          ? data.detail.map((d) => d.msg).join(', ')
+          : data.detail || 'Rename failed';
+        throw new Error(message);
+      }
+
+      toast.success('Account renamed');
+      setRenamingAccount(null);
+      setRefreshing((prev) => prev + 1);
+    } catch (error) {
+      console.error('Error renaming account:', error);
+      toast.error('Rename failed', { description: error.message });
+    } finally {
+      setSavingName(false);
     }
   };
 
@@ -106,17 +157,6 @@ export default function Accounts({
             className="flex items-center gap-2"
           >
             {connecting ? 'Connecting...' : 'Connect bank'}
-          </Button>
-          <Button
-            variant="outline"
-            onClick={handleBankSync}
-            disabled={syncing}
-            className="flex items-center gap-2"
-          >
-            <IconRefresh
-              className={`size-4 ${syncing ? 'animate-spin' : ''}`}
-            />
-            {syncing ? 'Syncing...' : 'Sync with bank'}
           </Button>
           <AddAccountDialog
             token={token}
@@ -146,6 +186,7 @@ export default function Accounts({
               account.currency_code,
               true
             );
+            const isSyncing = syncingAccountId === account.id_account;
 
             return (
               <div
@@ -165,6 +206,35 @@ export default function Accounts({
                     <span className="text-xs font-mono px-2 py-0.5 rounded bg-muted text-muted-foreground">
                       {account.currency_code}
                     </span>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon" className="size-7">
+                          <IconDotsVertical className="size-4" />
+                          <span className="sr-only">Account options</span>
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        {account.bank_account_uid && (
+                          <DropdownMenuItem
+                            disabled={isSyncing}
+                            onClick={() =>
+                              handleSyncAccount(account.id_account)
+                            }
+                          >
+                            <IconRefresh
+                              className={`size-4 mr-2 ${isSyncing ? 'animate-spin' : ''}`}
+                            />
+                            {isSyncing ? 'Syncing...' : 'Sync now'}
+                          </DropdownMenuItem>
+                        )}
+                        <DropdownMenuItem
+                          onClick={() => openRenameDialog(account)}
+                        >
+                          <IconPencil className="size-4 mr-2" />
+                          Rename
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </div>
                 </div>
                 <div className="mt-2">
@@ -180,6 +250,33 @@ export default function Accounts({
           })}
         </div>
       )}
+
+      <Dialog
+        open={!!renamingAccount}
+        onOpenChange={(open) => !open && setRenamingAccount(null)}
+      >
+        <DialogContent className="sm:max-w-[400px]">
+          <DialogHeader>
+            <DialogTitle>Rename account</DialogTitle>
+            <DialogDescription>
+              Choose a new name for this account.
+            </DialogDescription>
+          </DialogHeader>
+          <Input
+            value={newName}
+            onChange={(e) => setNewName(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && handleSaveName()}
+            autoFocus
+          />
+          <Button
+            onClick={handleSaveName}
+            disabled={savingName || !newName.trim()}
+            className="w-full mt-2"
+          >
+            {savingName ? 'Saving...' : 'Save'}
+          </Button>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

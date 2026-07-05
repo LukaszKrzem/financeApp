@@ -50,15 +50,22 @@ def verify_token(token: str):
 
 
 def verify_google_token(token: str):
-    try:
-        payload = id_token.verify_oauth2_token(
-            token,
-            google_requests.Request(),
-            GOOGLE_CLIENT_ID,
-            certs_url="https://finance-app-lukaszkrzem.vercel.app/api/google-certs",
-        )
-        user_email = payload["email"]
-        user_name = payload["name"]
-        return {"email": user_email, "name": user_name, "password": None}
-    except ValueError:
-        return None
+    certs_urls = [
+        "https://finance-app-lukaszkrzem.vercel.app/api/google-certs",
+        "https://www.googleapis.com/oauth2/v3/certs",
+    ]
+    for certs_url in certs_urls:
+        try:
+            payload = id_token.verify_oauth2_token(
+                token, google_requests.Request(), GOOGLE_CLIENT_ID, certs_url=certs_url
+            )
+            return {
+                "email": payload["email"],
+                "name": payload["name"],
+                "password": None,
+            }
+        except ValueError:
+            return None
+        except Exception:
+            continue
+    return None

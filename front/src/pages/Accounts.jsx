@@ -248,6 +248,7 @@ export default function Accounts({
                       <DropdownMenuTrigger asChild>
                         <Button variant="ghost" size="icon" className="size-7">
                           <IconDotsVertical className="size-4" />
+                          <span className="sr-only">Account options</span>
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
@@ -326,7 +327,10 @@ export default function Accounts({
         open={!!deletingAccount}
         onOpenChange={(open) => !open && setDeletingAccount(null)}
       >
-        <DialogContent className="sm:max-w-[400px]">
+        <DialogContent
+          className="sm:max-w-[400px]"
+          onKeyDown={(e) => e.key === 'Enter' && handleDeleteAccount()}
+        >
           <DialogHeader>
             <DialogTitle>Delete "{deletingAccount?.name}"?</DialogTitle>
             <DialogDescription>

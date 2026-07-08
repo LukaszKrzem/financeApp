@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { AddAccountDialog } from '@/components/AddAccountDialog';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,9 +14,15 @@ import {
   DialogTitle,
   DialogDescription,
 } from '@/components/ui/dialog';
-import { IconRefresh, IconDotsVertical, IconPencil } from '@tabler/icons-react';
+import {
+  IconRefresh,
+  IconDotsVertical,
+  IconPencil,
+  IconTrash,
+} from '@tabler/icons-react';
 import { toast } from 'sonner';
 import { formatTransactionAmount } from '@/lib/formatMoney';
+import { Input } from '@/components/ui/input';
 
 export default function Accounts({
   token,
@@ -32,6 +37,8 @@ export default function Accounts({
   const [renamingAccount, setRenamingAccount] = useState(null);
   const [newName, setNewName] = useState('');
   const [savingName, setSavingName] = useState(false);
+  const [deletingAccount, setDeletingAccount] = useState(null);
+  const [deleting, setDeleting] = useState(false);
 
   const handleConnectBank = async () => {
     setConnecting(true);
@@ -95,6 +102,37 @@ export default function Accounts({
       toast.error('Sync failed', { description: error.message });
     } finally {
       setSyncingAccountId(null);
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    if (!deletingAccount) return;
+    setDeleting(true);
+    try {
+      const response = await fetch(
+        `${apiUrl}/accounts/${deletingAccount.id_account}`,
+        {
+          method: 'DELETE',
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      if (!response.ok) {
+        const data = await response.json().catch(() => ({}));
+        const message = Array.isArray(data.detail)
+          ? data.detail.map((d) => d.msg).join(', ')
+          : data.detail || 'Delete failed';
+        throw new Error(message);
+      }
+
+      toast.success('Account deleted');
+      setDeletingAccount(null);
+      setRefreshing((prev) => prev + 1);
+    } catch (error) {
+      console.error('Error deleting account:', error);
+      toast.error('Delete failed', { description: error.message });
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -210,7 +248,6 @@ export default function Accounts({
                       <DropdownMenuTrigger asChild>
                         <Button variant="ghost" size="icon" className="size-7">
                           <IconDotsVertical className="size-4" />
-                          <span className="sr-only">Account options</span>
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
@@ -232,6 +269,13 @@ export default function Accounts({
                         >
                           <IconPencil className="size-4 mr-2" />
                           Rename
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() => setDeletingAccount(account)}
+                          className="text-destructive focus:text-destructive"
+                        >
+                          <IconTrash className="size-4 mr-2" />
+                          Delete
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
@@ -275,6 +319,39 @@ export default function Accounts({
           >
             {savingName ? 'Saving...' : 'Save'}
           </Button>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog
+        open={!!deletingAccount}
+        onOpenChange={(open) => !open && setDeletingAccount(null)}
+      >
+        <DialogContent className="sm:max-w-[400px]">
+          <DialogHeader>
+            <DialogTitle>Delete "{deletingAccount?.name}"?</DialogTitle>
+            <DialogDescription>
+              This will permanently delete this account and{' '}
+              <strong>all of its transactions</strong>. This cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex gap-2 mt-2">
+            <Button
+              variant="outline"
+              className="flex-1"
+              onClick={() => setDeletingAccount(null)}
+              disabled={deleting}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              className="flex-1"
+              onClick={handleDeleteAccount}
+              disabled={deleting}
+            >
+              {deleting ? 'Deleting...' : 'Delete'}
+            </Button>
+          </div>
         </DialogContent>
       </Dialog>
     </div>

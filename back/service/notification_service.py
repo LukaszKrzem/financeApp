@@ -36,3 +36,13 @@ def mark_notification_as_read(
     notification.is_read = "T"
     db.commit()
     return {"status": "success", "message": "Notification marked as read"}
+
+
+def mark_all_notifications_as_read(db: sqlalchemy.orm.Session, user_id: int):
+    db.query(structure.Notification).filter(
+        structure.Notification.User_id_user == user_id,
+        structure.Notification.is_read == "F",
+    ).update({"is_read": "T"})
+
+    db.commit()
+    return {"status": "success", "message": "All notifications marked as read"}

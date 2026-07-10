@@ -26,3 +26,11 @@ def mark_as_read(
     return notification_service.mark_notification_as_read(
         db, notification_id, current_user.id_user
     )
+
+
+@router.patch("/read-all")
+def read_all_notifications(
+    db: sqlalchemy.orm.Session = Depends(get_db),
+    current_user=Depends(get_current_user),
+):
+    return notification_service.mark_all_notifications_as_read(db, current_user.id_user)

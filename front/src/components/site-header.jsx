@@ -19,13 +19,15 @@ export function SiteHeader({
   currencies = [],
   apiUrl,
 }) {
+  const baseUrl = apiUrl ? apiUrl.replace(/\/$/, '') : '';
+
   const [notifications, setNotifications] = useState([]);
 
   useEffect(() => {
     const fetchNotifications = async () => {
       if (!token) return;
       try {
-        const response = await fetch(`${apiUrl}/notifications`, {
+        const response = await fetch(`${baseUrl}/notifications`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -60,7 +62,7 @@ export function SiteHeader({
 
   const handleMarkAsRead = async (id) => {
     try {
-      const response = await fetch(`${apiUrl}/notifications/${id}/read`, {
+      const response = await fetch(`${baseUrl}/notifications/${id}/read`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -76,6 +78,25 @@ export function SiteHeader({
       console.error('Error marking notification as read:', error);
     }
   };
+
+  const handleMarkAllAsRead = async () => {
+    try {
+      const response = await fetch(`${baseUrl}/notifications/read-all`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        setNotifications([]);
+      }
+    } catch (error) {
+      console.error('Error marking all notifications as read:', error);
+    }
+  };
+
   return (
     <header className="flex h-(--header-height) shrink-0 items-center gap-2 border-b transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-(--header-height)">
       <div className="flex w-full items-center gap-1 px-4 lg:gap-2 lg:px-6">
@@ -96,10 +117,20 @@ export function SiteHeader({
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-80 p-0 mr-4" align="end">
-              <div className="p-3 border-b bg-muted/20">
+              <div className="flex items-center justify-between p-3 border-b bg-muted/20">
                 <h4 className="font-semibold text-sm">
                   Notifications ({notifications.length})
                 </h4>
+                {notifications.length > 0 && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-auto p-1 text-xs text-muted-foreground hover:text-foreground"
+                    onClick={handleMarkAllAsRead}
+                  >
+                    Clear all
+                  </Button>
+                )}
               </div>
               <div className="max-h-64 overflow-y-auto">
                 {notifications.length === 0 ? (

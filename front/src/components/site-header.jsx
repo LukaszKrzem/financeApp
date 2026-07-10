@@ -2,14 +2,7 @@ import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { SidebarTrigger } from '@/components/ui/sidebar';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { IconBell, IconPlus, IconX } from '@tabler/icons-react';
+import { IconBell, IconX } from '@tabler/icons-react';
 import { AddTransactionDialog } from '@/components/AddTransactionDialog';
 import {
   Popover,
@@ -39,6 +32,16 @@ export function SiteHeader({
             Authorization: `Bearer ${token}`,
           },
         });
+
+        if (response.status === 401) {
+          console.warn('Session expired. Logging out...');
+
+          localStorage.removeItem('token');
+
+          window.location.href = '/login';
+          return;
+        }
+
         if (response.ok) {
           const data = await response.json();
           setNotifications(data);
@@ -47,9 +50,13 @@ export function SiteHeader({
         console.error('Error fetching notifications:', error);
       }
     };
+
     const interval = setInterval(fetchNotifications, 30000);
+
+    fetchNotifications();
+
     return () => clearInterval(interval);
-  }, [token]);
+  }, [token, apiUrl]);
 
   const handleMarkAsRead = async (id) => {
     try {

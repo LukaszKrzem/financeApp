@@ -220,6 +220,20 @@ def sync_bank_transactions(
             detail="This account is not linked to a bank (missing bank_account_uid).",
         )
 
+    if account.bank_connection_id:
+        connection = (
+            db.query(structure.BankConnection)
+            .filter(
+                structure.BankConnection.id_connection == account.bank_connection_id
+            )
+            .first()
+        )
+        if connection and connection.valid_until < datetime.now(timezone.utc):
+            raise HTTPException(
+                status_code=400,
+                detail="Bank connection expired, please reconnect your account.",
+            )
+
     account_id = account.id_account
     currency_id = account.Currency_id_currency
 
@@ -287,6 +301,35 @@ def sync_bank_transactions(
     )
 
     return {"imported": imported, "skipped": skipped}
+
+
+@router.get("/aspsps")
+def list_aspsps(country: str = "PL", current_user=Depends(get_current_user)):
+    """Zwraca listę dostępnych banków (ASPSPs) w danym kraju, do wyboru na froncie."""
+    token = get_bank_token()
+    headers = {"Authorization": f"Bearer {token}"}
+
+    try:
+        response = requests.get(
+            "https://api.enablebanking.com/aspsps",
+            headers=headers,
+            params={"country": country},
+            timeout=REQUEST_TIMEOUT,
+        )
+        if response.status_code != 200:
+            logger.error(
+                "Error fetching ASPSPs (status %s): %s",
+                response.status_code,
+                response.text,
+            )
+            raise HTTPException(
+                status_code=response.status_code, detail="Could not fetch bank list."
+            )
+        data = response.json()
+        return {"aspsps": data.get("aspsps", [])}
+    except requests.exceptions.RequestException as exc:
+        logger.error("Error fetching ASPSPs: %s", exc)
+        raise HTTPException(status_code=502, detail="Failed to connect to the bank")
 
 
 @router.post("/auth-url")
@@ -396,7 +439,9 @@ def handle_bank_callback(
         currency_code = acc.get("currency", "PLN")
 
         existing_acc = (
-            db.query(structure.Account).filter_by(bank_account_uid=acc_uid).first()
+            db.query(structure.Account)
+            .filter_by(bank_account_uid=acc_uid, User_id_user=current_user.id_user)
+            .first()
         )
         if existing_acc:
             continue
@@ -420,7 +465,13 @@ def handle_bank_callback(
 
     db.commit()
 
+    message = (
+        "Authorization completed successfully!"
+        if imported_accounts > 0
+        else "Authorization completed, but the bank returned no accounts."
+    )
+
     return {
-        "message": "Authorization completed successfully!",
+        "message": message,
         "imported_accounts": imported_accounts,
     }

@@ -1,0 +1,92 @@
+import { useState, useEffect, useMemo } from 'react';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+
+export function SelectBankDialog({
+  open,
+  onOpenChange,
+  apiUrl,
+  token,
+  onSelectBank,
+}) {
+  const [banks, setBanks] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [search, setSearch] = useState('');
+
+  useEffect(() => {
+    if (!open) return;
+    setLoading(true);
+    setError(null);
+    fetch(`${apiUrl}/api/banking/aspsps?country=PL`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then((res) => res.json())
+      .then((data) => setBanks(data.aspsps || []))
+      .catch((err) => {
+        console.error('Error fetching banks:', err);
+        setError('Could not load bank list');
+      })
+      .finally(() => setLoading(false));
+  }, [open, apiUrl, token]);
+
+  const filteredBanks = useMemo(() => {
+    if (!search.trim()) return banks;
+    return banks.filter((b) =>
+      b.name.toLowerCase().includes(search.toLowerCase())
+    );
+  }, [banks, search]);
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-[425px]">
+        <DialogHeader>
+          <DialogTitle>Select your bank</DialogTitle>
+          <DialogDescription>
+            Choose the bank you want to connect.
+          </DialogDescription>
+        </DialogHeader>
+
+        <Input
+          placeholder="Search banks..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          autoFocus
+        />
+
+        <div className="max-h-[300px] overflow-y-auto flex flex-col gap-1 mt-2">
+          {loading && (
+            <p className="text-sm text-muted-foreground text-center py-4">
+              Loading banks...
+            </p>
+          )}
+          {error && (
+            <p className="text-sm text-destructive text-center py-4">{error}</p>
+          )}
+          {!loading && !error && filteredBanks.length === 0 && (
+            <p className="text-sm text-muted-foreground text-center py-4">
+              No banks found.
+            </p>
+          )}
+          {filteredBanks.map((bank) => (
+            <Button
+              key={`${bank.name}-${bank.country}`}
+              variant="ghost"
+              className="justify-start"
+              onClick={() => onSelectBank(bank)}
+            >
+              {bank.name}
+            </Button>
+          ))}
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}

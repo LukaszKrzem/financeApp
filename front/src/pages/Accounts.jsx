@@ -23,6 +23,7 @@ import {
 import { toast } from 'sonner';
 import { formatTransactionAmount } from '@/lib/formatMoney';
 import { Input } from '@/components/ui/input';
+import { SelectBankDialog } from '@/components/SelectBankDialog';
 
 export default function Accounts({
   token,
@@ -40,7 +41,10 @@ export default function Accounts({
   const [deletingAccount, setDeletingAccount] = useState(null);
   const [deleting, setDeleting] = useState(false);
 
-  const handleConnectBank = async () => {
+  const [selectBankOpen, setSelectBankOpen] = useState(false);
+
+  const handleSelectBank = async (bank) => {
+    setSelectBankOpen(false);
     setConnecting(true);
     try {
       const redirectUri = `${window.location.origin}/bank-callback`;
@@ -51,9 +55,9 @@ export default function Accounts({
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
-          redirect_uri: redirectUri, // TODO: Let user choose bank from a list
-          bank_name: 'Bank Millennium',
-          country: 'PL',
+          redirect_uri: redirectUri,
+          bank_name: bank.name,
+          country: bank.country || 'PL',
         }),
       });
       const data = await response.json();
@@ -190,7 +194,7 @@ export default function Accounts({
         <div className="flex items-center gap-2">
           <Button
             variant="outline"
-            onClick={handleConnectBank}
+            onClick={() => setSelectBankOpen(true)}
             disabled={connecting}
             className="flex items-center gap-2"
           >
@@ -358,6 +362,14 @@ export default function Accounts({
           </div>
         </DialogContent>
       </Dialog>
+
+      <SelectBankDialog
+        open={selectBankOpen}
+        onOpenChange={setSelectBankOpen}
+        apiUrl={apiUrl}
+        token={token}
+        onSelectBank={handleSelectBank}
+      />
     </div>
   );
 }

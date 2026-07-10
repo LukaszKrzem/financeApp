@@ -105,12 +105,15 @@ export function SiteHeader({
           orientation="vertical"
           className="mx-2 data-[orientation=vertical]:h-4 hidden md:block"
         />
-        <h1 className="text-base font-medium">Expense Dashboard</h1>
+        <h1 className="text-base font-medium">
+          {user?.name ? `Hello, ${user.name} 👋` : 'Expense Dashboard'}
+        </h1>
         <div className="ml-auto flex items-center gap-3">
           <Popover>
             <PopoverTrigger asChild>
               <Button variant="ghost" size="icon" className="relative">
                 <IconBell className="size-4" />
+                <span className="sr-only">Notifications</span>
                 {notifications.length > 0 && (
                   <span className="absolute -top-0.5 -right-0.5 size-2 rounded-full bg-destructive animate-pulse" />
                 )}

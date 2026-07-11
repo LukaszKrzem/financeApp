@@ -334,7 +334,7 @@ export default function Accounts({
         apiUrl={apiUrl}
         token={token}
         onSelectBank={handleSelectBank}
-        onLogout={handleLogout}
+        onLogout={onLogout}
       />
     </div>
   );

@@ -22,6 +22,7 @@ export function AddAccountDialog({
   onAccountAdded,
   currencies = [],
   apiUrl,
+  onLogout,
 }) {
   const [open, setOpen] = useState(false);
   const [name, setName] = useState('');

@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime, timedelta
 from decimal import Decimal
 from typing import List
@@ -9,6 +10,8 @@ import sqlalchemy.orm
 from back.database import get_db
 from back.dependencies import get_current_user
 from fastapi import APIRouter, Depends, HTTPException
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/transactions", tags=["Transactions"])
 
@@ -55,7 +58,7 @@ async def update_rates_from_nbp_internal(db: sqlalchemy.orm.Session):
             LAST_NBP_UPDATE = now
 
     except Exception as e:
-        print(f"Couldnt update rates from NBP: {e}")
+        logger.error(f"Error updating rates from NBP: {e}")
 
 
 @router.post("/", response_model=transaction_dto.TransactionOut)

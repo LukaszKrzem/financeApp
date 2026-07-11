@@ -1,3 +1,4 @@
+import logging
 from typing import List
 
 import back.dto.account_dto as account_dto
@@ -7,6 +8,8 @@ import sqlalchemy.orm
 from back.database import get_db
 from back.dependencies import get_current_user
 from fastapi import APIRouter, Depends, HTTPException, status
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/accounts", tags=["Accounts"])
 
@@ -23,7 +26,7 @@ def get_user_accounts(
         db.commit()
     except Exception as e:
         db.rollback()
-        print(f"Error with starting procedure: {e}")
+        logger.error("Error running catch_up_scheduled_transactions: %s", e)
     results = (
         db.query(structure.Account, structure.Currency)
         .join(

@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime, timedelta, timezone
 
 from fastapi.security import OAuth2PasswordBearer
@@ -8,6 +9,7 @@ from passlib.context import CryptContext
 
 from back.config import GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET
 
+logger = logging.getLogger(__name__)
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
 # For now left it here maybe later move to some config file idk
@@ -63,5 +65,5 @@ def verify_google_token(token: str):
         return {"email": user_email, "name": user_name, "password": None}
 
     except Exception as e:
-        print(f"Google token verification failed: {type(e).__name__}: {e}")
+        logger.error("Google token verification failed: %s: %s", type(e).__name__, e)
         return None

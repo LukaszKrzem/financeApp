@@ -637,3 +637,5 @@ ALTER TABLE Account
 -- Create an index on the bank_connection_id column in the Account table to improve query performance when filtering or joining on this column.
 CREATE INDEX idx_account_bank_connection
     ON Account (bank_connection_id);
+
+ALTER TABLE bank_connection ALTER COLUMN valid_until TYPE TIMESTAMPTZ;

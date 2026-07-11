@@ -13,6 +13,7 @@ import {
 export function SiteHeader({
   user,
   token,
+  onLogout,
   setRefreshing,
   categories = [],
   accounts = [],
@@ -37,10 +38,7 @@ export function SiteHeader({
 
         if (response.status === 401) {
           console.warn('Session expired. Logging out...');
-
-          localStorage.removeItem('token');
-
-          window.location.href = '/login';
+          onLogout();
           return;
         }
 

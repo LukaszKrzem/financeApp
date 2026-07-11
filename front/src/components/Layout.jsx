@@ -28,6 +28,7 @@ export default function Layout({
         <SiteHeader
           user={user}
           token={token}
+          onLogout={onLogout}
           setRefreshing={setRefreshing}
           categories={categories}
           currencies={currencies}

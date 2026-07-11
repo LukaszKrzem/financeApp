@@ -15,6 +15,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { IconPlus } from '@tabler/icons-react';
+import { apiFetch } from '@/lib/apiFetch';
 
 export function AddAccountDialog({
   token,
@@ -26,17 +27,17 @@ export function AddAccountDialog({
   const [name, setName] = useState('');
   const [balance, setBalance] = useState('');
   const [currencyId, setCurrencyId] = useState('');
+  const [error, setError] = useState('');
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');
+
     if (!name || !balance || !currencyId) return;
 
     try {
-      const response = await fetch(`${apiUrl}/accounts/`, {
+      await apiFetch(`${apiUrl}/accounts/`, token, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
         body: JSON.stringify({
           name: name,
           current_balance: parseFloat(balance),
@@ -44,15 +45,14 @@ export function AddAccountDialog({
         }),
       });
 
-      if (response.ok) {
-        setName('');
-        setBalance('');
-        setCurrencyId('');
-        setOpen(false);
-        if (onAccountAdded) onAccountAdded();
-      }
-    } catch (error) {
-      console.error('Error creating account:', error);
+      setName('');
+      setBalance('');
+      setCurrencyId('');
+      setOpen(false);
+      if (onAccountAdded) onAccountAdded();
+    } catch (err) {
+      console.error('Error creating account:', err);
+      setError(err.message);
     }
   };
 
@@ -111,6 +111,8 @@ export function AddAccountDialog({
               </SelectContent>
             </Select>
           </div>
+
+          {error && <p className="text-sm text-red-500">{error}</p>}
 
           <Button type="submit" className="w-full mt-2">
             Confirm Account

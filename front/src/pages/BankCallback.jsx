@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { toast } from 'sonner';
+import { apiFetch } from '@/lib/apiFetch';
 
 export default function BankCallback({ token, apiUrl, setRefreshing }) {
   const [searchParams] = useSearchParams();
@@ -26,22 +27,10 @@ export default function BankCallback({ token, apiUrl, setRefreshing }) {
 
     const completeAuthorization = async () => {
       try {
-        const response = await fetch(`${apiUrl}/api/banking/callback`, {
+        const data = await apiFetch(`${apiUrl}/api/banking/callback`, token, {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-          },
           body: JSON.stringify({ code }),
         });
-        const data = await response.json();
-
-        if (!response.ok) {
-          const message = Array.isArray(data.detail)
-            ? data.detail.map((d) => d.msg).join(', ')
-            : data.detail || 'Bank authorization failed';
-          throw new Error(message);
-        }
 
         toast.success('Bank connected successfully', {
           description: `Imported ${data.imported_accounts} account(s).`,
@@ -56,7 +45,7 @@ export default function BankCallback({ token, apiUrl, setRefreshing }) {
     };
 
     completeAuthorization();
-  }, []);
+  }, [searchParams, apiUrl, token, navigate, setRefreshing]);
 
   return (
     <div className="flex flex-1 flex-col items-center justify-center p-8 gap-4">

@@ -14,8 +14,6 @@ import {
   DrawerHeader,
   DrawerTitle,
   DrawerTrigger,
-  DrawerFooter,
-  DrawerClose,
 } from '@/components/ui/drawer';
 import {
   Select,
@@ -25,6 +23,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { apiFetch } from '@/lib/apiFetch';
 
 export function AddTransactionDialog({
   token,
@@ -94,19 +93,10 @@ export function AddTransactionDialog({
     }
 
     try {
-      const response = await fetch(`${apiUrl}${endpoint}`, {
+      await apiFetch(`${apiUrl}${endpoint}`, token, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
         body: JSON.stringify(payload),
       });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.detail || 'Error adding transaction');
-      }
 
       setAmount('');
       setDescription('');
@@ -223,7 +213,7 @@ export function AddTransactionDialog({
 
       {error && <p className="text-red-500 text-sm">{error}</p>}
       <Button type="submit" className="w-full" disabled={isSubmitting}>
-        Save
+        {isSubmitting ? 'Saving...' : 'Save'}
       </Button>
     </form>
   );

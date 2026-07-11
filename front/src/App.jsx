@@ -6,6 +6,7 @@ import './App.css';
 import Layout from './components/Layout';
 import { PageSkeleton } from './components/page-skeleton';
 import { Toaster } from '@/components/ui/sonner';
+import { apiFetch } from '@/lib/apiFetch';
 
 const Home = lazy(() => import('./pages/Home'));
 const Login = lazy(() => import('./pages/Login'));
@@ -43,38 +44,32 @@ function App() {
 
   const handleGoogleLogin = async (googleToken) => {
     try {
-      const response = await fetch(`${API_URL}/auth/google`, {
+      const data = await apiFetch(`${API_URL}/auth/google`, null, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
         body: JSON.stringify({ token: googleToken.credential }),
       });
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.detail || 'login error');
-      }
       handleLogin(data.token);
     } catch (error) {
-      console.error('Error google auth', error);
+      console.error('Error google auth:', error);
     }
   };
 
   useEffect(() => {
+    if (!token) {
+      setUser(null);
+      setLoading(false);
+      return;
+    }
+
     const fetchBudgets = async () => {
-      if (!token) return;
       try {
-        const response = await fetch(`${API_URL}/budgets/`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        if (response.status === 401) {
-          handleLogout();
-          return;
-        }
-        if (response.ok) {
-          const data = await response.json();
-          setBudgets(Array.isArray(data) ? data : []);
-        }
+        const data = await apiFetch(
+          `${API_URL}/budgets/`,
+          token,
+          {},
+          handleLogout
+        );
+        setBudgets(Array.isArray(data) ? data : []);
       } catch (error) {
         console.error('Error fetching budgets data:', error);
       } finally {
@@ -83,118 +78,74 @@ function App() {
     };
 
     const fetchCurrencies = async () => {
-      if (!token) return;
       try {
-        const response = await fetch(`${API_URL}/currencies`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        if (response.status === 401) {
-          handleLogout();
-          return;
-        }
-        if (response.ok) {
-          const data = await response.json();
-          setCurrencies(data);
-        }
+        const data = await apiFetch(
+          `${API_URL}/currencies`,
+          token,
+          {},
+          handleLogout
+        );
+        setCurrencies(data);
       } catch (error) {
         console.error('Error fetching currencies:', error);
       }
     };
 
     const fetchCategories = async () => {
-      if (!token) return;
       try {
-        const response = await fetch(`${API_URL}/categories/`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        if (response.status === 401) {
-          handleLogout();
-          return;
-        }
-        if (response.ok) {
-          const data = await response.json();
-          setCategories(data);
-        } else {
-          console.error('Failed to fetch categories');
-        }
+        const data = await apiFetch(
+          `${API_URL}/categories/`,
+          token,
+          {},
+          handleLogout
+        );
+        setCategories(data);
       } catch (error) {
         console.error('Error fetching categories:', error);
       }
     };
 
     const fetchTransactions = async () => {
-      if (!token) return;
       try {
-        const response = await fetch(`${API_URL}/transactions/`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        if (response.status === 401) {
-          handleLogout();
-          return;
-        }
-        if (response.ok) {
-          const data = await response.json();
-          setTransactions(data);
-        } else {
-          console.error('Failed to fetch transactions');
-        }
+        const data = await apiFetch(
+          `${API_URL}/transactions/`,
+          token,
+          {},
+          handleLogout
+        );
+        setTransactions(data);
       } catch (error) {
         console.error('Error fetching transactions:', error);
       } finally {
         setLoading(false);
       }
     };
+
     const fetchAccounts = async () => {
-      if (!token) return;
       try {
-        const response = await fetch(`${API_URL}/accounts/`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        if (response.status === 401) {
-          handleLogout();
-          return;
-        }
-        if (response.ok) {
-          const data = await response.json();
-          setAccounts(data);
-        }
+        const data = await apiFetch(
+          `${API_URL}/accounts/`,
+          token,
+          {},
+          handleLogout
+        );
+        setAccounts(data);
       } catch (error) {
         console.error('Failed to fetch accounts:', error);
       }
     };
 
     const fetchUser = async () => {
-      if (!token) {
-        setUser(null);
-        setLoading(false);
-        return;
-      }
       try {
-        const response = await fetch(`${API_URL}/me`, {
-          method: 'GET',
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
-        });
-        if (response.status === 401) {
-          handleLogout();
-          return;
-        }
-        if (response.ok) {
-          const userData = await response.json();
-          setUser(userData);
-        } else {
-          handleLogout();
-        }
+        const data = await apiFetch(`${API_URL}/me`, token, {}, handleLogout);
+        setUser(data);
       } catch (error) {
-        console.error('Failed to fetch user data', error);
+        console.error('Failed to fetch user data:', error);
       } finally {
         setLoading(false);
       }
     };
+
     fetchUser();
     fetchAccounts();
     fetchCurrencies();
@@ -202,6 +153,7 @@ function App() {
     fetchBudgets();
     fetchTransactions();
   }, [token, refreshing]);
+
   if (loading) {
     return (
       <div className="flex h-screen items-center justify-center">
@@ -278,7 +230,6 @@ function App() {
                   )
                 }
               />
-
               <Route
                 path="/dashboard"
                 element={
@@ -328,6 +279,7 @@ function App() {
                       setRefreshing={setRefreshing}
                       currencies={currencies}
                       apiUrl={API_URL}
+                      onLogout={handleLogout}
                     />
                   ) : (
                     <Navigate to="/" replace />

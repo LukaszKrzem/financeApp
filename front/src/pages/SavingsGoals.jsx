@@ -10,6 +10,7 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { Progress } from '@/components/ui/progress';
+import { apiFetch } from '@/lib/apiFetch';
 
 const formatMoney = (value, currencyCode = 'PLN') =>
   new Intl.NumberFormat('en-US', {
@@ -29,18 +30,14 @@ export default function SavingsGoals({ user, onLogout, token, apiUrl }) {
 
   const reloadGoals = async () => {
     if (!token) return;
-
     try {
-      const response = await fetch(`${apiUrl}/savings-goals/`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        setGoals(Array.isArray(data) ? data : []);
-      }
+      const data = await apiFetch(
+        `${apiUrl}/savings-goals/`,
+        token,
+        {},
+        onLogout
+      );
+      setGoals(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error('Error fetching savings goals:', error);
     } finally {
@@ -51,18 +48,14 @@ export default function SavingsGoals({ user, onLogout, token, apiUrl }) {
   useEffect(() => {
     const loadGoals = async () => {
       if (!token) return;
-
       try {
-        const response = await fetch(`${apiUrl}/savings-goals/`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        if (response.ok) {
-          const data = await response.json();
-          setGoals(Array.isArray(data) ? data : []);
-        }
+        const data = await apiFetch(
+          `${apiUrl}/savings-goals/`,
+          token,
+          {},
+          onLogout
+        );
+        setGoals(Array.isArray(data) ? data : []);
       } catch (error) {
         console.error('Error fetching savings goals:', error);
       } finally {
@@ -71,35 +64,34 @@ export default function SavingsGoals({ user, onLogout, token, apiUrl }) {
     };
 
     loadGoals();
-  }, [token]);
+  }, [token, apiUrl, onLogout]);
 
   const handleCreateGoal = async (event) => {
     event.preventDefault();
 
     try {
-      const response = await fetch(`${apiUrl}/savings-goals/`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
+      await apiFetch(
+        `${apiUrl}/savings-goals/`,
+        token,
+        {
+          method: 'POST',
+          body: JSON.stringify({
+            name,
+            target: Number(target),
+            current_amount: Number(currentAmount) || 0,
+            time_limit: timeLimit || null,
+            Currency_id_currency: 1,
+          }),
         },
-        body: JSON.stringify({
-          name,
-          target: Number(target),
-          current_amount: Number(currentAmount) || 0,
-          time_limit: timeLimit || null,
-          Currency_id_currency: 1,
-        }),
-      });
+        onLogout
+      );
 
-      if (response.ok) {
-        setName('');
-        setTarget('');
-        setCurrentAmount('');
-        setTimeLimit('');
-        setOpen(false);
-        reloadGoals();
-      }
+      setName('');
+      setTarget('');
+      setCurrentAmount('');
+      setTimeLimit('');
+      setOpen(false);
+      reloadGoals();
     } catch (error) {
       console.error('Error creating savings goal:', error);
     }
@@ -110,24 +102,21 @@ export default function SavingsGoals({ user, onLogout, token, apiUrl }) {
     if (amount <= 0) return;
 
     try {
-      const response = await fetch(`${apiUrl}/savings-goals/${goalId}/add`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
+      await apiFetch(
+        `${apiUrl}/savings-goals/${goalId}/add`,
+        token,
+        {
+          method: 'PATCH',
+          body: JSON.stringify({ amount }),
         },
-        body: JSON.stringify({
-          amount,
-        }),
-      });
+        onLogout
+      );
 
-      if (response.ok) {
-        setContributions((currentValues) => ({
-          ...currentValues,
-          [goalId]: '',
-        }));
-        reloadGoals();
-      }
+      setContributions((currentValues) => ({
+        ...currentValues,
+        [goalId]: '',
+      }));
+      reloadGoals();
     } catch (error) {
       console.error('Error adding contribution:', error);
     }
@@ -135,18 +124,18 @@ export default function SavingsGoals({ user, onLogout, token, apiUrl }) {
 
   const handleDeleteGoal = async (goalId) => {
     try {
-      const response = await fetch(`${apiUrl}/savings-goals/${goalId}`, {
-        method: 'DELETE',
-        headers: {
-          Authorization: `Bearer ${token}`,
+      await apiFetch(
+        `${apiUrl}/savings-goals/${goalId}`,
+        token,
+        {
+          method: 'DELETE',
         },
-      });
+        onLogout
+      );
 
-      if (response.ok) {
-        setGoals((currentGoals) =>
-          currentGoals.filter((goal) => goal.id_saving_goal !== goalId)
-        );
-      }
+      setGoals((currentGoals) =>
+        currentGoals.filter((goal) => goal.id_saving_goal !== goalId)
+      );
     } catch (error) {
       console.error('Error deleting savings goal:', error);
     }

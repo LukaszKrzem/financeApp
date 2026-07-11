@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
+import { apiFetch } from '@/lib/apiFetch';
 
 function Home({ apiUrl, onLogin }) {
   const [error, setError] = useState('');
@@ -11,16 +12,14 @@ function Home({ apiUrl, onLogin }) {
     setError('');
     setIsLoading(true);
     try {
-      const response = await fetch(`${apiUrl}/login`, {
+      const data = await apiFetch(`${apiUrl}/login`, null, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           email: import.meta.env.VITE_DEMO_EMAIL,
           password: import.meta.env.VITE_DEMO_PASSWORD,
         }),
       });
-      const data = await response.json();
-      if (!response.ok) throw new Error();
+
       onLogin(data.token);
       navigate('/dashboard');
     } catch {

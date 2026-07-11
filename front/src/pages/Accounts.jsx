@@ -24,6 +24,7 @@ import { toast } from 'sonner';
 import { formatTransactionAmount } from '@/lib/formatMoney';
 import { Input } from '@/components/ui/input';
 import { SelectBankDialog } from '@/components/SelectBankDialog';
+import { apiFetch } from '@/lib/apiFetch';
 
 export default function Accounts({
   token,
@@ -32,6 +33,7 @@ export default function Accounts({
   loading,
   currencies,
   apiUrl,
+  onLogout,
 }) {
   const [connecting, setConnecting] = useState(false);
   const [syncingAccountId, setSyncingAccountId] = useState(null);
@@ -48,27 +50,19 @@ export default function Accounts({
     setConnecting(true);
     try {
       const redirectUri = `${window.location.origin}/bank-callback`;
-      const response = await fetch(`${apiUrl}/api/banking/auth-url`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
+      const data = await apiFetch(
+        `${apiUrl}/api/banking/auth-url`,
+        token,
+        {
+          method: 'POST',
+          body: JSON.stringify({
+            redirect_uri: redirectUri,
+            bank_name: bank.name,
+            country: bank.country || 'PL',
+          }),
         },
-        body: JSON.stringify({
-          redirect_uri: redirectUri,
-          bank_name: bank.name,
-          country: bank.country || 'PL',
-        }),
-      });
-      const data = await response.json();
-
-      if (!response.ok) {
-        const message = Array.isArray(data.detail)
-          ? data.detail.map((d) => d.msg).join(', ')
-          : data.detail || 'Could not start bank connection';
-        throw new Error(message);
-      }
-
+        onLogout
+      );
       window.location.href = data.auth_url;
     } catch (error) {
       console.error('Error starting bank connection:', error);
@@ -80,23 +74,15 @@ export default function Accounts({
   const handleSyncAccount = async (accountId) => {
     setSyncingAccountId(accountId);
     try {
-      const response = await fetch(`${apiUrl}/api/banking/sync`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
+      const data = await apiFetch(
+        `${apiUrl}/api/banking/sync`,
+        token,
+        {
+          method: 'POST',
+          body: JSON.stringify({ account_id: accountId }),
         },
-        body: JSON.stringify({ account_id: accountId }),
-      });
-      const data = await response.json();
-
-      if (!response.ok) {
-        const message = Array.isArray(data.detail)
-          ? data.detail.map((d) => d.msg).join(', ')
-          : data.detail || 'Sync failed';
-        throw new Error(message);
-      }
-
+        onLogout
+      );
       toast.success('Sync successful', {
         description: `Imported: ${data.imported}, Skipped: ${data.skipped}.`,
       });
@@ -113,22 +99,12 @@ export default function Accounts({
     if (!deletingAccount) return;
     setDeleting(true);
     try {
-      const response = await fetch(
+      await apiFetch(
         `${apiUrl}/accounts/${deletingAccount.id_account}`,
-        {
-          method: 'DELETE',
-          headers: { Authorization: `Bearer ${token}` },
-        }
+        token,
+        { method: 'DELETE' },
+        onLogout
       );
-
-      if (!response.ok) {
-        const data = await response.json().catch(() => ({}));
-        const message = Array.isArray(data.detail)
-          ? data.detail.map((d) => d.msg).join(', ')
-          : data.detail || 'Delete failed';
-        throw new Error(message);
-      }
-
       toast.success('Account deleted');
       setDeletingAccount(null);
       setRefreshing((prev) => prev + 1);
@@ -149,26 +125,15 @@ export default function Accounts({
     if (!renamingAccount || !newName.trim()) return;
     setSavingName(true);
     try {
-      const response = await fetch(
+      await apiFetch(
         `${apiUrl}/accounts/${renamingAccount.id_account}`,
+        token,
         {
           method: 'PATCH',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-          },
           body: JSON.stringify({ name: newName.trim() }),
-        }
+        },
+        onLogout
       );
-      const data = await response.json();
-
-      if (!response.ok) {
-        const message = Array.isArray(data.detail)
-          ? data.detail.map((d) => d.msg).join(', ')
-          : data.detail || 'Rename failed';
-        throw new Error(message);
-      }
-
       toast.success('Account renamed');
       setRenamingAccount(null);
       setRefreshing((prev) => prev + 1);
@@ -369,6 +334,7 @@ export default function Accounts({
         apiUrl={apiUrl}
         token={token}
         onSelectBank={handleSelectBank}
+        onLogout={handleLogout}
       />
     </div>
   );

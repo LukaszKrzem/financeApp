@@ -8,6 +8,7 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { apiFetch } from '@/lib/apiFetch';
 
 export function SelectBankDialog({
   open,
@@ -15,6 +16,7 @@ export function SelectBankDialog({
   apiUrl,
   token,
   onSelectBank,
+  onLogout,
 }) {
   const [banks, setBanks] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -23,19 +25,28 @@ export function SelectBankDialog({
 
   useEffect(() => {
     if (!open) return;
-    setLoading(true);
-    setError(null);
-    fetch(`${apiUrl}/api/banking/aspsps?country=PL`, {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-      .then((res) => res.json())
-      .then((data) => setBanks(data.aspsps || []))
-      .catch((err) => {
+
+    const fetchBanks = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const data = await apiFetch(
+          `${apiUrl}/api/banking/aspsps?country=PL`,
+          token,
+          {},
+          onLogout
+        );
+        setBanks(data.aspsps || []);
+      } catch (err) {
         console.error('Error fetching banks:', err);
         setError('Could not load bank list');
-      })
-      .finally(() => setLoading(false));
-  }, [open, apiUrl, token]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchBanks();
+  }, [open, apiUrl, token, onLogout]);
 
   const filteredBanks = useMemo(() => {
     if (!search.trim()) return banks;

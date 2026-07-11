@@ -13,6 +13,7 @@ import { Label } from '@/components/ui/label';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { GoogleLogin, GoogleOAuthProvider } from '@react-oauth/google';
+import { apiFetch } from '@/lib/apiFetch';
 
 export function Login({
   apiUrl,
@@ -27,16 +28,14 @@ export function Login({
   const handleDemoLogin = async () => {
     setError('');
     try {
-      const response = await fetch(`${apiUrl}/login`, {
+      const data = await apiFetch(`${apiUrl}/login`, null, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           email: import.meta.env.VITE_DEMO_EMAIL,
           password: import.meta.env.VITE_DEMO_PASSWORD,
         }),
       });
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.detail || 'login error');
+
       onLogin(data.token);
     } catch (err) {
       setError(err.message);
@@ -47,19 +46,10 @@ export function Login({
     e.preventDefault();
     setError('');
     try {
-      const response = await fetch(`${apiUrl}/login`, {
+      const data = await apiFetch(`${apiUrl}/login`, null, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email: email, password: password }),
+        body: JSON.stringify({ email, password }),
       });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.detail || 'login error');
-      }
 
       onLogin(data.token);
     } catch (err) {

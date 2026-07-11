@@ -9,6 +9,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
+import { apiFetch } from '@/lib/apiFetch';
 
 export function SiteHeader({
   user,
@@ -28,24 +29,13 @@ export function SiteHeader({
     const fetchNotifications = async () => {
       if (!token) return;
       try {
-        const response = await fetch(`${baseUrl}/notifications`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        if (response.status === 401) {
-          console.warn('Session expired. Logging out...');
-          onLogout();
-          return;
-        }
-
-        if (response.ok) {
-          const data = await response.json();
-          setNotifications(data);
-        }
+        const data = await apiFetch(
+          `${baseUrl}/notifications`,
+          token,
+          {},
+          onLogout
+        );
+        setNotifications(data);
       } catch (error) {
         console.error('Error fetching notifications:', error);
       }
@@ -56,22 +46,17 @@ export function SiteHeader({
     fetchNotifications();
 
     return () => clearInterval(interval);
-  }, [token, apiUrl]);
+  }, [token, apiUrl, onLogout]);
 
   const handleMarkAsRead = async (id) => {
     try {
-      const response = await fetch(`${baseUrl}/notifications/${id}/read`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      if (response.ok) {
-        setNotifications((prev) =>
-          prev.filter((n) => n.id_notification !== id)
-        );
-      }
+      await apiFetch(
+        `${baseUrl}/notifications/${id}/read`,
+        token,
+        { method: 'PATCH' },
+        onLogout
+      );
+      setNotifications((prev) => prev.filter((n) => n.id_notification !== id));
     } catch (error) {
       console.error('Error marking notification as read:', error);
     }
@@ -79,17 +64,13 @@ export function SiteHeader({
 
   const handleMarkAllAsRead = async () => {
     try {
-      const response = await fetch(`${baseUrl}/notifications/read-all`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (response.ok) {
-        setNotifications([]);
-      }
+      await apiFetch(
+        `${baseUrl}/notifications/read-all`,
+        token,
+        { method: 'PATCH' },
+        onLogout
+      );
+      setNotifications([]);
     } catch (error) {
       console.error('Error marking all notifications as read:', error);
     }

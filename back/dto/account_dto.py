@@ -18,3 +18,7 @@ class AccountCreate(pydantic.BaseModel):
     name: str
     current_balance: float
     Currency_id_currency: int
+
+
+class AccountUpdate(pydantic.BaseModel):
+    name: str

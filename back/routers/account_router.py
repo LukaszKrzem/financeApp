@@ -88,3 +88,64 @@ def create_account(
         "bank_account_uid": new_account.bank_account_uid,
         "bank_connection_id": new_account.bank_connection_id,
     }
+
+
+@router.patch("/{account_id}", response_model=account_dto.AccountOut)
+def update_account(
+    account_id: int,
+    account_data: account_dto.AccountUpdate,
+    db: sqlalchemy.orm.Session = Depends(get_db),
+    current_user=Depends(get_current_user),
+):
+    account = (
+        db.query(structure.Account)
+        .filter(
+            structure.Account.id_account == account_id,
+            structure.Account.User_id_user == current_user.id_user,
+        )
+        .first()
+    )
+    if not account:
+        raise HTTPException(status_code=404, detail="Account not found.")
+
+    account.name = account_data.name
+    db.commit()
+    db.refresh(account)
+
+    currency = (
+        db.query(structure.Currency)
+        .filter(structure.Currency.id_currency == account.Currency_id_currency)
+        .first()
+    )
+
+    return {
+        "id_account": account.id_account,
+        "name": account.name,
+        "current_balance": account.current_balance,
+        "Currency_id_currency": account.Currency_id_currency,
+        "currency_code": currency.code,
+        "bank_account_uid": account.bank_account_uid,
+        "bank_connection_id": account.bank_connection_id,
+    }
+
+
+@router.delete("/{account_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_account(
+    account_id: int,
+    db: sqlalchemy.orm.Session = Depends(get_db),
+    current_user=Depends(get_current_user),
+):
+    account = (
+        db.query(structure.Account)
+        .filter(
+            structure.Account.id_account == account_id,
+            structure.Account.User_id_user == current_user.id_user,
+        )
+        .first()
+    )
+    if not account:
+        raise HTTPException(status_code=404, detail="Account not found.")
+
+    db.delete(account)
+    db.commit()
+    return None

@@ -79,10 +79,22 @@ export function SelectBankDialog({
             <Button
               key={`${bank.name}-${bank.country}`}
               variant="ghost"
-              className="justify-start"
+              className="justify-start gap-3 h-auto py-2"
               onClick={() => onSelectBank(bank)}
             >
-              {bank.name}
+              {bank.logo ? (
+                <img
+                  src={bank.logo}
+                  alt=""
+                  className="size-6 rounded object-contain shrink-0"
+                  onError={(e) => {
+                    e.target.style.display = 'none';
+                  }}
+                />
+              ) : (
+                <div className="size-6 rounded bg-muted shrink-0" />
+              )}
+              <span className="truncate">{bank.name}</span>
             </Button>
           ))}
         </div>

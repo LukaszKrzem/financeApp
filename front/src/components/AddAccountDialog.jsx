@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import {
   Dialog,
   DialogContent,
@@ -71,8 +72,9 @@ export function AddAccountDialog({
         </DialogHeader>
         <form onSubmit={handleSubmit} className="flex flex-col gap-4 py-4">
           <div className="flex flex-col gap-2">
-            <label className="text-sm font-medium">Account Name</label>
+            <Label htmlFor="account-name">Account Name</Label>
             <Input
+              id="account-name"
               type="text"
               placeholder="e.g. Main Wallet"
               value={name}
@@ -82,8 +84,9 @@ export function AddAccountDialog({
           </div>
 
           <div className="flex flex-col gap-2">
-            <label className="text-sm font-medium">Initial Balance</label>
+            <Label htmlFor="account-balance">Initial Balance</Label>
             <Input
+              id="account-balance"
               type="number"
               step="0.01"
               min="0.00"
@@ -94,9 +97,9 @@ export function AddAccountDialog({
             />
           </div>
           <div className="flex flex-col gap-2">
-            <label className="text-sm font-medium">Currency</label>
+            <Label htmlFor="account-currency">Currency</Label>
             <Select value={currencyId} onValueChange={setCurrencyId} required>
-              <SelectTrigger className="w-full">
+              <SelectTrigger className="w-full" id="account-currency">
                 <SelectValue placeholder="Select currency" />
               </SelectTrigger>
               <SelectContent>

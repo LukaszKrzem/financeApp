@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import {
   Dialog,
   DialogContent,
@@ -47,9 +48,9 @@ export function AddTransactionDialog({
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const isMobile = useIsMobile();
-  const isDesktop = !isMobile;
 
   const filteredCategories = categories.filter((cat) => cat.type === type);
+
   useEffect(() => {
     setCategoryId('');
   }, [type]);
@@ -75,8 +76,8 @@ export function AddTransactionDialog({
 
     const payload = {
       amount: parseFloat(amount),
-      type: type,
-      description: description,
+      type,
+      description,
       Account_id_account: parseInt(accountId),
       Category_id_category: categoryId ? parseInt(categoryId) : null,
       Currency_id_currency: parseInt(currencyId),
@@ -89,7 +90,6 @@ export function AddTransactionDialog({
 
     if (isScheduled) {
       payload.frequency = transactionFrequency;
-      payload.next_date = new Date('2317-10-10').toISOString();
     }
 
     try {
@@ -111,56 +111,69 @@ export function AddTransactionDialog({
 
   const TransactionForm = (
     <form onSubmit={handleSubmit} className="space-y-4 mt-4">
-      <Select value={type} onValueChange={setType}>
-        <SelectTrigger>
-          <SelectValue placeholder="Type" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="EXPENSE">Expense</SelectItem>
-          <SelectItem value="INCOME">Income</SelectItem>
-        </SelectContent>
-      </Select>
-
-      <div className="flex gap-2">
-        <Input
-          placeholder="Amount"
-          id="amount"
-          type="number"
-          step="0.01"
-          min="0.01"
-          value={amount}
-          onChange={(e) => setAmount(e.target.value)}
-          className="flex-1"
-          required
-        />
-        <Select value={currencyId} onValueChange={setCurrencyId} required>
-          <SelectTrigger className="w-[100px]">
-            <SelectValue placeholder="Currency" />
+      <div className="flex flex-col gap-2">
+        <Label htmlFor="transaction-type">Type</Label>
+        <Select value={type} onValueChange={setType}>
+          <SelectTrigger id="transaction-type">
+            <SelectValue placeholder="Type" />
           </SelectTrigger>
           <SelectContent>
-            {currencies.map((cur) => (
-              <SelectItem
-                key={cur.id_currency}
-                value={cur.id_currency.toString()}
-              >
-                {cur.code}
-              </SelectItem>
-            ))}
+            <SelectItem value="EXPENSE">Expense</SelectItem>
+            <SelectItem value="INCOME">Income</SelectItem>
           </SelectContent>
         </Select>
       </div>
 
-      <Input
-        type="text"
-        placeholder="Description"
-        value={description}
-        onChange={(e) => setDescription(e.target.value)}
-        required
-      />
+      <div className="flex gap-2">
+        <div className="flex flex-col gap-2 flex-1">
+          <Label htmlFor="amount">Amount</Label>
+          <Input
+            id="amount"
+            placeholder="e.g. 100.00"
+            type="number"
+            step="0.01"
+            min="0.01"
+            value={amount}
+            onChange={(e) => setAmount(e.target.value)}
+            required
+          />
+        </div>
+        <div className="flex flex-col gap-2 w-[100px]">
+          <Label htmlFor="currency">Currency</Label>
+          <Select value={currencyId} onValueChange={setCurrencyId}>
+            <SelectTrigger id="currency">
+              <SelectValue placeholder="Currency" />
+            </SelectTrigger>
+            <SelectContent>
+              {currencies.map((cur) => (
+                <SelectItem
+                  key={cur.id_currency}
+                  value={cur.id_currency.toString()}
+                >
+                  {cur.code}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
 
-      <div className="grid gap-2">
+      <div className="flex flex-col gap-2">
+        <Label htmlFor="description">Description</Label>
+        <Input
+          id="description"
+          type="text"
+          placeholder="e.g. Grocery shopping"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          required
+        />
+      </div>
+
+      <div className="flex flex-col gap-2">
+        <Label htmlFor="category">Category</Label>
         <Select value={categoryId} onValueChange={setCategoryId} required>
-          <SelectTrigger>
+          <SelectTrigger id="category">
             <SelectValue placeholder="Choose category" />
           </SelectTrigger>
           <SelectContent>
@@ -176,49 +189,54 @@ export function AddTransactionDialog({
         </Select>
       </div>
 
-      <div className="flex justify-between gap-2">
-        <Select value={accountId} onValueChange={setAccountId} required>
-          <SelectTrigger className="w-1/2">
-            <SelectValue placeholder="Select Account" />
-          </SelectTrigger>
-          <SelectContent>
-            {accounts.map((acc) => (
-              <SelectItem
-                key={acc.id_account}
-                value={acc.id_account.toString()}
-              >
-                {acc.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-
-        <Select
-          value={transactionFrequency}
-          onValueChange={setTransactionFrequency}
-          required
-        >
-          <SelectTrigger className="w-1/2">
-            <SelectValue placeholder="Frequency" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="not_scheduled">Not scheduled</SelectItem>
-            <SelectItem value="DAILY">Daily</SelectItem>
-            <SelectItem value="WEEKLY">Weekly</SelectItem>
-            <SelectItem value="MONTHLY">Monthly</SelectItem>
-            <SelectItem value="YEARLY">Yearly</SelectItem>
-          </SelectContent>
-        </Select>
+      <div className="flex gap-2">
+        <div className="flex flex-col gap-2 flex-1">
+          <Label htmlFor="account">Account</Label>
+          <Select value={accountId} onValueChange={setAccountId} required>
+            <SelectTrigger id="account">
+              <SelectValue placeholder="Select Account" />
+            </SelectTrigger>
+            <SelectContent>
+              {accounts.map((acc) => (
+                <SelectItem
+                  key={acc.id_account}
+                  value={acc.id_account.toString()}
+                >
+                  {acc.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="flex flex-col gap-2 flex-1">
+          <Label htmlFor="frequency">Frequency</Label>
+          <Select
+            value={transactionFrequency}
+            onValueChange={setTransactionFrequency}
+          >
+            <SelectTrigger id="frequency">
+              <SelectValue placeholder="Frequency" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="not_scheduled">Not scheduled</SelectItem>
+              <SelectItem value="DAILY">Daily</SelectItem>
+              <SelectItem value="WEEKLY">Weekly</SelectItem>
+              <SelectItem value="MONTHLY">Monthly</SelectItem>
+              <SelectItem value="YEARLY">Yearly</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
       {error && <p className="text-red-500 text-sm">{error}</p>}
+
       <Button type="submit" className="w-full" disabled={isSubmitting}>
         {isSubmitting ? 'Saving...' : 'Save'}
       </Button>
     </form>
   );
 
-  if (isDesktop) {
+  if (!isMobile) {
     return (
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>

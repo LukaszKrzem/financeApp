@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { SimpleDataTable } from '@/components/simple-data-table';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { ArrowUpRight, ArrowDownLeft, Calendar } from 'lucide-react';
 import { CategoryBadge } from '@/lib/categoryBadge';
@@ -100,14 +101,20 @@ export default function Transactions({ transactions, loading }) {
           </div>
 
           <div className="flex items-center gap-2 md:ml-auto w-full md:w-auto">
+            <Label htmlFor="date-from">Date range:</Label>
             <Input
+              id="date-from"
               type="date"
               value={dateFrom}
               onChange={(e) => setDateFrom(e.target.value)}
               className="flex-1 md:w-36 h-8 text-sm"
             />
             <span className="text-muted-foreground text-sm">—</span>
+            <Label htmlFor="date-to" className="sr-only">
+              Date to
+            </Label>
             <Input
+              id="date-to"
               type="date"
               value={dateTo}
               onChange={(e) => setDateTo(e.target.value)}

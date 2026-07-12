@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { AddAccountDialog } from '@/components/AddAccountDialog';
 import { Button } from '@/components/ui/button';
+import { Label } from '@/components/ui/label';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -25,6 +26,7 @@ import { formatTransactionAmount } from '@/lib/formatMoney';
 import { Input } from '@/components/ui/input';
 import { SelectBankDialog } from '@/components/SelectBankDialog';
 import { apiFetch } from '@/lib/apiFetch';
+import { Label } from 'recharts';
 
 export default function Accounts({
   token,
@@ -276,7 +278,9 @@ export default function Accounts({
               Choose a new name for this account.
             </DialogDescription>
           </DialogHeader>
+          <Label htmlFor="account-rename">New account name</Label>
           <Input
+            id="account-rename"
             value={newName}
             onChange={(e) => setNewName(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleSaveName()}

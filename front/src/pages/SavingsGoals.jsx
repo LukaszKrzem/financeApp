@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { IconPlus, IconTrash } from '@tabler/icons-react';
-
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -169,11 +170,11 @@ export default function SavingsGoals({ user, onLogout, token, apiUrl }) {
               className="flex flex-col gap-4 py-4"
             >
               <div className="flex flex-col gap-2">
-                <label className="text-sm font-medium">Goal name</label>
-                <input
+                <Label htmlFor="goal-name">Goal name</Label>
+                <Input
+                  id="goal-name"
                   type="text"
                   placeholder="e.g. New laptop"
-                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                   value={name}
                   onChange={(event) => setName(event.target.value)}
                   required
@@ -181,13 +182,13 @@ export default function SavingsGoals({ user, onLogout, token, apiUrl }) {
               </div>
 
               <div className="flex flex-col gap-2">
-                <label className="text-sm font-medium">Target amount</label>
-                <input
+                <Label htmlFor="goal-target">Target amount</Label>
+                <Input
+                  id="goal-target"
                   type="number"
                   min="0"
                   step="0.01"
                   placeholder="e.g. 5000"
-                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                   value={target}
                   onChange={(event) => setTarget(event.target.value)}
                   required
@@ -195,23 +196,23 @@ export default function SavingsGoals({ user, onLogout, token, apiUrl }) {
               </div>
 
               <div className="flex flex-col gap-2">
-                <label className="text-sm font-medium">Current amount</label>
-                <input
+                <Label htmlFor="goal-current">Current amount</Label>
+                <Input
+                  id="goal-current"
                   type="number"
                   min="0"
                   step="0.01"
                   placeholder="e.g. 1000"
-                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                   value={currentAmount}
                   onChange={(event) => setCurrentAmount(event.target.value)}
                 />
               </div>
 
               <div className="flex flex-col gap-2">
-                <label className="text-sm font-medium">Deadline</label>
-                <input
+                <Label htmlFor="goal-deadline">Deadline</Label>
+                <Input
+                  id="goal-deadline"
                   type="date"
-                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                   value={timeLimit}
                   onChange={(event) => setTimeLimit(event.target.value)}
                 />
@@ -281,13 +282,19 @@ export default function SavingsGoals({ user, onLogout, token, apiUrl }) {
                 </p>
 
                 <div className="flex gap-2">
-                  <input
+                  <Label
+                    htmlFor={`contribution-${goal.id_saving_goal}`}
+                    className="sr-only"
+                  >
+                    Contribution amount
+                  </Label>
+                  <Input
+                    id={`contribution-${goal.id_saving_goal}`}
                     type="number"
                     min="0"
                     step="0.01"
                     placeholder="Amount to add"
                     value={contributions[goal.id_saving_goal] || ''}
-                    className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm"
                     onChange={(event) =>
                       setContributions((currentValues) => ({
                         ...currentValues,

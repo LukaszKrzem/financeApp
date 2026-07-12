@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import {
   Dialog,
   DialogContent,
@@ -75,9 +76,9 @@ export function AddBudgetDialog({
         </DialogHeader>
         <form onSubmit={handleSubmit} className="flex flex-col gap-4 py-4">
           <div className="flex flex-col gap-2">
-            <label className="text-sm font-medium">Category</label>
+            <Label htmlFor="budget-category">Category</Label>
             <Select onValueChange={setCategory} value={category}>
-              <SelectTrigger>
+              <SelectTrigger id="budget-category">
                 <SelectValue placeholder="Select a category" />
               </SelectTrigger>
               <SelectContent>
@@ -101,8 +102,9 @@ export function AddBudgetDialog({
           </div>
 
           <div className="flex flex-col gap-2">
-            <label className="text-sm font-medium">Limit</label>
+            <Label htmlFor="budget-limit">Limit</Label>
             <Input
+              id="budget-limit"
               type="number"
               step="0.01"
               min="0.00"

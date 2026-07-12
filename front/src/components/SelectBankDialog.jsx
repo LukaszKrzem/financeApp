@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
+import { Label } from '@/components/ui/label';
 import {
   Dialog,
   DialogContent,
@@ -64,9 +65,10 @@ export function SelectBankDialog({
             Choose the bank you want to connect.
           </DialogDescription>
         </DialogHeader>
-
+        <Label htmlFor="bank-search">Search Banks</Label>
         <Input
           placeholder="Search banks..."
+          id="bank-search"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           autoFocus

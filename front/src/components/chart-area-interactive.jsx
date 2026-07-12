@@ -2,6 +2,7 @@ import * as React from 'react';
 import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from 'recharts';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Button } from '@/components/ui/button';
+import { Label } from '@/components/ui/label';
 import {
   Card,
   CardAction,
@@ -104,8 +105,11 @@ export function ChartAreaInteractive({ transactions, accounts = [] }) {
           Comparing income vs spending over time
         </CardDescription>
         <CardAction className="flex flex-wrap gap-2 pt-2">
+          <Label htmlFor="account-select" className="sr-only">
+            Account:
+          </Label>
           <Select value={accountId} onValueChange={(val) => setAccountId(val)}>
-            <SelectTrigger className="w-36 h-8 text-xs">
+            <SelectTrigger className="w-36 h-8 text-xs" id="account-select">
               <SelectValue placeholder="All accounts" />
             </SelectTrigger>
             <SelectContent>

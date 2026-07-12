@@ -26,7 +26,6 @@ import { formatTransactionAmount } from '@/lib/formatMoney';
 import { Input } from '@/components/ui/input';
 import { SelectBankDialog } from '@/components/SelectBankDialog';
 import { apiFetch } from '@/lib/apiFetch';
-import { Label } from 'recharts';
 
 export default function Accounts({
   token,

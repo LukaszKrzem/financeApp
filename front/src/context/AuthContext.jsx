@@ -53,6 +53,7 @@ export function AuthProvider({ children }) {
         setUser(userData);
       } catch (error) {
         console.error('Failed to fetch user data:', error);
+        onLogout();
       } finally {
         setLoading(false);
       }

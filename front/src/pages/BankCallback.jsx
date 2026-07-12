@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { apiFetch } from '@/lib/apiFetch';
 
@@ -60,12 +61,12 @@ export default function BankCallback({ token, apiUrl, setRefreshing }) {
         <>
           <p className="text-destructive font-medium">Connection failed</p>
           <p className="text-sm text-muted-foreground">{errorMessage}</p>
-          <button
+          <Button
             onClick={() => navigate('/accounts', { replace: true })}
             className="text-sm underline text-primary"
           >
             Back to Accounts
-          </button>
+          </Button>
         </>
       )}
     </div>

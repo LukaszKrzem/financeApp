@@ -22,9 +22,11 @@ export function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const handleDemoLogin = async () => {
     setError('');
+    setLoading(true);
     try {
       const data = await apiFetch(`${apiUrl}/login`, null, {
         method: 'POST',
@@ -34,24 +36,39 @@ export function Login() {
         }),
       });
 
+      if (!data?.token) {
+        throw new Error('No token received from server');
+      }
+
       onLogin(data.token);
     } catch (err) {
-      setError(err.message);
+      console.error('Demo login error:', err);
+      setError(err.message || 'Failed to login');
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    setLoading(true);
     try {
       const data = await apiFetch(`${apiUrl}/login`, null, {
         method: 'POST',
         body: JSON.stringify({ email, password }),
       });
 
+      if (!data?.token) {
+        throw new Error('No token received from server');
+      }
+
       onLogin(data.token);
     } catch (err) {
-      setError(err.message);
+      console.error('Login error:', err);
+      setError(err.message || 'Failed to login');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -79,8 +96,10 @@ export function Login() {
                   id="email"
                   type="email"
                   placeholder="m@example.com"
+                  value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
+                  disabled={loading}
                 />
               </div>
               <div className="grid gap-2">
@@ -96,24 +115,27 @@ export function Login() {
                 <Input
                   id="password"
                   type="password"
+                  value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
+                  disabled={loading}
                 />
               </div>
               {error && <p className="text-sm text-red-500">{error}</p>}
             </div>
 
             <CardFooter className="flex-col gap-4 mt-6 px-0 pb-2">
-              <Button type="submit" className="w-full">
-                Login
+              <Button type="submit" className="w-full" disabled={loading}>
+                {loading ? 'Logging in...' : 'Login'}
               </Button>
               <Button
                 type="button"
                 onClick={handleDemoLogin}
                 className="w-full"
                 variant="secondary"
+                disabled={loading}
               >
-                Try demo
+                {loading ? 'Logging in...' : 'Try demo'}
               </Button>
 
               <div className="relative w-full py-2">

@@ -1,27 +1,77 @@
-import { createContext, useContext } from 'react';
+import { createContext, useContext, useState, useEffect } from 'react';
+import { apiFetch } from '@/lib/apiFetch';
 
 const AuthContext = createContext();
 
-export function AuthProvider({
-  children,
-  token,
-  user,
-  apiUrl,
-  onLogout,
-  onLogin,
-  handleGoogleLogin,
-  googleClientId,
-}) {
+const API_URL = import.meta.env.VITE_API_URL;
+const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+
+export function AuthProvider({ children }) {
+  const [token, setToken] = useState(localStorage.getItem('token'));
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  const onLogin = (newToken) => {
+    localStorage.setItem('token', newToken);
+    setToken(newToken);
+  };
+
+  const onLogout = () => {
+    localStorage.removeItem('token');
+    setToken(null);
+    setUser(null);
+  };
+
+  const handleGoogleLogin = async (googleToken) => {
+    try {
+      const response = await fetch(`${API_URL}/auth/google`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token: googleToken.credential }),
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.detail || 'login error');
+      }
+      onLogin(data.token);
+    } catch (error) {
+      console.error('Error google auth:', error);
+    }
+  };
+
+  useEffect(() => {
+    if (!token) {
+      setUser(null);
+      setLoading(false);
+      return;
+    }
+
+    const fetchUser = async () => {
+      setLoading(true);
+      try {
+        const userData = await apiFetch(`${API_URL}/me`, token, {}, onLogout);
+        setUser(userData);
+      } catch (error) {
+        console.error('Failed to fetch user data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUser();
+  }, [token]);
+
   return (
     <AuthContext.Provider
       value={{
         token,
         user,
-        apiUrl,
-        onLogout,
+        loading,
+        apiUrl: API_URL,
+        googleClientId: GOOGLE_CLIENT_ID,
         onLogin,
+        onLogout,
         handleGoogleLogin,
-        googleClientId,
       }}
     >
       {children}

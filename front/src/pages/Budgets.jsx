@@ -1,5 +1,6 @@
 import { Progress } from '@/components/ui/progress';
 import { AddBudgetDialog } from '@/components/AddBudgetDialog';
+import { useData } from '@/context/DataContext';
 
 const formatBudgetAmount = (amount, currencyCode) => {
   const value = new Intl.NumberFormat('pl-PL', {
@@ -21,12 +22,9 @@ const formatBudgetAmount = (amount, currencyCode) => {
   }
 };
 
-export default function BudgetsPage({
-  categories,
-  budgets,
-  setRefreshing,
-  loading,
-}) {
+export default function BudgetsPage() {
+  const { budgets = [], loading } = useData();
+
   return (
     <div className="flex flex-1 flex-col p-4 lg:p-6 gap-6">
       <div className="flex items-center justify-between">
@@ -38,12 +36,7 @@ export default function BudgetsPage({
             Manage your spending limits for each month
           </p>
         </div>
-        <AddBudgetDialog
-          onBudgetAdded={() => {
-            setRefreshing((prev) => prev + 1);
-          }}
-          categories={categories}
-        />
+        <AddBudgetDialog />
       </div>
 
       {loading ? (

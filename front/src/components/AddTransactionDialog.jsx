@@ -26,15 +26,16 @@ import {
 import { useIsMobile } from '@/hooks/use-mobile';
 import { apiFetch } from '@/lib/apiFetch';
 import { useAuth } from '@/context/AuthContext';
+import { useData } from '@/context/DataContext';
 
-export function AddTransactionDialog({
-  setRefreshing,
-  accounts = [],
-  categories = [],
-  currencies = [],
-  trigger,
-}) {
+export function AddTransactionDialog({ trigger }) {
   const { token, apiUrl, onLogout } = useAuth();
+  const {
+    accounts = [],
+    categories = [],
+    currencies = [],
+    setRefreshing,
+  } = useData();
 
   const [open, setOpen] = useState(false);
   const [amount, setAmount] = useState('');
@@ -49,6 +50,7 @@ export function AddTransactionDialog({
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const isMobile = useIsMobile();
+
   const filteredCategories = categories.filter((cat) => cat.type === type);
 
   useEffect(() => {
@@ -70,6 +72,11 @@ export function AddTransactionDialog({
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (isSubmitting) return;
+
+    if (!categoryId) {
+      setError('Please select a category');
+      return;
+    }
 
     setIsSubmitting(true);
     setError(null);
@@ -96,10 +103,7 @@ export function AddTransactionDialog({
       await apiFetch(
         `${apiUrl}${endpoint}`,
         token,
-        {
-          method: 'POST',
-          body: JSON.stringify(payload),
-        },
+        { method: 'POST', body: JSON.stringify(payload) },
         onLogout
       );
 
@@ -177,7 +181,7 @@ export function AddTransactionDialog({
 
       <div className="flex flex-col gap-2">
         <Label htmlFor="category">Category</Label>
-        <Select value={categoryId} onValueChange={setCategoryId} required>
+        <Select value={categoryId} onValueChange={setCategoryId}>
           <SelectTrigger id="category">
             <SelectValue placeholder="Choose category" />
           </SelectTrigger>

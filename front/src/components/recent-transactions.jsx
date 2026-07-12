@@ -2,6 +2,7 @@ import { getIconForCategory } from '@/lib/categoryIcons';
 import { CategoryBadge } from '@/lib/categoryBadge';
 import { Link } from 'react-router-dom';
 import { formatTransactionAmount } from '@/lib/formatMoney';
+import { useData } from '@/context/DataContext';
 
 import {
   Card,
@@ -11,7 +12,9 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 
-export function RecentTransactions({ transactions = [], loading }) {
+export function RecentTransactions() {
+  const { transactions = [], loading } = useData();
+
   if (loading) {
     return (
       <div className="p-6 text-center text-muted-foreground">

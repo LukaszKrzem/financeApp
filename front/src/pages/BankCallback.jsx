@@ -4,9 +4,11 @@ import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { apiFetch } from '@/lib/apiFetch';
 import { useAuth } from '@/context/AuthContext';
+import { useData } from '@/context/DataContext';
 
-export default function BankCallback({ setRefreshing }) {
+export default function BankCallback() {
   const { token, apiUrl } = useAuth();
+  const { setRefreshing } = useData();
 
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();

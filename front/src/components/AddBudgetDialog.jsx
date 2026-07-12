@@ -19,13 +19,11 @@ import {
 import { IconPlus } from '@tabler/icons-react';
 import { apiFetch } from '@/lib/apiFetch';
 import { useAuth } from '@/context/AuthContext';
+import { useData } from '@/context/DataContext';
 
-export function AddBudgetDialog({
-  onBudgetAdded,
-  categories = [],
-  setRefreshing,
-}) {
+export function AddBudgetDialog() {
   const { token, apiUrl, onLogout } = useAuth();
+  const { categories = [], setRefreshing } = useData();
 
   const [open, setOpen] = useState(false);
   const [amount, setAmount] = useState('');
@@ -60,7 +58,6 @@ export function AddBudgetDialog({
       setAmount('');
       setCategory('');
       setOpen(false);
-      if (onBudgetAdded) onBudgetAdded();
 
       setRefreshing((prev) => prev + 1);
     } catch (error) {

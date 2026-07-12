@@ -11,6 +11,7 @@ import {
   IconTarget,
   IconWallet,
 } from '@tabler/icons-react';
+import { Link } from 'react-router-dom';
 
 import { NavDocuments } from '@/components/nav-documents';
 import { NavMain } from '@/components/nav-main';
@@ -29,70 +30,17 @@ import {
 
 const data = {
   navMain: [
-    {
-      title: 'Overview',
-      url: '/dashboard',
-      icon: IconLayoutDashboard,
-    },
-    {
-      title: 'Transactions',
-      url: '/transactions',
-      icon: IconReceipt,
-    },
-    // {
-    //   title: "Analytics",
-    //   url: "#",
-    //   icon: IconChartPie,
-    // },
-    {
-      title: 'Budgets',
-      url: '/budgets',
-      icon: IconTarget,
-    },
-    {
-      title: 'Savings Goals',
-      url: '/savings-goals',
-      icon: IconWallet,
-    },
-    {
-      title: 'Accounts',
-      url: '/accounts',
-      icon: IconCreditCard,
-    },
+    { title: 'Overview', url: '/dashboard', icon: IconLayoutDashboard },
+    { title: 'Transactions', url: '/transactions', icon: IconReceipt },
+    { title: 'Budgets', url: '/budgets', icon: IconTarget },
+    { title: 'Savings Goals', url: '/savings-goals', icon: IconWallet },
+    { title: 'Accounts', url: '/accounts', icon: IconCreditCard },
   ],
-  navSecondary: [
-    {
-      title: 'Settings',
-      url: '/settings',
-      icon: IconSettings,
-    },
-    // {
-    //   title: "Help",
-    //   url: "#",
-    //   icon: IconHelp,
-    // },
-    // {
-    //   title: "Search",
-    //   url: "#",
-    //   icon: IconSearch,
-    // },
-  ],
+  navSecondary: [{ title: 'Settings', url: '/settings', icon: IconSettings }],
   documents: [
-    {
-      name: 'Categories',
-      url: '#',
-      icon: IconTags,
-    },
-    {
-      name: 'Wallets',
-      url: '#',
-      icon: IconWallet,
-    },
-    {
-      name: 'Subscriptions',
-      url: '#',
-      icon: IconCurrencyDollar,
-    },
+    { name: 'Categories', url: '#', icon: IconTags },
+    { name: 'Wallets', url: '#', icon: IconWallet },
+    { name: 'Subscriptions', url: '#', icon: IconCurrencyDollar },
   ],
 };
 
@@ -106,10 +54,10 @@ export function AppSidebar({ ...props }) {
               asChild
               className="data-[slot=sidebar-menu-button]:p-1.5!"
             >
-              <a href="#">
+              <Link to="/dashboard">
                 <IconWallet className="size-5! text-primary" />
                 <span className="text-base font-semibold">SmartBudget</span>
-              </a>
+              </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>

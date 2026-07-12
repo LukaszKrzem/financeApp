@@ -64,7 +64,7 @@ export default function Settings() {
         </div>
 
         <div className="bg-card border-border/50 border rounded-xl p-6">
-          <h2 className="text-lg font-semibold mb-4">Account</h2>
+          <h2 className="text-lg font-semibold mb-4">General</h2>
           <p className="text-sm text-muted-foreground">
             More settings coming soon...
           </p>

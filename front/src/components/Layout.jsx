@@ -4,12 +4,7 @@ import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
 import { Outlet } from 'react-router-dom';
 import BottomNav from './BottomNav';
 
-export default function Layout({
-  accounts,
-  categories,
-  currencies,
-  setRefreshing,
-}) {
+export default function Layout() {
   return (
     <SidebarProvider
       style={{
@@ -21,24 +16,13 @@ export default function Layout({
         <AppSidebar variant="inset" />
       </div>
       <SidebarInset>
-        <SiteHeader
-          setRefreshing={setRefreshing}
-          categories={categories}
-          currencies={currencies}
-          accounts={accounts}
-        />
+        <SiteHeader />
 
         <div className="flex flex-1 flex-col pb-24 md:pb-0">
           <Outlet />
         </div>
       </SidebarInset>
-
-      <BottomNav
-        setRefreshing={setRefreshing}
-        accounts={accounts}
-        categories={categories}
-        currencies={currencies}
-      />
+      <BottomNav />
     </SidebarProvider>
   );
 }

@@ -4,9 +4,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { ArrowUpRight, ArrowDownLeft, Calendar } from 'lucide-react';
 import { CategoryBadge } from '@/lib/categoryBadge';
 import { formatTransactionAmount } from '@/lib/formatMoney';
+import { useData } from '@/context/DataContext';
 
 export const columns = [
   {
@@ -55,7 +55,9 @@ export const columns = [
   },
 ];
 
-export default function Transactions({ transactions = [], loading }) {
+export default function Transactions() {
+  const { transactions = [], loading } = useData();
+
   const [typeFilter, setTypeFilter] = useState('ALL');
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo, setDateTo] = useState('');

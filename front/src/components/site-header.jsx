@@ -12,12 +12,7 @@ import {
 import { apiFetch } from '@/lib/apiFetch';
 import { useAuth } from '@/context/AuthContext';
 
-export function SiteHeader({
-  setRefreshing,
-  categories = [],
-  accounts = [],
-  currencies = [],
-}) {
+export function SiteHeader() {
   const { user, apiUrl, token, onLogout } = useAuth();
 
   const baseUrl = apiUrl ? apiUrl.replace(/\/$/, '') : '';
@@ -153,12 +148,7 @@ export function SiteHeader({
           </Popover>
 
           <div className="hidden md:flex">
-            <AddTransactionDialog
-              setRefreshing={setRefreshing}
-              categories={categories}
-              accounts={accounts}
-              currencies={currencies}
-            />
+            <AddTransactionDialog />
           </div>
         </div>
       </div>

@@ -15,6 +15,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
+import { useData } from '@/context/DataContext';
 
 const formatMoney = (value) =>
   new Intl.NumberFormat('pl-PL', {
@@ -28,7 +29,9 @@ const isIncomeTransaction = (transaction) =>
   transaction.is_income === 'T' ||
   transaction.is_income === 'Y';
 
-export function SectionCards({ transactions = [], budgets = [] }) {
+export function SectionCards() {
+  const { transactions = [], budgets = [] } = useData();
+
   const totals = useMemo(() => {
     return transactions.reduce(
       (summary, transaction) => {

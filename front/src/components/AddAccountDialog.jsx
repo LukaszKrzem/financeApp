@@ -19,9 +19,11 @@ import {
 import { IconPlus } from '@tabler/icons-react';
 import { apiFetch } from '@/lib/apiFetch';
 import { useAuth } from '@/context/AuthContext';
+import { useData } from '@/context/DataContext';
 
-export function AddAccountDialog({ onAccountAdded, currencies = [] }) {
+export function AddAccountDialog() {
   const { token, apiUrl, onLogout } = useAuth();
+  const { currencies = [], setRefreshing } = useData();
 
   const [open, setOpen] = useState(false);
   const [name, setName] = useState('');
@@ -54,7 +56,7 @@ export function AddAccountDialog({ onAccountAdded, currencies = [] }) {
       setBalance('');
       setCurrencyId('');
       setOpen(false);
-      if (onAccountAdded) onAccountAdded();
+      setRefreshing((prev) => prev + 1);
     } catch (err) {
       console.error('Error creating account:', err);
       setError(err.message);

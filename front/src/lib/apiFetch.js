@@ -9,7 +9,6 @@ export async function apiFetch(url, token, options = {}, onUnauthorized) {
   });
 
   if (response.status === 401) {
-    console.warn('Session expired. Logging out...');
     localStorage.removeItem('token');
     if (onUnauthorized) onUnauthorized();
     throw new Error('Session expired');
@@ -19,7 +18,13 @@ export async function apiFetch(url, token, options = {}, onUnauthorized) {
     return null;
   }
 
-  const data = await response.json();
+  const text = await response.text();
+  let data;
+  try {
+    data = text ? JSON.parse(text) : null;
+  } catch (e) {
+    throw new Error('Invalid JSON response from server');
+  }
 
   if (!response.ok) {
     const message = Array.isArray(data?.detail)

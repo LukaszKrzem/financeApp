@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from 'recharts';
 import { getIconForCategory, DEFAULT_ICON } from '@/lib/categoryIcons';
 import { categoryColorMap, DEFAULT_CATEGORY_COLOR } from '@/lib/categoryBadge';
+import { useData } from '@/context/DataContext';
 
 import {
   Card,
@@ -49,7 +50,9 @@ const CustomTooltip = ({ active, payload }) => {
   return null;
 };
 
-export function SpendingCategories({ transactions = [] }) {
+export function SpendingCategories() {
+  const { transactions = [] } = useData();
+
   const categoryData = useMemo(() => {
     const categories = transactions
       .filter(isExpenseTransaction)

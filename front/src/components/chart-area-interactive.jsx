@@ -23,6 +23,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { useData } from '@/context/DataContext';
 
 const chartConfig = {
   spending: { label: 'Spending', color: 'var(--chart-4)' },
@@ -40,7 +41,9 @@ const formatCompactMoney = (value, currency = 'PLN') => {
 
 const MONTHS_MAP = { '5m': 5, '3m': 3, '1m': 1 };
 
-export function ChartAreaInteractive({ transactions, accounts = [] }) {
+export function ChartAreaInteractive() {
+  const { transactions = [], accounts = [] } = useData();
+
   const isMobile = useIsMobile();
   const [timeRange, setTimeRange] = React.useState('5m');
   const [accountId, setAccountId] = React.useState('ALL');

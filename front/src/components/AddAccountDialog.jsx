@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import {
   Dialog,
   DialogContent,
@@ -72,10 +73,9 @@ export function AddAccountDialog({
         <form onSubmit={handleSubmit} className="flex flex-col gap-4 py-4">
           <div className="flex flex-col gap-2">
             <label className="text-sm font-medium">Account Name</label>
-            <input
+            <Input
               type="text"
               placeholder="e.g. Main Wallet"
-              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
               value={name}
               onChange={(e) => setName(e.target.value)}
               required
@@ -84,11 +84,11 @@ export function AddAccountDialog({
 
           <div className="flex flex-col gap-2">
             <label className="text-sm font-medium">Initial Balance</label>
-            <input
+            <Input
               type="number"
               step="0.01"
-              placeholder="e.g. 1500"
-              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              min="0.00"
+              placeholder="e.g. 100.00"
               value={balance}
               onChange={(e) => setBalance(e.target.value)}
               required

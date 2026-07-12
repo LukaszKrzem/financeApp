@@ -18,14 +18,15 @@ import {
 } from '@/components/ui/select';
 import { IconPlus } from '@tabler/icons-react';
 import { apiFetch } from '@/lib/apiFetch';
+import { useAuth } from '@/context/AuthContext';
 
 export function AddBudgetDialog({
-  token,
   onBudgetAdded,
   categories = [],
   setRefreshing,
-  apiUrl,
 }) {
+  const { token, apiUrl, onLogout } = useAuth();
+
   const [open, setOpen] = useState(false);
   const [amount, setAmount] = useState('');
   const [category, setCategory] = useState('');
@@ -40,16 +41,21 @@ export function AddBudgetDialog({
     const endDate = nextMonth.toISOString().split('T')[0];
 
     try {
-      await apiFetch(`${apiUrl}/budgets/`, token, {
-        method: 'POST',
-        body: JSON.stringify({
-          limit: parseFloat(amount),
-          start_date: today,
-          end: endDate,
-          Categories_id_category: parseInt(category),
-          Currency_id_currency: 1,
-        }),
-      });
+      await apiFetch(
+        `${apiUrl}/budgets/`,
+        token,
+        {
+          method: 'POST',
+          body: JSON.stringify({
+            limit: parseFloat(amount),
+            start_date: today,
+            end: endDate,
+            Categories_id_category: parseInt(category),
+            Currency_id_currency: 1,
+          }),
+        },
+        onLogout
+      );
 
       setAmount('');
       setCategory('');

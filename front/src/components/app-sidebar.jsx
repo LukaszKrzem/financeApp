@@ -96,7 +96,7 @@ const data = {
   ],
 };
 
-export function AppSidebar({ user, onLogout, ...props }) {
+export function AppSidebar({ ...props }) {
   return (
     <Sidebar collapsible="offcanvas" {...props}>
       <SidebarHeader>
@@ -121,7 +121,7 @@ export function AppSidebar({ user, onLogout, ...props }) {
         </ScrollArea>
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={user} onLogout={onLogout} />
+        <NavUser />
       </SidebarFooter>
     </Sidebar>
   );

@@ -14,13 +14,11 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { GoogleLogin, GoogleOAuthProvider } from '@react-oauth/google';
 import { apiFetch } from '@/lib/apiFetch';
+import { useAuth } from '@/context/AuthContext';
 
-export function Login({
-  apiUrl,
-  onLogin,
-  handleGoogleLogin,
-  GOOGLE_CLIENT_ID,
-}) {
+export function Login() {
+  const { apiUrl, onLogin, googleClientId, handleGoogleLogin } = useAuth();
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -132,7 +130,7 @@ export function Login({
               <div className="w-full flex justify-center">
                 <GoogleOAuthProvider
                   clientId={
-                    GOOGLE_CLIENT_ID || import.meta.env.VITE_GOOGLE_CLIENT_ID
+                    googleClientId || import.meta.env.VITE_GOOGLE_CLIENT_ID
                   }
                 >
                   <GoogleLogin

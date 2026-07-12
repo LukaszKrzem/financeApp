@@ -5,14 +5,10 @@ import { Outlet } from 'react-router-dom';
 import BottomNav from './BottomNav';
 
 export default function Layout({
-  user,
-  onLogout,
-  token,
   accounts,
   categories,
   currencies,
   setRefreshing,
-  apiUrl,
 }) {
   return (
     <SidebarProvider
@@ -22,18 +18,14 @@ export default function Layout({
       }}
     >
       <div className="hidden md:block">
-        <AppSidebar variant="inset" onLogout={onLogout} user={user} />
+        <AppSidebar variant="inset" />
       </div>
       <SidebarInset>
         <SiteHeader
-          user={user}
-          token={token}
-          onLogout={onLogout}
           setRefreshing={setRefreshing}
           categories={categories}
           currencies={currencies}
           accounts={accounts}
-          apiUrl={apiUrl}
         />
 
         <div className="flex flex-1 flex-col pb-24 md:pb-0">
@@ -42,12 +34,10 @@ export default function Layout({
       </SidebarInset>
 
       <BottomNav
-        token={token}
         setRefreshing={setRefreshing}
         accounts={accounts}
         categories={categories}
         currencies={currencies}
-        apiUrl={apiUrl}
       />
     </SidebarProvider>
   );

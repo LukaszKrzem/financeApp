@@ -18,13 +18,11 @@ import {
 } from '@/components/ui/select';
 import { IconPlus } from '@tabler/icons-react';
 import { apiFetch } from '@/lib/apiFetch';
+import { useAuth } from '@/context/AuthContext';
 
-export function AddAccountDialog({
-  token,
-  onAccountAdded,
-  currencies = [],
-  apiUrl,
-}) {
+export function AddAccountDialog({ onAccountAdded, currencies = [] }) {
+  const { token, apiUrl, onLogout } = useAuth();
+
   const [open, setOpen] = useState(false);
   const [name, setName] = useState('');
   const [balance, setBalance] = useState('');
@@ -38,14 +36,19 @@ export function AddAccountDialog({
     if (!name || !balance || !currencyId) return;
 
     try {
-      await apiFetch(`${apiUrl}/accounts/`, token, {
-        method: 'POST',
-        body: JSON.stringify({
-          name: name,
-          current_balance: parseFloat(balance),
-          Currency_id_currency: parseInt(currencyId),
-        }),
-      });
+      await apiFetch(
+        `${apiUrl}/accounts/`,
+        token,
+        {
+          method: 'POST',
+          body: JSON.stringify({
+            name: name,
+            current_balance: parseFloat(balance),
+            Currency_id_currency: parseInt(currencyId),
+          }),
+        },
+        onLogout
+      );
 
       setName('');
       setBalance('');

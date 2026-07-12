@@ -1,20 +1,10 @@
-import { AppSidebar } from '@/components/app-sidebar';
 import { ChartAreaInteractive } from '@/components/chart-area-interactive';
 import { SectionCards } from '@/components/section-cards';
-import { SiteHeader } from '@/components/site-header';
 import { SpendingCategories } from '@/components/spending-categories';
 import { RecentTransactions } from '@/components/recent-transactions';
-import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
-import { useState, useEffect } from 'react';
 
 export default function Dashboard({
-  user,
-  onLogout,
-  token,
-  refreshing,
-  setRefreshing,
   accounts,
-  categories,
   budgets,
   transactions,
   loading,

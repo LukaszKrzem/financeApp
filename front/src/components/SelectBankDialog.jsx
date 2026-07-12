@@ -10,15 +10,11 @@ import {
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { apiFetch } from '@/lib/apiFetch';
+import { useAuth } from '@/context/AuthContext';
 
-export function SelectBankDialog({
-  open,
-  onOpenChange,
-  apiUrl,
-  token,
-  onSelectBank,
-  onLogout,
-}) {
+export function SelectBankDialog({ open, onOpenChange, onSelectBank }) {
+  const { apiUrl, token, onLogout } = useAuth();
+
   const [banks, setBanks] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);

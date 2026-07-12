@@ -26,16 +26,16 @@ import { formatTransactionAmount } from '@/lib/formatMoney';
 import { Input } from '@/components/ui/input';
 import { SelectBankDialog } from '@/components/SelectBankDialog';
 import { apiFetch } from '@/lib/apiFetch';
+import { useAuth } from '@/context/AuthContext';
 
 export default function Accounts({
-  token,
   accounts,
   setRefreshing,
   loading,
   currencies,
-  apiUrl,
-  onLogout,
 }) {
+  const { token, apiUrl, onLogout } = useAuth();
+
   const [connecting, setConnecting] = useState(false);
   const [syncingAccountId, setSyncingAccountId] = useState(null);
   const [renamingAccount, setRenamingAccount] = useState(null);
@@ -167,12 +167,10 @@ export default function Accounts({
             {connecting ? 'Connecting...' : 'Connect bank'}
           </Button>
           <AddAccountDialog
-            token={token}
             onAccountAdded={() => {
               setRefreshing((prev) => prev + 1);
             }}
             currencies={currencies}
-            apiUrl={apiUrl}
           />
         </div>
       </div>
@@ -334,10 +332,7 @@ export default function Accounts({
       <SelectBankDialog
         open={selectBankOpen}
         onOpenChange={setSelectBankOpen}
-        apiUrl={apiUrl}
-        token={token}
         onSelectBank={handleSelectBank}
-        onLogout={onLogout}
       />
     </div>
   );

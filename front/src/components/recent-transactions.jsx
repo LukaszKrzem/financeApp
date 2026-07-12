@@ -11,7 +11,7 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 
-export function RecentTransactions({ transactions, loading }) {
+export function RecentTransactions({ transactions = [], loading }) {
   if (loading) {
     return (
       <div className="p-6 text-center text-muted-foreground">

@@ -21,13 +21,10 @@ import { Button } from '@/components/ui/button';
 import { AddTransactionDialog } from '@/components/AddTransactionDialog';
 
 export function BottomNav({
-  token,
-  onLogout,
   setRefreshing,
   accounts = [],
   categories = [],
   currencies = [],
-  apiUrl,
 }) {
   const [moreOpen, setMoreOpen] = useState(false);
   const navigate = useNavigate();
@@ -61,13 +58,10 @@ export function BottomNav({
 
           <div className="flex flex-col items-center justify-end pb-1">
             <AddTransactionDialog
-              token={token}
-              onLogout={onLogout}
               setRefreshing={setRefreshing}
               accounts={accounts}
               categories={categories}
               currencies={currencies}
-              apiUrl={apiUrl}
               trigger={
                 <Button
                   variant="default"

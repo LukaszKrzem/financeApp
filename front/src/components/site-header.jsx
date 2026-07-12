@@ -10,17 +10,16 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover';
 import { apiFetch } from '@/lib/apiFetch';
+import { useAuth } from '@/context/AuthContext';
 
 export function SiteHeader({
-  user,
-  token,
-  onLogout,
   setRefreshing,
   categories = [],
   accounts = [],
   currencies = [],
-  apiUrl,
 }) {
+  const { user, apiUrl, token, onLogout } = useAuth();
+
   const baseUrl = apiUrl ? apiUrl.replace(/\/$/, '') : '';
 
   const [notifications, setNotifications] = useState([]);
@@ -42,11 +41,10 @@ export function SiteHeader({
     };
 
     const interval = setInterval(fetchNotifications, 30000);
-
     fetchNotifications();
 
     return () => clearInterval(interval);
-  }, [token, apiUrl, onLogout]);
+  }, [token, baseUrl, onLogout]);
 
   const handleMarkAsRead = async (id) => {
     try {
@@ -154,18 +152,14 @@ export function SiteHeader({
             </PopoverContent>
           </Popover>
 
-          {token && (
-            <div className="hidden md:flex">
-              <AddTransactionDialog
-                token={token}
-                setRefreshing={setRefreshing}
-                categories={categories}
-                accounts={accounts}
-                currencies={currencies}
-                apiUrl={apiUrl}
-              />
-            </div>
-          )}
+          <div className="hidden md:flex">
+            <AddTransactionDialog
+              setRefreshing={setRefreshing}
+              categories={categories}
+              accounts={accounts}
+              currencies={currencies}
+            />
+          </div>
         </div>
       </div>
     </header>

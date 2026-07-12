@@ -55,7 +55,7 @@ export const columns = [
   },
 ];
 
-export default function Transactions({ transactions, loading }) {
+export default function Transactions({ transactions = [], loading }) {
   const [typeFilter, setTypeFilter] = useState('ALL');
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo, setDateTo] = useState('');

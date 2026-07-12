@@ -14,13 +14,11 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { GoogleLogin, GoogleOAuthProvider } from '@react-oauth/google';
 import { apiFetch } from '@/lib/apiFetch';
+import { useAuth } from '@/context/AuthContext';
 
-export function Register({
-  apiUrl,
-  onRegistration,
-  GOOGLE_CLIENT_ID,
-  handleGoogleLogin,
-}) {
+export function Register() {
+  const { apiUrl, onLogin, googleClientId, handleGoogleLogin } = useAuth();
+
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -38,7 +36,7 @@ export function Register({
         }),
       });
 
-      onRegistration(data.token);
+      onLogin(data.token);
     } catch (err) {
       setError(err.message);
     }
@@ -53,7 +51,7 @@ export function Register({
         body: JSON.stringify({ name, email, password }),
       });
 
-      onRegistration(data.token);
+      onLogin(data.token);
       navigate('/login');
     } catch (err) {
       setError(err.message);
@@ -145,7 +143,7 @@ export function Register({
               <div className="w-full flex justify-center">
                 <GoogleOAuthProvider
                   clientId={
-                    GOOGLE_CLIENT_ID || import.meta.env.VITE_GOOGLE_CLIENT_ID
+                    googleClientId || import.meta.env.VITE_GOOGLE_CLIENT_ID
                   }
                 >
                   <GoogleLogin

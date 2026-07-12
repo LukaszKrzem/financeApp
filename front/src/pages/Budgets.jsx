@@ -20,13 +20,12 @@ const formatBudgetAmount = (amount, currencyCode) => {
       return `${value} ${code}`;
   }
 };
+
 export default function BudgetsPage({
-  token,
   categories,
   budgets,
   setRefreshing,
   loading,
-  apiUrl,
 }) {
   return (
     <div className="flex flex-1 flex-col p-4 lg:p-6 gap-6">
@@ -40,12 +39,10 @@ export default function BudgetsPage({
           </p>
         </div>
         <AddBudgetDialog
-          token={token}
           onBudgetAdded={() => {
             setRefreshing((prev) => prev + 1);
           }}
           categories={categories}
-          apiUrl={apiUrl}
         />
       </div>
 

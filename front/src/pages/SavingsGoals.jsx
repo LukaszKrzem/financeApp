@@ -12,6 +12,7 @@ import {
 } from '@/components/ui/dialog';
 import { Progress } from '@/components/ui/progress';
 import { apiFetch } from '@/lib/apiFetch';
+import { useAuth } from '@/context/AuthContext';
 
 const formatMoney = (value, currencyCode = 'PLN') =>
   new Intl.NumberFormat('en-US', {
@@ -19,7 +20,9 @@ const formatMoney = (value, currencyCode = 'PLN') =>
     currency: currencyCode,
   }).format(Number(value) || 0);
 
-export default function SavingsGoals({ user, onLogout, token, apiUrl }) {
+export default function SavingsGoals() {
+  const { token, apiUrl, onLogout } = useAuth();
+
   const [goals, setGoals] = useState([]);
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);

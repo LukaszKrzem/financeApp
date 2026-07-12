@@ -4,7 +4,7 @@ import {
   IconTrendingDown,
   IconTrendingUp,
 } from '@tabler/icons-react';
-import { useMemo } from 'react'; // <--- 1. IMPORTUJEMY useMemo
+import { useMemo } from 'react';
 
 import { Badge } from '@/components/ui/badge';
 import {

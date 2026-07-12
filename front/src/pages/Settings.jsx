@@ -1,8 +1,11 @@
 import { useTheme } from '@/components/theme-provider';
 import { Button } from '@/components/ui/button';
 import { IconSun, IconMoon, IconDeviceDesktop } from '@tabler/icons-react';
+import { useAuth } from '@/context/AuthContext';
 
-export default function Settings({ user, token, onLogout }) {
+export default function Settings() {
+  const { user, token, onLogout } = useAuth();
+
   const { theme, setTheme } = useTheme();
 
   return (

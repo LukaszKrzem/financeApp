@@ -7,6 +7,7 @@ import Layout from './components/Layout';
 import { PageSkeleton } from './components/page-skeleton';
 import { Toaster } from '@/components/ui/sonner';
 import { apiFetch } from '@/lib/apiFetch';
+import { AuthProvider } from '@/context/AuthContext';
 
 const Home = lazy(() => import('./pages/Home'));
 const Login = lazy(() => import('./pages/Login'));
@@ -37,6 +38,7 @@ function App() {
     localStorage.setItem('token', newToken);
     setToken(newToken);
   };
+
   const handleLogout = () => {
     localStorage.removeItem('token');
     setToken(null);
@@ -71,9 +73,7 @@ function App() {
         );
         setBudgets(Array.isArray(data) ? data : []);
       } catch (error) {
-        console.error('Error fetching budgets data:', error);
-      } finally {
-        setLoading(false);
+        console.error('Error fetching budgets:', error);
       }
     };
 
@@ -141,11 +141,10 @@ function App() {
         setUser(data);
       } catch (error) {
         console.error('Failed to fetch user data:', error);
-      } finally {
-        setLoading(false);
       }
     };
 
+    setLoading(true);
     fetchUser();
     fetchAccounts();
     fetchCurrencies();
@@ -161,192 +160,137 @@ function App() {
       </div>
     );
   }
+
   return (
     <TooltipProvider>
-      <BrowserRouter>
-        <Suspense fallback={<PageSkeleton />}>
-          <Routes>
-            <Route
-              path="/"
-              element={
-                token ? (
-                  <Navigate to="/dashboard" replace />
-                ) : (
-                  <Home apiUrl={API_URL} onLogin={handleLogin} />
-                )
-              }
-            />
-            <Route
-              path="/login"
-              element={
-                token ? (
-                  <Navigate to="/dashboard" replace />
-                ) : (
-                  <Login
-                    onLogin={handleLogin}
-                    apiUrl={API_URL}
-                    handleGoogleLogin={handleGoogleLogin}
-                    GOOGLE_CLIENT_ID={GOOGLE_CLIENT_ID}
-                  />
-                )
-              }
-            />
-            <Route
-              path="/register"
-              element={
-                token ? (
-                  <Navigate to="/dashboard" replace />
-                ) : (
-                  <Register
-                    apiUrl={API_URL}
-                    onRegistration={handleLogin}
-                    handleGoogleLogin={handleGoogleLogin}
-                    GOOGLE_CLIENT_ID={GOOGLE_CLIENT_ID}
-                  />
-                )
-              }
-            />
-            <Route
-              element={
-                <Layout
-                  onLogout={handleLogout}
-                  user={user}
-                  token={token}
-                  accounts={accounts}
-                  categories={categories}
-                  currencies={currencies}
-                  setRefreshing={setRefreshing}
-                  apiUrl={API_URL}
-                />
-              }
-            >
+      <AuthProvider
+        token={token}
+        user={user}
+        apiUrl={API_URL}
+        onLogout={handleLogout}
+        onLogin={handleLogin}
+        handleGoogleLogin={handleGoogleLogin}
+        googleClientId={GOOGLE_CLIENT_ID}
+      >
+        <BrowserRouter>
+          <Suspense fallback={<PageSkeleton />}>
+            <Routes>
               <Route
                 path="/"
                 element={
-                  token ? (
-                    <Navigate to="/dashboard" replace />
-                  ) : (
-                    <Home apiUrl={API_URL} onLogin={handleLogin} />
-                  )
+                  token ? <Navigate to="/dashboard" replace /> : <Home />
                 }
               />
               <Route
-                path="/dashboard"
+                path="/login"
                 element={
-                  token ? (
-                    <Dashboard
-                      onLogout={handleLogout}
-                      user={user}
-                      token={token}
-                      accounts={accounts}
-                      refreshing={refreshing}
-                      setRefreshing={setRefreshing}
-                      budgets={budgets}
-                      categories={categories}
-                      transactions={transactions}
-                      loading={loading}
-                    />
-                  ) : (
-                    <Navigate to="/" replace />
-                  )
+                  token ? <Navigate to="/dashboard" replace /> : <Login />
                 }
               />
               <Route
-                path="/budgets"
+                path="/register"
                 element={
-                  token ? (
-                    <Budgets
-                      token={token}
-                      categories={categories}
-                      budgets={budgets}
-                      setRefreshing={setRefreshing}
-                      loading={loading}
-                      apiUrl={API_URL}
-                    />
-                  ) : (
-                    <Navigate to="/" replace />
-                  )
+                  token ? <Navigate to="/dashboard" replace /> : <Register />
                 }
               />
+
               <Route
-                path="/accounts"
                 element={
-                  token ? (
-                    <Accounts
-                      token={token}
-                      accounts={accounts}
-                      loading={loading}
-                      setRefreshing={setRefreshing}
-                      currencies={currencies}
-                      apiUrl={API_URL}
-                      onLogout={handleLogout}
-                    />
-                  ) : (
-                    <Navigate to="/" replace />
-                  )
+                  <Layout
+                    accounts={accounts}
+                    categories={categories}
+                    currencies={currencies}
+                    setRefreshing={setRefreshing}
+                  />
                 }
-              />
-              <Route
-                path="/savings-goals"
-                element={
-                  token ? (
-                    <SavingsGoals
-                      onLogout={handleLogout}
-                      user={user}
-                      token={token}
-                      apiUrl={API_URL}
-                    />
-                  ) : (
-                    <Navigate to="/" replace />
-                  )
-                }
-              />
-              <Route
-                path="/transactions"
-                element={
-                  token ? (
-                    <Transactions
-                      transactions={transactions}
-                      loading={loading}
-                    />
-                  ) : (
-                    <Navigate to="/" replace />
-                  )
-                }
-              />
-              <Route
-                path="/settings"
-                element={
-                  token ? (
-                    <Settings
-                      onLogout={handleLogout}
-                      user={user}
-                      token={token}
-                    />
-                  ) : (
-                    <Navigate to="/" replace />
-                  )
-                }
-              />
-              <Route
-                path="/bank-callback"
-                element={
-                  token ? (
-                    <BankCallback
-                      token={token}
-                      apiUrl={API_URL}
-                      setRefreshing={setRefreshing}
-                    />
-                  ) : (
-                    <Navigate to="/" replace />
-                  )
-                }
-              />
-              <Route path="*" element={<Navigate to="/" replace />} />
-            </Route>
-          </Routes>
-        </Suspense>
-      </BrowserRouter>
+              >
+                <Route
+                  path="/dashboard"
+                  element={
+                    token ? (
+                      <Dashboard
+                        accounts={accounts}
+                        refreshing={refreshing}
+                        setRefreshing={setRefreshing}
+                        budgets={budgets}
+                        categories={categories}
+                        transactions={transactions}
+                        loading={loading}
+                      />
+                    ) : (
+                      <Navigate to="/" replace />
+                    )
+                  }
+                />
+                <Route
+                  path="/budgets"
+                  element={
+                    token ? (
+                      <Budgets
+                        categories={categories}
+                        budgets={budgets}
+                        setRefreshing={setRefreshing}
+                        loading={loading}
+                      />
+                    ) : (
+                      <Navigate to="/" replace />
+                    )
+                  }
+                />
+                <Route
+                  path="/accounts"
+                  element={
+                    token ? (
+                      <Accounts
+                        accounts={accounts}
+                        loading={loading}
+                        setRefreshing={setRefreshing}
+                        currencies={currencies}
+                      />
+                    ) : (
+                      <Navigate to="/" replace />
+                    )
+                  }
+                />
+                <Route
+                  path="/savings-goals"
+                  element={
+                    token ? <SavingsGoals /> : <Navigate to="/" replace />
+                  }
+                />
+                <Route
+                  path="/transactions"
+                  element={
+                    token ? (
+                      <Transactions
+                        transactions={transactions}
+                        loading={loading}
+                      />
+                    ) : (
+                      <Navigate to="/" replace />
+                    )
+                  }
+                />
+                <Route
+                  path="/settings"
+                  element={token ? <Settings /> : <Navigate to="/" replace />}
+                />
+                <Route
+                  path="/bank-callback"
+                  element={
+                    token ? (
+                      <BankCallback setRefreshing={setRefreshing} />
+                    ) : (
+                      <Navigate to="/" replace />
+                    )
+                  }
+                />
+                <Route path="*" element={<Navigate to="/" replace />} />
+              </Route>
+            </Routes>
+          </Suspense>
+        </BrowserRouter>
+      </AuthProvider>
       <Toaster position="top-center" richColors pauseOnHover />
     </TooltipProvider>
   );

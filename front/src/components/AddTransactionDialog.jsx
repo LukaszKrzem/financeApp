@@ -25,16 +25,17 @@ import {
 } from '@/components/ui/select';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { apiFetch } from '@/lib/apiFetch';
+import { useAuth } from '@/context/AuthContext';
 
 export function AddTransactionDialog({
-  token,
   setRefreshing,
   accounts = [],
   categories = [],
   currencies = [],
-  apiUrl,
   trigger,
 }) {
+  const { token, apiUrl, onLogout } = useAuth();
+
   const [open, setOpen] = useState(false);
   const [amount, setAmount] = useState('');
   const [type, setType] = useState('EXPENSE');
@@ -48,7 +49,6 @@ export function AddTransactionDialog({
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const isMobile = useIsMobile();
-
   const filteredCategories = categories.filter((cat) => cat.type === type);
 
   useEffect(() => {
@@ -93,10 +93,15 @@ export function AddTransactionDialog({
     }
 
     try {
-      await apiFetch(`${apiUrl}${endpoint}`, token, {
-        method: 'POST',
-        body: JSON.stringify(payload),
-      });
+      await apiFetch(
+        `${apiUrl}${endpoint}`,
+        token,
+        {
+          method: 'POST',
+          body: JSON.stringify(payload),
+        },
+        onLogout
+      );
 
       setAmount('');
       setDescription('');

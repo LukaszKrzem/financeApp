@@ -1,20 +1,12 @@
 import { useState } from 'react';
 import { AddAccountDialog } from '@/components/AddAccountDialog';
 import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from '@/components/ui/dialog';
 import {
   IconRefresh,
   IconDotsVertical,
@@ -23,12 +15,13 @@ import {
 } from '@tabler/icons-react';
 import { toast } from 'sonner';
 import { formatTransactionAmount } from '@/lib/formatMoney';
-import { Input } from '@/components/ui/input';
 import { SelectBankDialog } from '@/components/SelectBankDialog';
 import { apiFetch } from '@/lib/apiFetch';
 import { useData } from '@/context/DataContext';
 import { useAuth } from '@/context/AuthContext';
 import { useAsyncAction } from '@/hooks/useAsyncAction';
+import { RenameAccountDialog } from '@/components/RenameAccountDialog';
+import { ConfirmDeleteDialog } from '@/components/ConfirmDeleteDialog';
 
 export default function Accounts() {
   const { accounts, loading, currencies, setRefreshing } = useData();
@@ -40,8 +33,6 @@ export default function Accounts() {
   const [syncingAccountId, setSyncingAccountId] = useState(null);
 
   const [renamingAccount, setRenamingAccount] = useState(null);
-  const [newName, setNewName] = useState('');
-
   const [deletingAccount, setDeletingAccount] = useState(null);
   const [selectBankOpen, setSelectBankOpen] = useState(false);
 
@@ -90,43 +81,6 @@ export default function Accounts() {
     } finally {
       setSyncingAccountId(null);
     }
-  };
-
-  const handleSaveName = () => {
-    if (!renamingAccount || !newName.trim()) return;
-
-    runRename(async () => {
-      await apiFetch(
-        `${apiUrl}/accounts/${renamingAccount.id_account}`,
-        token,
-        { method: 'PATCH', body: JSON.stringify({ name: newName.trim() }) },
-        onLogout
-      );
-      toast.success('Account renamed');
-      setRenamingAccount(null);
-      setRefreshing((prev) => prev + 1);
-    });
-  };
-
-  const handleDeleteAccount = () => {
-    if (!deletingAccount) return;
-
-    runDelete(async () => {
-      await apiFetch(
-        `${apiUrl}/accounts/${deletingAccount.id_account}`,
-        token,
-        { method: 'DELETE' },
-        onLogout
-      );
-      toast.success('Account deleted');
-      setDeletingAccount(null);
-      setRefreshing((prev) => prev + 1);
-    });
-  };
-
-  const openRenameDialog = (account) => {
-    setRenamingAccount(account);
-    setNewName(account.name);
   };
 
   return (
@@ -197,7 +151,6 @@ export default function Accounts() {
                       <DropdownMenuTrigger asChild>
                         <Button variant="ghost" size="icon" className="size-7">
                           <IconDotsVertical className="size-4" />
-                          <span className="sr-only">Account options</span>
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
@@ -215,7 +168,7 @@ export default function Accounts() {
                           </DropdownMenuItem>
                         )}
                         <DropdownMenuItem
-                          onClick={() => openRenameDialog(account)}
+                          onClick={() => setRenamingAccount(account)}
                         >
                           <IconPencil className="size-4 mr-2" />
                           Rename
@@ -245,71 +198,48 @@ export default function Accounts() {
         </div>
       )}
 
-      <Dialog
-        open={!!renamingAccount}
-        onOpenChange={(open) => !open && setRenamingAccount(null)}
-      >
-        <DialogContent className="sm:max-w-[400px]">
-          <DialogHeader>
-            <DialogTitle>Rename account</DialogTitle>
-            <DialogDescription>
-              Choose a new name for this account.
-            </DialogDescription>
-          </DialogHeader>
-          <Label htmlFor="account-rename">New account name</Label>
-          <Input
-            id="account-rename"
-            value={newName}
-            onChange={(e) => setNewName(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && handleSaveName()}
-            disabled={savingName}
-            autoFocus
-          />
-          <Button
-            onClick={handleSaveName}
-            disabled={savingName || !newName.trim()}
-            className="w-full mt-2"
-          >
-            {savingName ? 'Saving...' : 'Save'}
-          </Button>
-        </DialogContent>
-      </Dialog>
+      <RenameAccountDialog
+        account={renamingAccount}
+        onClose={() => setRenamingAccount(null)}
+        isSaving={savingName}
+        onSave={(name) =>
+          runRename(async () => {
+            await apiFetch(
+              `${apiUrl}/accounts/${renamingAccount.id_account}`,
+              token,
+              {
+                method: 'PATCH',
+                body: JSON.stringify({ name }),
+              },
+              onLogout
+            );
+            toast.success('Account renamed');
+            setRenamingAccount(null);
+            setRefreshing((prev) => prev + 1);
+          })
+        }
+      />
 
-      <Dialog
+      <ConfirmDeleteDialog
         open={!!deletingAccount}
-        onOpenChange={(open) => !open && setDeletingAccount(null)}
-      >
-        <DialogContent
-          className="sm:max-w-[400px]"
-          onKeyDown={(e) => e.key === 'Enter' && handleDeleteAccount()}
-        >
-          <DialogHeader>
-            <DialogTitle>Delete "{deletingAccount?.name}"?</DialogTitle>
-            <DialogDescription>
-              This will permanently delete this account and{' '}
-              <strong>all of its transactions</strong>. This cannot be undone.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="flex gap-2 mt-2">
-            <Button
-              variant="outline"
-              className="flex-1"
-              onClick={() => setDeletingAccount(null)}
-              disabled={deleting}
-            >
-              Cancel
-            </Button>
-            <Button
-              variant="destructive"
-              className="flex-1"
-              onClick={handleDeleteAccount}
-              disabled={deleting}
-            >
-              {deleting ? 'Deleting...' : 'Delete'}
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
+        onClose={() => setDeletingAccount(null)}
+        isDeleting={deleting}
+        title={`Delete "${deletingAccount?.name}"?`}
+        description="This will permanently delete this account and all of its transactions. This cannot be undone."
+        onConfirm={() =>
+          runDelete(async () => {
+            await apiFetch(
+              `${apiUrl}/accounts/${deletingAccount.id_account}`,
+              token,
+              { method: 'DELETE' },
+              onLogout
+            );
+            toast.success('Account deleted');
+            setDeletingAccount(null);
+            setRefreshing((prev) => prev + 1);
+          })
+        }
+      />
 
       <SelectBankDialog
         open={selectBankOpen}

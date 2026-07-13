@@ -32,11 +32,7 @@ export default function SavingsGoals() {
   const [currentAmount, setCurrentAmount] = useState('');
   const [timeLimit, setTimeLimit] = useState('');
   const [contributions, setContributions] = useState({});
-  const {
-    loading: isCreating,
-    error: createError,
-    run: runCreate,
-  } = useAsyncAction();
+  const { loading: isCreating, run: runCreate } = useAsyncAction();
   const { loading: isAdding, run: runAdd } = useAsyncAction();
   const { loading: isDeleting, run: runDelete } = useAsyncAction();
 
@@ -204,11 +200,6 @@ export default function SavingsGoals() {
                   disabled={isCreating}
                 />
               </div>
-
-              {createError && (
-                <p className="text-sm text-red-500">{createError}</p>
-              )}
-
               <Button
                 type="submit"
                 className="w-full mt-2"

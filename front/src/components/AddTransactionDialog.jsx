@@ -37,7 +37,7 @@ export function AddTransactionDialog({ trigger }) {
     currencies = [],
     setRefreshing,
   } = useData();
-  const { loading: isSubmitting, error, run } = useAsyncAction();
+  const { loading: isSubmitting, run } = useAsyncAction();
 
   const [open, setOpen] = useState(false);
   const [amount, setAmount] = useState('');
@@ -242,8 +242,6 @@ export function AddTransactionDialog({ trigger }) {
           </Select>
         </div>
       </div>
-
-      {error && <p className="text-red-500 text-sm">{error}</p>}
 
       <Button type="submit" className="w-full" disabled={isSubmitting}>
         {isSubmitting ? 'Saving...' : 'Save'}

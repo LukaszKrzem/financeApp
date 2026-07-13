@@ -5,7 +5,7 @@ import { useAsyncAction } from '@/hooks/useAsyncAction';
 
 function Home() {
   const { handleDemoLogin } = useAuth();
-  const { loading, error, run } = useAsyncAction();
+  const { loading, run } = useAsyncAction();
 
   const handleDemo = () => run(handleDemoLogin);
 
@@ -29,8 +29,6 @@ function Home() {
         >
           {loading ? 'Loading demo...' : '🚀 Try Demo'}
         </Button>
-
-        {error && <p className="text-sm text-red-500 text-center">{error}</p>}
 
         <div className="relative w-full py-2">
           <div className="absolute inset-0 flex items-center">

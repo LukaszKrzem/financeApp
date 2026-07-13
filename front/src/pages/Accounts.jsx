@@ -33,16 +33,8 @@ import { useAsyncAction } from '@/hooks/useAsyncAction';
 export default function Accounts() {
   const { accounts, loading, currencies, setRefreshing } = useData();
   const { token, apiUrl, onLogout } = useAuth();
-  const {
-    loading: savingName,
-    error: renameError,
-    run: runRename,
-  } = useAsyncAction();
-  const {
-    loading: deleting,
-    error: deleteError,
-    run: runDelete,
-  } = useAsyncAction();
+  const { loading: savingName, run: runRename } = useAsyncAction();
+  const { loading: deleting, run: runDelete } = useAsyncAction();
 
   const [connecting, setConnecting] = useState(false);
   const [syncingAccountId, setSyncingAccountId] = useState(null);
@@ -273,7 +265,6 @@ export default function Accounts() {
             disabled={savingName}
             autoFocus
           />
-          {renameError && <p className="text-sm text-red-500">{renameError}</p>}
           <Button
             onClick={handleSaveName}
             disabled={savingName || !newName.trim()}
@@ -299,7 +290,6 @@ export default function Accounts() {
               <strong>all of its transactions</strong>. This cannot be undone.
             </DialogDescription>
           </DialogHeader>
-          {deleteError && <p className="text-sm text-red-500">{deleteError}</p>}
           <div className="flex gap-2 mt-2">
             <Button
               variant="outline"

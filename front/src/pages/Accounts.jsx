@@ -28,19 +28,29 @@ import { SelectBankDialog } from '@/components/SelectBankDialog';
 import { apiFetch } from '@/lib/apiFetch';
 import { useData } from '@/context/DataContext';
 import { useAuth } from '@/context/AuthContext';
+import { useAsyncAction } from '@/hooks/useAsyncAction';
 
 export default function Accounts() {
   const { accounts, loading, currencies, setRefreshing } = useData();
   const { token, apiUrl, onLogout } = useAuth();
+  const {
+    loading: savingName,
+    error: renameError,
+    run: runRename,
+  } = useAsyncAction();
+  const {
+    loading: deleting,
+    error: deleteError,
+    run: runDelete,
+  } = useAsyncAction();
 
   const [connecting, setConnecting] = useState(false);
   const [syncingAccountId, setSyncingAccountId] = useState(null);
+
   const [renamingAccount, setRenamingAccount] = useState(null);
   const [newName, setNewName] = useState('');
-  const [savingName, setSavingName] = useState(false);
-  const [deletingAccount, setDeletingAccount] = useState(null);
-  const [deleting, setDeleting] = useState(false);
 
+  const [deletingAccount, setDeletingAccount] = useState(null);
   const [selectBankOpen, setSelectBankOpen] = useState(false);
 
   const handleSelectBank = async (bank) => {
@@ -75,10 +85,7 @@ export default function Accounts() {
       const data = await apiFetch(
         `${apiUrl}/api/banking/sync`,
         token,
-        {
-          method: 'POST',
-          body: JSON.stringify({ account_id: accountId }),
-        },
+        { method: 'POST', body: JSON.stringify({ account_id: accountId }) },
         onLogout
       );
       toast.success('Sync successful', {
@@ -93,10 +100,26 @@ export default function Accounts() {
     }
   };
 
-  const handleDeleteAccount = async () => {
+  const handleSaveName = () => {
+    if (!renamingAccount || !newName.trim()) return;
+
+    runRename(async () => {
+      await apiFetch(
+        `${apiUrl}/accounts/${renamingAccount.id_account}`,
+        token,
+        { method: 'PATCH', body: JSON.stringify({ name: newName.trim() }) },
+        onLogout
+      );
+      toast.success('Account renamed');
+      setRenamingAccount(null);
+      setRefreshing((prev) => prev + 1);
+    });
+  };
+
+  const handleDeleteAccount = () => {
     if (!deletingAccount) return;
-    setDeleting(true);
-    try {
+
+    runDelete(async () => {
       await apiFetch(
         `${apiUrl}/accounts/${deletingAccount.id_account}`,
         token,
@@ -106,41 +129,12 @@ export default function Accounts() {
       toast.success('Account deleted');
       setDeletingAccount(null);
       setRefreshing((prev) => prev + 1);
-    } catch (error) {
-      console.error('Error deleting account:', error);
-      toast.error('Delete failed', { description: error.message });
-    } finally {
-      setDeleting(false);
-    }
+    });
   };
 
   const openRenameDialog = (account) => {
     setRenamingAccount(account);
     setNewName(account.name);
-  };
-
-  const handleSaveName = async () => {
-    if (!renamingAccount || !newName.trim()) return;
-    setSavingName(true);
-    try {
-      await apiFetch(
-        `${apiUrl}/accounts/${renamingAccount.id_account}`,
-        token,
-        {
-          method: 'PATCH',
-          body: JSON.stringify({ name: newName.trim() }),
-        },
-        onLogout
-      );
-      toast.success('Account renamed');
-      setRenamingAccount(null);
-      setRefreshing((prev) => prev + 1);
-    } catch (error) {
-      console.error('Error renaming account:', error);
-      toast.error('Rename failed', { description: error.message });
-    } finally {
-      setSavingName(false);
-    }
   };
 
   return (
@@ -164,9 +158,7 @@ export default function Accounts() {
             {connecting ? 'Connecting...' : 'Connect bank'}
           </Button>
           <AddAccountDialog
-            onAccountAdded={() => {
-              setRefreshing((prev) => prev + 1);
-            }}
+            onAccountAdded={() => setRefreshing((prev) => prev + 1)}
             currencies={currencies}
           />
         </div>
@@ -278,8 +270,10 @@ export default function Accounts() {
             value={newName}
             onChange={(e) => setNewName(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleSaveName()}
+            disabled={savingName}
             autoFocus
           />
+          {renameError && <p className="text-sm text-red-500">{renameError}</p>}{' '}
           <Button
             onClick={handleSaveName}
             disabled={savingName || !newName.trim()}
@@ -305,6 +299,7 @@ export default function Accounts() {
               <strong>all of its transactions</strong>. This cannot be undone.
             </DialogDescription>
           </DialogHeader>
+          {deleteError && <p className="text-sm text-red-500">{deleteError}</p>}{' '}
           <div className="flex gap-2 mt-2">
             <Button
               variant="outline"

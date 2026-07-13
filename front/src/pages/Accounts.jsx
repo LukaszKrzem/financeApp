@@ -273,7 +273,7 @@ export default function Accounts() {
             disabled={savingName}
             autoFocus
           />
-          {renameError && <p className="text-sm text-red-500">{renameError}</p>}{' '}
+          {renameError && <p className="text-sm text-red-500">{renameError}</p>}
           <Button
             onClick={handleSaveName}
             disabled={savingName || !newName.trim()}
@@ -299,7 +299,7 @@ export default function Accounts() {
               <strong>all of its transactions</strong>. This cannot be undone.
             </DialogDescription>
           </DialogHeader>
-          {deleteError && <p className="text-sm text-red-500">{deleteError}</p>}{' '}
+          {deleteError && <p className="text-sm text-red-500">{deleteError}</p>}
           <div className="flex gap-2 mt-2">
             <Button
               variant="outline"

@@ -127,7 +127,7 @@ export function SiteHeader() {
                             {new Date(item.date).toLocaleTimeString('pl-PL', {
                               hour: '2-digit',
                               minute: '2-digit',
-                            })}{' '}
+                            })}
                             - {new Date(item.date).toLocaleDateString('pl-PL')}
                           </span>
                         </div>

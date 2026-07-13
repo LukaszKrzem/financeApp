@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { apiFetch } from '@/lib/apiFetch';
 
 const AuthContext = createContext();
@@ -11,16 +11,16 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const onLogin = (newToken) => {
+  const onLogin = useCallback((newToken) => {
     localStorage.setItem('token', newToken);
     setToken(newToken);
-  };
+  }, []);
 
-  const onLogout = () => {
+  const onLogout = useCallback(() => {
     localStorage.removeItem('token');
     setToken(null);
     setUser(null);
-  };
+  }, []);
 
   const handleGoogleLogin = async (googleToken) => {
     try {
@@ -36,6 +36,7 @@ export function AuthProvider({ children }) {
       onLogin(data.token);
     } catch (error) {
       console.error('Error google auth:', error);
+      throw error;
     }
   };
 
@@ -60,7 +61,7 @@ export function AuthProvider({ children }) {
     };
 
     fetchUser();
-  }, [token]);
+  }, [token, onLogout]);
 
   return (
     <AuthContext.Provider

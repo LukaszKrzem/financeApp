@@ -1,15 +1,22 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { apiFetch } from '@/lib/apiFetch';
 import { useAuth } from '@/context/AuthContext';
 
 function Home() {
-  const { apiUrl, onLogin } = useAuth();
+  const { apiUrl, onLogin, token } = useAuth();
+  const navigate = useNavigate();
 
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const navigate = useNavigate();
+
+  // If already logged in, redirect to dashboard
+  useEffect(() => {
+    if (token) {
+      navigate('/dashboard', { replace: true });
+    }
+  }, [token, navigate]);
 
   const handleDemoLogin = async () => {
     setError('');
@@ -23,10 +30,15 @@ function Home() {
         }),
       });
 
+      if (!data?.token) {
+        throw new Error('No token received from server');
+      }
+
       onLogin(data.token);
-      navigate('/dashboard');
-    } catch {
-      setError('Failed to load demo. Please try again.');
+      // Navigate will happen via useEffect above when token updates
+    } catch (err) {
+      console.error('Demo login error:', err);
+      setError(err.message || 'Failed to load demo. Please try again.');
     } finally {
       setIsLoading(false);
     }

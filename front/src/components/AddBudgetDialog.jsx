@@ -24,18 +24,19 @@ import { useAsyncAction } from '@/hooks/useAsyncAction';
 
 export function AddBudgetDialog() {
   const { token, apiUrl, onLogout } = useAuth();
-  const { categories = [], setRefreshing } = useData();
+  const { categories = [], currencies = [], setRefreshing } = useData();
 
   const { loading: isSubmitting, run } = useAsyncAction();
 
   const [open, setOpen] = useState(false);
   const [amount, setAmount] = useState('');
   const [category, setCategory] = useState('');
+  const [currencyId, setCurrencyId] = useState('');
 
   const handleSubmit = (e) => {
     e.preventDefault();
     if (isSubmitting) return;
-    if (!amount || !category) return;
+    if (!amount || !category || !currencyId) return;
 
     const today = new Date().toISOString().split('T')[0];
     const nextMonth = new Date();
@@ -53,7 +54,7 @@ export function AddBudgetDialog() {
             start_date: today,
             end: endDate,
             Categories_id_category: parseInt(category),
-            Currency_id_currency: 1, //TODO: Make this dynamic based on user preference or account currency
+            Currency_id_currency: parseInt(currencyId),
           }),
         },
         onLogout
@@ -61,6 +62,7 @@ export function AddBudgetDialog() {
 
       setAmount('');
       setCategory('');
+      setCurrencyId('');
       setOpen(false);
       setRefreshing((prev) => prev + 1);
     });
@@ -109,20 +111,45 @@ export function AddBudgetDialog() {
             </Select>
           </div>
 
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="budget-limit">Limit</Label>
-            <Input
-              id="budget-limit"
-              type="number"
-              step="0.01"
-              min="0.00"
-              placeholder="e.g. 1500"
-              value={amount}
-              onChange={(e) => setAmount(e.target.value)}
-              required
-              disabled={isSubmitting}
-            />
+          <div className="flex gap-2">
+            <div className="flex flex-col gap-2 flex-1">
+              <Label htmlFor="budget-limit">Limit</Label>
+              <Input
+                id="budget-limit"
+                type="number"
+                step="0.01"
+                min="0.00"
+                placeholder="e.g. 1500"
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+                required
+                disabled={isSubmitting}
+              />
+            </div>
+            <div className="flex flex-col gap-2 w-[100px]">
+              <Label htmlFor="budget-currency">Currency</Label>
+              <Select
+                value={currencyId}
+                onValueChange={setCurrencyId}
+                disabled={isSubmitting}
+              >
+                <SelectTrigger id="budget-currency">
+                  <SelectValue placeholder="Currency" />
+                </SelectTrigger>
+                <SelectContent>
+                  {currencies.map((cur) => (
+                    <SelectItem
+                      key={cur.id_currency}
+                      value={cur.id_currency.toString()}
+                    >
+                      {cur.code}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
+
           <Button type="submit" className="w-full mt-2" disabled={isSubmitting}>
             {isSubmitting ? 'Creating...' : 'Confirm Budget'}
           </Button>

@@ -10,12 +10,21 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { apiFetch } from '@/lib/apiFetch';
 import { useAuth } from '@/context/AuthContext';
+import { useData } from '@/context/DataContext';
 import { useAsyncAction } from '@/hooks/useAsyncAction';
 
 export function AddSavingGoalDialog({ onGoalAdded }) {
   const { token, apiUrl, onLogout } = useAuth();
+  const { currencies = [] } = useData();
   const { loading: isCreating, run } = useAsyncAction();
 
   const [open, setOpen] = useState(false);
@@ -23,10 +32,12 @@ export function AddSavingGoalDialog({ onGoalAdded }) {
   const [target, setTarget] = useState('');
   const [currentAmount, setCurrentAmount] = useState('');
   const [timeLimit, setTimeLimit] = useState('');
+  const [currencyId, setCurrencyId] = useState('');
 
   const handleCreateGoal = (event) => {
     event.preventDefault();
     if (isCreating) return;
+    if (!currencyId) return;
 
     run(async () => {
       await apiFetch(
@@ -39,7 +50,7 @@ export function AddSavingGoalDialog({ onGoalAdded }) {
             target: Number(target),
             current_amount: Number(currentAmount) || 0,
             time_limit: timeLimit || null,
-            Currency_id_currency: 1, // TODO: Make dynamic
+            Currency_id_currency: parseInt(currencyId),
           }),
         },
         onLogout
@@ -49,6 +60,7 @@ export function AddSavingGoalDialog({ onGoalAdded }) {
       setTarget('');
       setCurrentAmount('');
       setTimeLimit('');
+      setCurrencyId('');
       setOpen(false);
 
       if (onGoalAdded) {
@@ -83,19 +95,43 @@ export function AddSavingGoalDialog({ onGoalAdded }) {
             />
           </div>
 
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="goal-target">Target amount</Label>
-            <Input
-              id="goal-target"
-              type="number"
-              min="0"
-              step="0.01"
-              placeholder="e.g. 5000"
-              value={target}
-              onChange={(e) => setTarget(e.target.value)}
-              disabled={isCreating}
-              required
-            />
+          <div className="flex gap-2">
+            <div className="flex flex-col gap-2 flex-1">
+              <Label htmlFor="goal-target">Target amount</Label>
+              <Input
+                id="goal-target"
+                type="number"
+                min="0"
+                step="0.01"
+                placeholder="e.g. 5000"
+                value={target}
+                onChange={(e) => setTarget(e.target.value)}
+                disabled={isCreating}
+                required
+              />
+            </div>
+            <div className="flex flex-col gap-2 w-[100px]">
+              <Label htmlFor="goal-currency">Currency</Label>
+              <Select
+                value={currencyId}
+                onValueChange={setCurrencyId}
+                disabled={isCreating}
+              >
+                <SelectTrigger id="goal-currency">
+                  <SelectValue placeholder="Currency" />
+                </SelectTrigger>
+                <SelectContent>
+                  {currencies.map((cur) => (
+                    <SelectItem
+                      key={cur.id_currency}
+                      value={cur.id_currency.toString()}
+                    >
+                      {cur.code}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
 
           <div className="flex flex-col gap-2">

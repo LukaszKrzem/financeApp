@@ -14,7 +14,7 @@ import {
   IconTrash,
 } from '@tabler/icons-react';
 import { toast } from 'sonner';
-import { formatTransactionAmount } from '@/lib/formatMoney';
+import { formatMoney } from '@/lib/formatMoney';
 import { SelectBankDialog } from '@/components/SelectBankDialog';
 import { apiFetch } from '@/lib/apiFetch';
 import { useData } from '@/context/DataContext';
@@ -122,7 +122,7 @@ export default function Accounts() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {accounts.map((account) => {
             if (!account) return null;
-            const compactNumber = formatTransactionAmount(
+            const compactNumber = formatMoney(
               account.current_balance,
               account.currency_code,
               true

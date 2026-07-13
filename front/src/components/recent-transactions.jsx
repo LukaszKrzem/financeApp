@@ -1,7 +1,7 @@
 import { getIconForCategory } from '@/lib/categoryIcons';
 import { CategoryBadge } from '@/lib/categoryBadge';
 import { Link } from 'react-router-dom';
-import { formatTransactionAmount } from '@/lib/formatMoney';
+import { formatMoney } from '@/lib/formatMoney';
 import { useData } from '@/context/DataContext';
 
 import {
@@ -81,7 +81,7 @@ export function RecentTransactions() {
                       }`}
                     >
                       {isIncome ? '+' : '-'}
-                      {formatTransactionAmount(
+                      {formatMoney(
                         transaction.amount,
                         transaction.currency_code
                       )}

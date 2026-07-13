@@ -1,4 +1,4 @@
-export const formatTransactionAmount = (
+export const formatMoney = (
   amount,
   currencyCode = 'PLN',
   preserveSign = false

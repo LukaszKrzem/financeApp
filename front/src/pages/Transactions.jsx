@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { CategoryBadge } from '@/lib/categoryBadge';
-import { formatTransactionAmount } from '@/lib/formatMoney';
+import { formatMoney } from '@/lib/formatMoney';
 import { useData } from '@/context/DataContext';
 
 export const columns = [
@@ -38,10 +38,7 @@ export const columns = [
     cell: ({ row }) => {
       const amount = row.getValue('amount');
       const isExpense = amount < 0;
-      const formatted = formatTransactionAmount(
-        amount,
-        row.original.currency_code
-      );
+      const formatted = formatMoney(amount, row.original.currency_code);
 
       return (
         <div
@@ -149,10 +146,7 @@ export default function Transactions() {
           <div className="flex flex-col rounded-lg border border-border/50 overflow-hidden">
             {filteredTransactions.map((t) => {
               const isExpense = t.type === 'EXPENSE';
-              const formattedAmount = formatTransactionAmount(
-                t.amount,
-                t.currency_code
-              );
+              const formattedAmount = formatMoney(t.amount, t.currency_code);
 
               return (
                 <div

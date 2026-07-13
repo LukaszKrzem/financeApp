@@ -18,15 +18,17 @@ import { useAuth } from '@/context/AuthContext';
 
 export function Register() {
   const { apiUrl, onLogin, googleClientId, handleGoogleLogin } = useAuth();
+  const navigate = useNavigate();
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
 
   const handleDemoLogin = async () => {
     setError('');
+    setLoading(true);
     try {
       const data = await apiFetch(`${apiUrl}/login`, null, {
         method: 'POST',
@@ -36,35 +38,51 @@ export function Register() {
         }),
       });
 
+      if (!data?.token) {
+        throw new Error('No token received from server');
+      }
+
       onLogin(data.token);
+      navigate('/dashboard', { replace: true });
     } catch (err) {
-      setError(err.message);
+      console.error('Demo login error:', err);
+      setError(err.message || 'Failed to login');
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    setLoading(true);
     try {
       const data = await apiFetch(`${apiUrl}/register`, null, {
         method: 'POST',
         body: JSON.stringify({ name, email, password }),
       });
 
+      if (!data?.token) {
+        throw new Error('No token received from server');
+      }
+
       onLogin(data.token);
-      navigate('/login');
+      navigate('/dashboard', { replace: true });
     } catch (err) {
-      setError(err.message);
+      console.error('Register error:', err);
+      setError(err.message || 'Failed to register');
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="flex h-screen items-center justify-center ">
+    <div className="flex h-screen items-center justify-center">
       <Card className="w-full max-w-sm">
         <CardHeader>
           <CardTitle>Create a new account</CardTitle>
           <CardDescription>
-            Enter your email below to login to your account
+            Enter your details below to create your account
           </CardDescription>
           <CardAction>
             <Button asChild variant="link">
@@ -81,8 +99,10 @@ export function Register() {
                 <Input
                   id="name"
                   type="text"
+                  value={name}
                   onChange={(e) => setName(e.target.value)}
                   required
+                  disabled={loading}
                 />
               </div>
               <div className="grid gap-2">
@@ -91,33 +111,31 @@ export function Register() {
                   id="email"
                   type="email"
                   placeholder="m@example.com"
+                  value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
+                  disabled={loading}
                 />
               </div>
               <div className="grid gap-2">
                 <div className="flex items-center">
                   <Label htmlFor="password">Password</Label>
-                  <a
-                    href="#"
-                    className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
-                  >
-                    Forgot your password?
-                  </a>
                 </div>
                 <Input
                   id="password"
                   type="password"
+                  value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
+                  disabled={loading}
                 />
               </div>
               {error && <p className="text-sm text-red-500">{error}</p>}
             </div>
 
             <CardFooter className="flex-col gap-4 mt-6 px-0 pb-2">
-              <Button type="submit" className="w-full">
-                Sign Up
+              <Button type="submit" className="w-full" disabled={loading}>
+                {loading ? 'Creating account...' : 'Sign Up'}
               </Button>
 
               <Button
@@ -125,8 +143,9 @@ export function Register() {
                 variant="secondary"
                 className="w-full"
                 onClick={handleDemoLogin}
+                disabled={loading}
               >
-                Try Demo
+                {loading ? 'Logging in...' : 'Try Demo'}
               </Button>
 
               <div className="relative w-full py-2">

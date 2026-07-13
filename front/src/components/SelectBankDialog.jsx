@@ -65,12 +65,6 @@ export function SelectBankDialog({ open, onOpenChange, onSelectBank }) {
               Loading banks...
             </p>
           )}
-          {error && (
-            <p className="text-sm text-destructive text-center py-4">
-              Could not load bank list. {error}
-            </p>
-          )}
-
           {!loading && !error && filteredBanks.length === 0 && (
             <p className="text-sm text-muted-foreground text-center py-4">
               No banks found.

@@ -11,13 +11,16 @@ import {
 } from '@/components/ui/popover';
 import { apiFetch } from '@/lib/apiFetch';
 import { useAuth } from '@/context/AuthContext';
+import { useAsyncAction } from '@/hooks/useAsyncAction';
 
 export function SiteHeader() {
   const { user, apiUrl, token, onLogout } = useAuth();
-
   const baseUrl = apiUrl ? apiUrl.replace(/\/$/, '') : '';
 
   const [notifications, setNotifications] = useState([]);
+
+  const { run: runMarkAsRead } = useAsyncAction();
+  const { loading: isClearing, run: runMarkAllAsRead } = useAsyncAction();
 
   useEffect(() => {
     const fetchNotifications = async () => {
@@ -41,8 +44,8 @@ export function SiteHeader() {
     return () => clearInterval(interval);
   }, [token, baseUrl, onLogout]);
 
-  const handleMarkAsRead = async (id) => {
-    try {
+  const handleMarkAsRead = (id) => {
+    runMarkAsRead(async () => {
       await apiFetch(
         `${baseUrl}/notifications/${id}/read`,
         token,
@@ -50,13 +53,13 @@ export function SiteHeader() {
         onLogout
       );
       setNotifications((prev) => prev.filter((n) => n.id_notification !== id));
-    } catch (error) {
-      console.error('Error marking notification as read:', error);
-    }
+    });
   };
 
-  const handleMarkAllAsRead = async () => {
-    try {
+  const handleMarkAllAsRead = () => {
+    if (isClearing) return;
+
+    runMarkAllAsRead(async () => {
       await apiFetch(
         `${baseUrl}/notifications/read-all`,
         token,
@@ -64,9 +67,7 @@ export function SiteHeader() {
         onLogout
       );
       setNotifications([]);
-    } catch (error) {
-      console.error('Error marking all notifications as read:', error);
-    }
+    });
   };
 
   return (
@@ -102,8 +103,9 @@ export function SiteHeader() {
                     size="sm"
                     className="h-auto p-1 text-xs text-muted-foreground hover:text-foreground"
                     onClick={handleMarkAllAsRead}
+                    disabled={isClearing}
                   >
-                    Clear all
+                    {isClearing ? 'Clearing...' : 'Clear all'}
                   </Button>
                 )}
               </div>

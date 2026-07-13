@@ -26,7 +26,7 @@ export function AddBudgetDialog() {
   const { token, apiUrl, onLogout } = useAuth();
   const { categories = [], setRefreshing } = useData();
 
-  const { loading: isSubmitting, error, run } = useAsyncAction();
+  const { loading: isSubmitting, run } = useAsyncAction();
 
   const [open, setOpen] = useState(false);
   const [amount, setAmount] = useState('');

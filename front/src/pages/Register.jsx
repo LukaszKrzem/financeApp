@@ -16,6 +16,7 @@ import { GoogleLogin, GoogleOAuthProvider } from '@react-oauth/google';
 import { apiFetch } from '@/lib/apiFetch';
 import { useAuth } from '@/context/AuthContext';
 import { useAsyncAction } from '@/hooks/useAsyncAction';
+import { toast } from 'sonner';
 
 export function Register() {
   const {
@@ -25,7 +26,7 @@ export function Register() {
     handleGoogleLogin,
     handleDemoLogin,
   } = useAuth();
-  const { loading, error, run } = useAsyncAction();
+  const { loading, run } = useAsyncAction();
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -139,6 +140,10 @@ export function Register() {
                     }
                     onError={() => {
                       console.error('Login Failed');
+                      toast.error('Google Login Failed', {
+                        description:
+                          'Could not authenticate with your Google account.',
+                      });
                     }}
                   />
                 </GoogleOAuthProvider>

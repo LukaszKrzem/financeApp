@@ -25,7 +25,7 @@ import { useAsyncAction } from '@/hooks/useAsyncAction';
 export function AddAccountDialog() {
   const { token, apiUrl, onLogout } = useAuth();
   const { currencies = [], setRefreshing } = useData();
-  const { loading: isSubmitting, error, run } = useAsyncAction();
+  const { loading: isSubmitting, run } = useAsyncAction();
 
   const [open, setOpen] = useState(false);
   const [name, setName] = useState('');

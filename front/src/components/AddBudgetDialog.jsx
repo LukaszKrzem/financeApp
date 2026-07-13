@@ -20,17 +20,21 @@ import { IconPlus } from '@tabler/icons-react';
 import { apiFetch } from '@/lib/apiFetch';
 import { useAuth } from '@/context/AuthContext';
 import { useData } from '@/context/DataContext';
+import { useAsyncAction } from '@/hooks/useAsyncAction';
 
 export function AddBudgetDialog() {
   const { token, apiUrl, onLogout } = useAuth();
   const { categories = [], setRefreshing } = useData();
 
+  const { loading: isSubmitting, error, run } = useAsyncAction();
+
   const [open, setOpen] = useState(false);
   const [amount, setAmount] = useState('');
   const [category, setCategory] = useState('');
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
+    if (isSubmitting) return;
     if (!amount || !category) return;
 
     const today = new Date().toISOString().split('T')[0];
@@ -38,7 +42,7 @@ export function AddBudgetDialog() {
     nextMonth.setMonth(nextMonth.getMonth() + 1);
     const endDate = nextMonth.toISOString().split('T')[0];
 
-    try {
+    run(async () => {
       await apiFetch(
         `${apiUrl}/budgets/`,
         token,
@@ -49,7 +53,7 @@ export function AddBudgetDialog() {
             start_date: today,
             end: endDate,
             Categories_id_category: parseInt(category),
-            Currency_id_currency: 1,
+            Currency_id_currency: 1, //TODO: Make this dynamic based on user preference or account currency
           }),
         },
         onLogout
@@ -58,11 +62,8 @@ export function AddBudgetDialog() {
       setAmount('');
       setCategory('');
       setOpen(false);
-
       setRefreshing((prev) => prev + 1);
-    } catch (error) {
-      console.error('Error creating budget:', error);
-    }
+    });
   };
 
   return (
@@ -80,7 +81,11 @@ export function AddBudgetDialog() {
         <form onSubmit={handleSubmit} className="flex flex-col gap-4 py-4">
           <div className="flex flex-col gap-2">
             <Label htmlFor="budget-category">Category</Label>
-            <Select onValueChange={setCategory} value={category}>
+            <Select
+              onValueChange={setCategory}
+              value={category}
+              disabled={isSubmitting}
+            >
               <SelectTrigger id="budget-category">
                 <SelectValue placeholder="Select a category" />
               </SelectTrigger>
@@ -115,11 +120,14 @@ export function AddBudgetDialog() {
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
               required
+              disabled={isSubmitting}
             />
           </div>
 
-          <Button type="submit" className="w-full mt-2">
-            Confirm Budget
+          {error && <p className="text-sm text-red-500">{error}</p>}
+
+          <Button type="submit" className="w-full mt-2" disabled={isSubmitting}>
+            {isSubmitting ? 'Creating...' : 'Confirm Budget'}
           </Button>
         </form>
       </DialogContent>

@@ -20,24 +20,24 @@ import { IconPlus } from '@tabler/icons-react';
 import { apiFetch } from '@/lib/apiFetch';
 import { useAuth } from '@/context/AuthContext';
 import { useData } from '@/context/DataContext';
+import { useAsyncAction } from '@/hooks/useAsyncAction';
 
 export function AddAccountDialog() {
   const { token, apiUrl, onLogout } = useAuth();
   const { currencies = [], setRefreshing } = useData();
+  const { loading: isSubmitting, error, run } = useAsyncAction();
 
   const [open, setOpen] = useState(false);
   const [name, setName] = useState('');
   const [balance, setBalance] = useState('');
   const [currencyId, setCurrencyId] = useState('');
-  const [error, setError] = useState('');
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    setError('');
-
+    if (isSubmitting) return;
     if (!name || !balance || !currencyId) return;
 
-    try {
+    run(async () => {
       await apiFetch(
         `${apiUrl}/accounts/`,
         token,
@@ -57,10 +57,7 @@ export function AddAccountDialog() {
       setCurrencyId('');
       setOpen(false);
       setRefreshing((prev) => prev + 1);
-    } catch (err) {
-      console.error('Error creating account:', err);
-      setError(err.message);
-    }
+    });
   };
 
   return (
@@ -85,6 +82,7 @@ export function AddAccountDialog() {
               value={name}
               onChange={(e) => setName(e.target.value)}
               required
+              disabled={isSubmitting}
             />
           </div>
 
@@ -99,11 +97,18 @@ export function AddAccountDialog() {
               value={balance}
               onChange={(e) => setBalance(e.target.value)}
               required
+              disabled={isSubmitting}
             />
           </div>
+
           <div className="flex flex-col gap-2">
             <Label htmlFor="account-currency">Currency</Label>
-            <Select value={currencyId} onValueChange={setCurrencyId} required>
+            <Select
+              value={currencyId}
+              onValueChange={setCurrencyId}
+              required
+              disabled={isSubmitting}
+            >
               <SelectTrigger className="w-full" id="account-currency">
                 <SelectValue placeholder="Select currency" />
               </SelectTrigger>
@@ -122,8 +127,8 @@ export function AddAccountDialog() {
 
           {error && <p className="text-sm text-red-500">{error}</p>}
 
-          <Button type="submit" className="w-full mt-2">
-            Confirm Account
+          <Button type="submit" className="w-full mt-2" disabled={isSubmitting}>
+            {isSubmitting ? 'Creating...' : 'Confirm Account'}{' '}
           </Button>
         </form>
       </DialogContent>

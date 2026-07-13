@@ -5,6 +5,7 @@ import { Toaster } from '@/components/ui/sonner';
 import { AuthProvider } from '@/context/AuthContext';
 import { DataProvider } from '@/context/DataContext';
 import ProtectedRoute from '@/components/ProtectedRoute';
+import PublicRoute from '@/components/PublicRoute';
 import Layout from './components/Layout';
 import { PageSkeleton } from './components/page-skeleton';
 import './App.css';
@@ -28,9 +29,11 @@ function App() {
           <BrowserRouter>
             <Suspense fallback={<PageSkeleton />}>
               <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/register" element={<Register />} />
+                <Route element={<PublicRoute />}>
+                  <Route path="/" element={<Home />} />
+                  <Route path="/login" element={<Login />} />
+                  <Route path="/register" element={<Register />} />
+                </Route>
 
                 <Route element={<ProtectedRoute />}>
                   <Route element={<Layout />}>

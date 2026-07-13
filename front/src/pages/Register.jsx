@@ -11,14 +11,13 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { GoogleLogin, GoogleOAuthProvider } from '@react-oauth/google';
 import { apiFetch } from '@/lib/apiFetch';
 import { useAuth } from '@/context/AuthContext';
 
 export function Register() {
   const { apiUrl, onLogin, googleClientId, handleGoogleLogin } = useAuth();
-  const navigate = useNavigate();
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -43,7 +42,6 @@ export function Register() {
       }
 
       onLogin(data.token);
-      navigate('/dashboard', { replace: true });
     } catch (err) {
       console.error('Demo login error:', err);
       setError(err.message || 'Failed to login');

@@ -1,48 +1,13 @@
-import { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { apiFetch } from '@/lib/apiFetch';
 import { useAuth } from '@/context/AuthContext';
+import { useAsyncAction } from '@/hooks/useAsyncAction';
 
 function Home() {
-  const { apiUrl, onLogin, token } = useAuth();
-  const navigate = useNavigate();
+  const { handleDemoLogin } = useAuth();
+  const { loading, error, run } = useAsyncAction();
 
-  const [error, setError] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-
-  // If already logged in, redirect to dashboard
-  useEffect(() => {
-    if (token) {
-      navigate('/dashboard', { replace: true });
-    }
-  }, [token, navigate]);
-
-  const handleDemoLogin = async () => {
-    setError('');
-    setIsLoading(true);
-    try {
-      const data = await apiFetch(`${apiUrl}/login`, null, {
-        method: 'POST',
-        body: JSON.stringify({
-          email: import.meta.env.VITE_DEMO_EMAIL,
-          password: import.meta.env.VITE_DEMO_PASSWORD,
-        }),
-      });
-
-      if (!data?.token) {
-        throw new Error('No token received from server');
-      }
-
-      onLogin(data.token);
-      // Navigate will happen via useEffect above when token updates
-    } catch (err) {
-      console.error('Demo login error:', err);
-      setError(err.message || 'Failed to load demo. Please try again.');
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const handleDemo = () => run(handleDemoLogin);
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-background px-4">
@@ -59,10 +24,10 @@ function Home() {
         <Button
           size="lg"
           className="w-full h-12 cursor-pointer"
-          onClick={handleDemoLogin}
-          disabled={isLoading}
+          onClick={handleDemo}
+          disabled={loading}
         >
-          {isLoading ? 'Loading demo...' : '🚀 Try Demo'}
+          {loading ? 'Loading demo...' : '🚀 Try Demo'}
         </Button>
 
         {error && <p className="text-sm text-red-500 text-center">{error}</p>}

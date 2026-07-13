@@ -15,63 +15,34 @@ import { Link } from 'react-router-dom';
 import { GoogleLogin, GoogleOAuthProvider } from '@react-oauth/google';
 import { apiFetch } from '@/lib/apiFetch';
 import { useAuth } from '@/context/AuthContext';
+import { useAsyncAction } from '@/hooks/useAsyncAction';
 
 export function Register() {
-  const { apiUrl, onLogin, googleClientId, handleGoogleLogin } = useAuth();
+  const {
+    apiUrl,
+    onLogin,
+    googleClientId,
+    handleGoogleLogin,
+    handleDemoLogin,
+  } = useAuth();
+  const { loading, error, run } = useAsyncAction();
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
 
-  const handleDemoLogin = async () => {
-    setError('');
-    setLoading(true);
-    try {
-      const data = await apiFetch(`${apiUrl}/login`, null, {
-        method: 'POST',
-        body: JSON.stringify({
-          email: import.meta.env.VITE_DEMO_EMAIL,
-          password: import.meta.env.VITE_DEMO_PASSWORD,
-        }),
-      });
+  const handleDemo = () => run(handleDemoLogin);
 
-      if (!data?.token) {
-        throw new Error('No token received from server');
-      }
-
-      onLogin(data.token);
-    } catch (err) {
-      console.error('Demo login error:', err);
-      setError(err.message || 'Failed to login');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    setError('');
-    setLoading(true);
-    try {
+    run(async () => {
       const data = await apiFetch(`${apiUrl}/register`, null, {
         method: 'POST',
         body: JSON.stringify({ name, email, password }),
       });
-
-      if (!data?.token) {
-        throw new Error('No token received from server');
-      }
-
+      if (!data?.token) throw new Error('No token received from server');
       onLogin(data.token);
-      navigate('/dashboard', { replace: true });
-    } catch (err) {
-      console.error('Register error:', err);
-      setError(err.message || 'Failed to register');
-    } finally {
-      setLoading(false);
-    }
+    });
   };
 
   return (
@@ -140,7 +111,7 @@ export function Register() {
                 type="button"
                 variant="secondary"
                 className="w-full"
-                onClick={handleDemoLogin}
+                onClick={handleDemo}
                 disabled={loading}
               >
                 {loading ? 'Logging in...' : 'Try Demo'}
@@ -164,7 +135,9 @@ export function Register() {
                   }
                 >
                   <GoogleLogin
-                    onSuccess={handleGoogleLogin}
+                    onSuccess={(googleToken) =>
+                      run(() => handleGoogleLogin(googleToken))
+                    }
                     onError={() => {
                       console.error('Login Failed');
                     }}

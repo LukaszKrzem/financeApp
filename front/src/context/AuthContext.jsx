@@ -46,6 +46,22 @@ export function AuthProvider({ children }) {
     }
   };
 
+  const handleDemoLogin = async () => {
+    const data = await apiFetch(`${API_URL}/login`, null, {
+      method: 'POST',
+      body: JSON.stringify({
+        email: import.meta.env.VITE_DEMO_EMAIL,
+        password: import.meta.env.VITE_DEMO_PASSWORD,
+      }),
+    });
+
+    if (!data?.token) {
+      throw new Error('No token received from server');
+    }
+
+    onLogin(data.token);
+  };
+
   useEffect(() => {
     if (!token) {
       setUser(null);
@@ -80,6 +96,7 @@ export function AuthProvider({ children }) {
         onLogin,
         onLogout,
         handleGoogleLogin,
+        handleDemoLogin,
       }}
     >
       {children}

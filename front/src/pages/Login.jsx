@@ -93,7 +93,6 @@ export function Login() {
                   disabled={loading}
                 />
               </div>
-              {error && <p className="text-sm text-red-500">{error}</p>}
             </div>
 
             <CardFooter className="flex-col gap-4 mt-6 px-0 pb-2">

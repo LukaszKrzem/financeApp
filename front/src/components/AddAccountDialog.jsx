@@ -124,9 +124,6 @@ export function AddAccountDialog() {
               </SelectContent>
             </Select>
           </div>
-
-          {error && <p className="text-sm text-red-500">{error}</p>}
-
           <Button type="submit" className="w-full mt-2" disabled={isSubmitting}>
             {isSubmitting ? 'Creating...' : 'Confirm Account'}
           </Button>

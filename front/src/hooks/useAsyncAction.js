@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react';
+import { toast } from 'sonner';
 
 export function useAsyncAction() {
   const [loading, setLoading] = useState(false);
@@ -11,7 +12,11 @@ export function useAsyncAction() {
       await fn();
     } catch (err) {
       console.error(err);
-      setError(err.message || 'Something went wrong');
+      const errorMessage = err.message || 'Something went wrong';
+      setError(errorMessage);
+      toast.error('Action failed', {
+        description: errorMessage,
+      });
     } finally {
       setLoading(false);
     }

@@ -11,39 +11,28 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { apiFetch } from '@/lib/apiFetch';
 import { useAuth } from '@/context/AuthContext';
+import { useAsyncAction } from '@/hooks/useAsyncAction';
 
 export function SelectBankDialog({ open, onOpenChange, onSelectBank }) {
   const { apiUrl, token, onLogout } = useAuth();
+  const { loading, error, run } = useAsyncAction();
 
   const [banks, setBanks] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
   const [search, setSearch] = useState('');
 
   useEffect(() => {
     if (!open) return;
 
-    const fetchBanks = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const data = await apiFetch(
-          `${apiUrl}/api/banking/aspsps?country=PL`,
-          token,
-          {},
-          onLogout
-        );
-        setBanks(data.aspsps || []);
-      } catch (err) {
-        console.error('Error fetching banks:', err);
-        setError('Could not load bank list');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchBanks();
-  }, [open, apiUrl, token, onLogout]);
+    run(async () => {
+      const data = await apiFetch(
+        `${apiUrl}/api/banking/aspsps?country=PL`,
+        token,
+        {},
+        onLogout
+      );
+      setBanks(data.aspsps || []);
+    });
+  }, [open, apiUrl, token, onLogout, run]);
 
   const filteredBanks = useMemo(() => {
     if (!search.trim()) return banks;
@@ -77,13 +66,17 @@ export function SelectBankDialog({ open, onOpenChange, onSelectBank }) {
             </p>
           )}
           {error && (
-            <p className="text-sm text-destructive text-center py-4">{error}</p>
+            <p className="text-sm text-destructive text-center py-4">
+              Could not load bank list. {error}
+            </p>
           )}
+
           {!loading && !error && filteredBanks.length === 0 && (
             <p className="text-sm text-muted-foreground text-center py-4">
               No banks found.
             </p>
           )}
+
           {filteredBanks.map((bank) => (
             <Button
               key={`${bank.name}-${bank.country}`}

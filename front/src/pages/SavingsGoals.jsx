@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { IconPlus, IconTrash } from '@tabler/icons-react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -13,6 +13,7 @@ import {
 import { Progress } from '@/components/ui/progress';
 import { apiFetch } from '@/lib/apiFetch';
 import { useAuth } from '@/context/AuthContext';
+import { useAsyncAction } from '@/hooks/useAsyncAction';
 
 const formatMoney = (value, currencyCode = 'PLN') =>
   new Intl.NumberFormat('en-US', {
@@ -24,15 +25,22 @@ export default function SavingsGoals() {
   const { token, apiUrl, onLogout } = useAuth();
 
   const [goals, setGoals] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [isFetching, setIsFetching] = useState(true);
   const [open, setOpen] = useState(false);
   const [name, setName] = useState('');
   const [target, setTarget] = useState('');
   const [currentAmount, setCurrentAmount] = useState('');
   const [timeLimit, setTimeLimit] = useState('');
   const [contributions, setContributions] = useState({});
+  const {
+    loading: isCreating,
+    error: createError,
+    run: runCreate,
+  } = useAsyncAction();
+  const { loading: isAdding, run: runAdd } = useAsyncAction();
+  const { loading: isDeleting, run: runDelete } = useAsyncAction();
 
-  const reloadGoals = async () => {
+  const fetchGoals = useCallback(async () => {
     if (!token) return;
     try {
       const data = await apiFetch(
@@ -45,35 +53,19 @@ export default function SavingsGoals() {
     } catch (error) {
       console.error('Error fetching savings goals:', error);
     } finally {
-      setLoading(false);
+      setIsFetching(false);
     }
-  };
+  }, [apiUrl, token, onLogout]);
 
   useEffect(() => {
-    const loadGoals = async () => {
-      if (!token) return;
-      try {
-        const data = await apiFetch(
-          `${apiUrl}/savings-goals/`,
-          token,
-          {},
-          onLogout
-        );
-        setGoals(Array.isArray(data) ? data : []);
-      } catch (error) {
-        console.error('Error fetching savings goals:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
+    fetchGoals();
+  }, [fetchGoals]);
 
-    loadGoals();
-  }, [token, apiUrl, onLogout]);
-
-  const handleCreateGoal = async (event) => {
+  const handleCreateGoal = (event) => {
     event.preventDefault();
+    if (isCreating) return;
 
-    try {
+    runCreate(async () => {
       await apiFetch(
         `${apiUrl}/savings-goals/`,
         token,
@@ -84,7 +76,7 @@ export default function SavingsGoals() {
             target: Number(target),
             current_amount: Number(currentAmount) || 0,
             time_limit: timeLimit || null,
-            Currency_id_currency: 1,
+            Currency_id_currency: 1, // TODO: Make this dynamic based on user preference or account currency
           }),
         },
         onLogout
@@ -95,54 +87,42 @@ export default function SavingsGoals() {
       setCurrentAmount('');
       setTimeLimit('');
       setOpen(false);
-      reloadGoals();
-    } catch (error) {
-      console.error('Error creating savings goal:', error);
-    }
+      await fetchGoals();
+    });
   };
 
-  const handleAddContribution = async (goalId) => {
+  const handleAddContribution = (goalId) => {
     const amount = Number(contributions[goalId]) || 0;
-    if (amount <= 0) return;
+    if (amount <= 0 || isAdding) return;
 
-    try {
+    runAdd(async () => {
       await apiFetch(
         `${apiUrl}/savings-goals/${goalId}/add`,
         token,
-        {
-          method: 'PATCH',
-          body: JSON.stringify({ amount }),
-        },
+        { method: 'PATCH', body: JSON.stringify({ amount }) },
         onLogout
       );
 
-      setContributions((currentValues) => ({
-        ...currentValues,
-        [goalId]: '',
-      }));
-      reloadGoals();
-    } catch (error) {
-      console.error('Error adding contribution:', error);
-    }
+      setContributions((prev) => ({ ...prev, [goalId]: '' }));
+      await fetchGoals();
+    });
   };
 
-  const handleDeleteGoal = async (goalId) => {
-    try {
+  const handleDeleteGoal = (goalId) => {
+    if (isDeleting) return;
+
+    runDelete(async () => {
       await apiFetch(
         `${apiUrl}/savings-goals/${goalId}`,
         token,
-        {
-          method: 'DELETE',
-        },
+        { method: 'DELETE' },
         onLogout
       );
 
       setGoals((currentGoals) =>
         currentGoals.filter((goal) => goal.id_saving_goal !== goalId)
       );
-    } catch (error) {
-      console.error('Error deleting savings goal:', error);
-    }
+    });
   };
 
   return (
@@ -179,7 +159,8 @@ export default function SavingsGoals() {
                   type="text"
                   placeholder="e.g. New laptop"
                   value={name}
-                  onChange={(event) => setName(event.target.value)}
+                  onChange={(e) => setName(e.target.value)}
+                  disabled={isCreating}
                   required
                 />
               </div>
@@ -193,7 +174,8 @@ export default function SavingsGoals() {
                   step="0.01"
                   placeholder="e.g. 5000"
                   value={target}
-                  onChange={(event) => setTarget(event.target.value)}
+                  onChange={(e) => setTarget(e.target.value)}
+                  disabled={isCreating}
                   required
                 />
               </div>
@@ -207,7 +189,8 @@ export default function SavingsGoals() {
                   step="0.01"
                   placeholder="e.g. 1000"
                   value={currentAmount}
-                  onChange={(event) => setCurrentAmount(event.target.value)}
+                  onChange={(e) => setCurrentAmount(e.target.value)}
+                  disabled={isCreating}
                 />
               </div>
 
@@ -217,19 +200,28 @@ export default function SavingsGoals() {
                   id="goal-deadline"
                   type="date"
                   value={timeLimit}
-                  onChange={(event) => setTimeLimit(event.target.value)}
+                  onChange={(e) => setTimeLimit(e.target.value)}
+                  disabled={isCreating}
                 />
               </div>
 
-              <Button type="submit" className="w-full mt-2">
-                Confirm Goal
+              {createError && (
+                <p className="text-sm text-red-500">{createError}</p>
+              )}
+
+              <Button
+                type="submit"
+                className="w-full mt-2"
+                disabled={isCreating}
+              >
+                {isCreating ? 'Creating...' : 'Confirm Goal'}
               </Button>
             </form>
           </DialogContent>
         </Dialog>
       </div>
 
-      {loading ? (
+      {isFetching ? (
         <p className="text-sm text-muted-foreground text-center py-8">
           Loading savings goals...
         </p>
@@ -261,6 +253,7 @@ export default function SavingsGoals() {
                     variant="ghost"
                     size="icon"
                     onClick={() => handleDeleteGoal(goal.id_saving_goal)}
+                    disabled={isDeleting}
                   >
                     <IconTrash className="size-4" />
                   </Button>
@@ -298,6 +291,7 @@ export default function SavingsGoals() {
                     step="0.01"
                     placeholder="Amount to add"
                     value={contributions[goal.id_saving_goal] || ''}
+                    disabled={isAdding}
                     onChange={(event) =>
                       setContributions((currentValues) => ({
                         ...currentValues,
@@ -309,6 +303,7 @@ export default function SavingsGoals() {
                     type="button"
                     size="sm"
                     onClick={() => handleAddContribution(goal.id_saving_goal)}
+                    disabled={isAdding}
                   >
                     Add
                   </Button>

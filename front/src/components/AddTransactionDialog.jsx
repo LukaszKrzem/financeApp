@@ -27,6 +27,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { apiFetch } from '@/lib/apiFetch';
 import { useAuth } from '@/context/AuthContext';
 import { useData } from '@/context/DataContext';
+import { useAsyncAction } from '@/hooks/useAsyncAction';
 
 export function AddTransactionDialog({ trigger }) {
   const { token, apiUrl, onLogout } = useAuth();
@@ -36,6 +37,7 @@ export function AddTransactionDialog({ trigger }) {
     currencies = [],
     setRefreshing,
   } = useData();
+  const { loading: isSubmitting, error, run } = useAsyncAction();
 
   const [open, setOpen] = useState(false);
   const [amount, setAmount] = useState('');
@@ -46,8 +48,6 @@ export function AddTransactionDialog({ trigger }) {
   const [currencyId, setCurrencyId] = useState('');
   const [transactionFrequency, setTransactionFrequency] =
     useState('not_scheduled');
-  const [error, setError] = useState(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const isMobile = useIsMobile();
 
@@ -69,37 +69,31 @@ export function AddTransactionDialog({ trigger }) {
     }
   }, [accountId, accounts]);
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
     if (isSubmitting) return;
 
-    if (!categoryId) {
-      setError('Please select a category');
-      return;
-    }
+    run(async () => {
+      if (!categoryId) throw new Error('Please select a category');
 
-    setIsSubmitting(true);
-    setError(null);
+      const payload = {
+        amount: parseFloat(amount),
+        type,
+        description,
+        Account_id_account: parseInt(accountId),
+        Category_id_category: parseInt(categoryId),
+        Currency_id_currency: parseInt(currencyId),
+      };
 
-    const payload = {
-      amount: parseFloat(amount),
-      type,
-      description,
-      Account_id_account: parseInt(accountId),
-      Category_id_category: categoryId ? parseInt(categoryId) : null,
-      Currency_id_currency: parseInt(currencyId),
-    };
+      const isScheduled = transactionFrequency !== 'not_scheduled';
+      const endpoint = isScheduled
+        ? '/scheduled-transactions/'
+        : '/transactions/';
 
-    const isScheduled = transactionFrequency !== 'not_scheduled';
-    const endpoint = isScheduled
-      ? '/scheduled-transactions/'
-      : '/transactions/';
+      if (isScheduled) {
+        payload.frequency = transactionFrequency;
+      }
 
-    if (isScheduled) {
-      payload.frequency = transactionFrequency;
-    }
-
-    try {
       await apiFetch(
         `${apiUrl}${endpoint}`,
         token,
@@ -111,11 +105,7 @@ export function AddTransactionDialog({ trigger }) {
       setDescription('');
       setOpen(false);
       setRefreshing((prev) => prev + 1);
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setIsSubmitting(false);
-    }
+    });
   };
 
   const TransactionForm = (
@@ -145,11 +135,16 @@ export function AddTransactionDialog({ trigger }) {
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
             required
+            disabled={isSubmitting}
           />
         </div>
         <div className="flex flex-col gap-2 w-[100px]">
           <Label htmlFor="currency">Currency</Label>
-          <Select value={currencyId} onValueChange={setCurrencyId}>
+          <Select
+            value={currencyId}
+            onValueChange={setCurrencyId}
+            disabled={isSubmitting}
+          >
             <SelectTrigger id="currency">
               <SelectValue placeholder="Currency" />
             </SelectTrigger>
@@ -176,12 +171,17 @@ export function AddTransactionDialog({ trigger }) {
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           required
+          disabled={isSubmitting}
         />
       </div>
 
       <div className="flex flex-col gap-2">
         <Label htmlFor="category">Category</Label>
-        <Select value={categoryId} onValueChange={setCategoryId}>
+        <Select
+          value={categoryId}
+          onValueChange={setCategoryId}
+          disabled={isSubmitting}
+        >
           <SelectTrigger id="category">
             <SelectValue placeholder="Choose category" />
           </SelectTrigger>
@@ -201,7 +201,12 @@ export function AddTransactionDialog({ trigger }) {
       <div className="flex gap-2">
         <div className="flex flex-col gap-2 flex-1">
           <Label htmlFor="account">Account</Label>
-          <Select value={accountId} onValueChange={setAccountId} required>
+          <Select
+            value={accountId}
+            onValueChange={setAccountId}
+            required
+            disabled={isSubmitting}
+          >
             <SelectTrigger id="account">
               <SelectValue placeholder="Select Account" />
             </SelectTrigger>
@@ -222,6 +227,7 @@ export function AddTransactionDialog({ trigger }) {
           <Select
             value={transactionFrequency}
             onValueChange={setTransactionFrequency}
+            disabled={isSubmitting}
           >
             <SelectTrigger id="frequency">
               <SelectValue placeholder="Frequency" />

@@ -134,11 +134,19 @@ export default function Accounts() {
                 key={account.id_account}
                 className="rounded-xl border bg-card text-card-foreground shadow-sm p-5 flex flex-col gap-2 duration-200 hover:shadow-md"
               >
-                <div className="flex justify-between items-center">
-                  <span className="font-semibold text-lg text-foreground">
+                <div className="flex justify-between items-center gap-2">
+                  <span
+                    className="font-semibold text-lg text-foreground truncate"
+                    title={account.name}
+                  >
                     {account.name}
                   </span>
-                  <div className="flex items-center gap-1">
+
+                  <div className="flex items-center gap-1 shrink-0">
+                    {isSyncing && (
+                      <IconRefresh className="size-4 animate-spin text-muted-foreground" />
+                    )}
+
                     {account.bank_account_uid && (
                       <span className="text-xs px-2 py-0.5 rounded bg-emerald-100 text-emerald-700 dark:bg-emerald-900 dark:text-emerald-300">
                         Connected
@@ -147,6 +155,7 @@ export default function Accounts() {
                     <span className="text-xs font-mono px-2 py-0.5 rounded bg-muted text-muted-foreground">
                       {account.currency_code}
                     </span>
+
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button variant="ghost" size="icon" className="size-7">

@@ -24,13 +24,12 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { apiFetch } from '@/lib/apiFetch';
-import { useAuth } from '@/context/AuthContext';
+import { useApi } from '@/hooks/useApi';
 import { useData } from '@/context/DataContext';
 import { useAsyncAction } from '@/hooks/useAsyncAction';
 
 export function AddTransactionDialog({ trigger }) {
-  const { token, apiUrl, onLogout } = useAuth();
+  const { post } = useApi();
   const {
     accounts = [],
     categories = [],
@@ -94,12 +93,7 @@ export function AddTransactionDialog({ trigger }) {
         payload.frequency = transactionFrequency;
       }
 
-      await apiFetch(
-        `${apiUrl}${endpoint}`,
-        token,
-        { method: 'POST', body: JSON.stringify(payload) },
-        onLogout
-      );
+      await post(endpoint, payload);
 
       setAmount('');
       setDescription('');

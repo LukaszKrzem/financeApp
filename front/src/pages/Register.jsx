@@ -13,19 +13,15 @@ import { Label } from '@/components/ui/label';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { GoogleLogin, GoogleOAuthProvider } from '@react-oauth/google';
-import { apiFetch } from '@/lib/apiFetch';
 import { useAuth } from '@/context/AuthContext';
 import { useAsyncAction } from '@/hooks/useAsyncAction';
 import { toast } from 'sonner';
+import { useApi } from '@/hooks/useApi';
 
 export function Register() {
-  const {
-    apiUrl,
-    onLogin,
-    googleClientId,
-    handleGoogleLogin,
-    handleDemoLogin,
-  } = useAuth();
+  const { onLogin, googleClientId, handleGoogleLogin, handleDemoLogin } =
+    useAuth();
+  const { post } = useApi();
   const { loading, run } = useAsyncAction();
 
   const [name, setName] = useState('');
@@ -37,10 +33,7 @@ export function Register() {
   const handleSubmit = (e) => {
     e.preventDefault();
     run(async () => {
-      const data = await apiFetch(`${apiUrl}/register`, null, {
-        method: 'POST',
-        body: JSON.stringify({ name, email, password }),
-      });
+      const data = await post('/register', { name, email, password });
       if (!data?.token) throw new Error('No token received from server');
       onLogin(data.token);
     });

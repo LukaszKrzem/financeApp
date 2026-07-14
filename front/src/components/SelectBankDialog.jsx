@@ -9,12 +9,11 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { apiFetch } from '@/lib/apiFetch';
-import { useAuth } from '@/context/AuthContext';
 import { useAsyncAction } from '@/hooks/useAsyncAction';
+import { useApi } from '@/hooks/useApi';
 
 export function SelectBankDialog({ open, onOpenChange, onSelectBank }) {
-  const { apiUrl, token, onLogout } = useAuth();
+  const { get } = useApi();
   const { loading, error, run } = useAsyncAction();
 
   const [banks, setBanks] = useState([]);
@@ -24,15 +23,10 @@ export function SelectBankDialog({ open, onOpenChange, onSelectBank }) {
     if (!open) return;
 
     run(async () => {
-      const data = await apiFetch(
-        `${apiUrl}/api/banking/aspsps?country=PL`,
-        token,
-        {},
-        onLogout
-      );
+      const data = await get('/api/banking/aspsps?country=PL');
       setBanks(data.aspsps || []);
     });
-  }, [open, apiUrl, token, onLogout, run]);
+  }, [open, get, run]);
 
   const filteredBanks = useMemo(() => {
     if (!search.trim()) return banks;

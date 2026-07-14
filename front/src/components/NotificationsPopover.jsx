@@ -6,13 +6,11 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
-import { apiFetch } from '@/lib/apiFetch';
-import { useAuth } from '@/context/AuthContext';
 import { useAsyncAction } from '@/hooks/useAsyncAction';
+import { useApi } from '@/hooks/useApi';
 
 export function NotificationsPopover() {
-  const { apiUrl, token, onLogout } = useAuth();
-  const baseUrl = apiUrl ? apiUrl.replace(/\/$/, '') : '';
+  const { get, patch } = useApi();
 
   const [notifications, setNotifications] = useState([]);
   const { run: runMarkAsRead } = useAsyncAction();
@@ -20,14 +18,8 @@ export function NotificationsPopover() {
 
   useEffect(() => {
     const fetchNotifications = async () => {
-      if (!token) return;
       try {
-        const data = await apiFetch(
-          `${baseUrl}/notifications`,
-          token,
-          {},
-          onLogout
-        );
+        const data = await get('/notifications');
         setNotifications(data);
       } catch (error) {
         console.error('Error fetching notifications:', error);
@@ -37,16 +29,11 @@ export function NotificationsPopover() {
     const interval = setInterval(fetchNotifications, 30000);
     fetchNotifications();
     return () => clearInterval(interval);
-  }, [token, baseUrl, onLogout]);
+  }, [get]);
 
   const handleMarkAsRead = (id) => {
     runMarkAsRead(async () => {
-      await apiFetch(
-        `${baseUrl}/notifications/${id}/read`,
-        token,
-        { method: 'PATCH' },
-        onLogout
-      );
+      await patch(`/notifications/${id}/read`);
       setNotifications((prev) => prev.filter((n) => n.id_notification !== id));
     });
   };
@@ -54,12 +41,7 @@ export function NotificationsPopover() {
   const handleMarkAllAsRead = () => {
     if (isClearing) return;
     runMarkAllAsRead(async () => {
-      await apiFetch(
-        `${baseUrl}/notifications/read-all`,
-        token,
-        { method: 'PATCH' },
-        onLogout
-      );
+      await patch('/notifications/read-all');
       setNotifications([]);
     });
   };

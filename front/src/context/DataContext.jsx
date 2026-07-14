@@ -1,11 +1,10 @@
 import { createContext, useContext, useState, useEffect } from 'react';
-import { useAuth } from './AuthContext';
-import { apiFetch } from '@/lib/apiFetch';
+import { useApi } from '@/hooks/useApi';
 
 const DataContext = createContext();
 
 export function DataProvider({ children }) {
-  const { token, apiUrl, onLogout } = useAuth();
+  const { get } = useApi();
   const [data, setData] = useState({
     accounts: [],
     transactions: [],
@@ -17,21 +16,16 @@ export function DataProvider({ children }) {
   const [refreshing, setRefreshing] = useState(0);
 
   useEffect(() => {
-    if (!token) {
-      setData((prev) => ({ ...prev, loading: false }));
-      return;
-    }
-
     const fetchData = async () => {
       setData((prev) => ({ ...prev, loading: true }));
       try {
         const [accounts, transactions, budgets, categories, currencies] =
           await Promise.all([
-            apiFetch(`${apiUrl}/accounts/`, token, {}, onLogout),
-            apiFetch(`${apiUrl}/transactions/`, token, {}, onLogout),
-            apiFetch(`${apiUrl}/budgets/`, token, {}, onLogout),
-            apiFetch(`${apiUrl}/categories/`, token, {}, onLogout),
-            apiFetch(`${apiUrl}/currencies/`, token, {}, onLogout),
+            get('/accounts/'),
+            get('/transactions/'),
+            get('/budgets/'),
+            get('/categories/'),
+            get('/currencies/'),
           ]);
         setData({
           accounts,
@@ -47,7 +41,7 @@ export function DataProvider({ children }) {
       }
     };
     fetchData();
-  }, [token, apiUrl, onLogout, refreshing]);
+  }, [get, refreshing]);
 
   return (
     <DataContext.Provider value={{ ...data, setRefreshing }}>

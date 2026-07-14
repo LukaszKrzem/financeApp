@@ -16,16 +16,18 @@ import {
 import { toast } from 'sonner';
 import { formatMoney } from '@/lib/formatMoney';
 import { SelectBankDialog } from '@/components/SelectBankDialog';
-import { apiFetch } from '@/lib/apiFetch';
 import { useData } from '@/context/DataContext';
-import { useAuth } from '@/context/AuthContext';
 import { useAsyncAction } from '@/hooks/useAsyncAction';
 import { RenameAccountDialog } from '@/components/RenameAccountDialog';
 import { ConfirmDeleteDialog } from '@/components/ConfirmDeleteDialog';
 
+import { useApi } from '@/hooks/useApi';
+
 export default function Accounts() {
   const { accounts, loading, currencies, setRefreshing } = useData();
-  const { token, apiUrl, onLogout } = useAuth();
+
+  const { post, patch, del } = useApi();
+
   const { loading: savingName, run: runRename } = useAsyncAction();
   const { loading: deleting, run: runDelete } = useAsyncAction();
 
@@ -41,19 +43,11 @@ export default function Accounts() {
     setConnecting(true);
     try {
       const redirectUri = `${window.location.origin}/bank-callback`;
-      const data = await apiFetch(
-        `${apiUrl}/api/banking/auth-url`,
-        token,
-        {
-          method: 'POST',
-          body: JSON.stringify({
-            redirect_uri: redirectUri,
-            bank_name: bank.name,
-            country: bank.country || 'PL',
-          }),
-        },
-        onLogout
-      );
+      const data = await post('/api/banking/auth-url', {
+        redirect_uri: redirectUri,
+        bank_name: bank.name,
+        country: bank.country || 'PL',
+      });
       window.location.href = data.auth_url;
     } catch (error) {
       console.error('Error starting bank connection:', error);
@@ -65,12 +59,7 @@ export default function Accounts() {
   const handleSyncAccount = async (accountId) => {
     setSyncingAccountId(accountId);
     try {
-      const data = await apiFetch(
-        `${apiUrl}/api/banking/sync`,
-        token,
-        { method: 'POST', body: JSON.stringify({ account_id: accountId }) },
-        onLogout
-      );
+      const data = await post('/api/banking/sync', { account_id: accountId });
       toast.success('Sync successful', {
         description: `Imported: ${data.imported}, Skipped: ${data.skipped}.`,
       });
@@ -213,16 +202,7 @@ export default function Accounts() {
         isSaving={savingName}
         onSave={(name) =>
           runRename(async () => {
-            await apiFetch(
-              `${apiUrl}/accounts/${renamingAccount.id_account}`,
-              token,
-              {
-                method: 'PATCH',
-                body: JSON.stringify({ name }),
-              },
-              onLogout
-            );
-            toast.success('Account renamed');
+            await patch(`/accounts/${renamingAccount.id_account}`, { name });
             setRenamingAccount(null);
             setRefreshing((prev) => prev + 1);
           })
@@ -237,13 +217,7 @@ export default function Accounts() {
         description="This will permanently delete this account and all of its transactions. This cannot be undone."
         onConfirm={() =>
           runDelete(async () => {
-            await apiFetch(
-              `${apiUrl}/accounts/${deletingAccount.id_account}`,
-              token,
-              { method: 'DELETE' },
-              onLogout
-            );
-            toast.success('Account deleted');
+            await del(`/accounts/${deletingAccount.id_account}`);
             setDeletingAccount(null);
             setRefreshing((prev) => prev + 1);
           })

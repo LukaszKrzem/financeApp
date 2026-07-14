@@ -4,10 +4,9 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { apiFetch } from '@/lib/apiFetch';
-import { useAuth } from '@/context/AuthContext';
 import { useAsyncAction } from '@/hooks/useAsyncAction';
 import { AddSavingGoalDialog } from '@/components/AddSavingGoalDialog';
+import { useApi } from '@/hooks/useApi';
 
 const formatMoney = (value, currencyCode = 'PLN') =>
   new Intl.NumberFormat('en-US', {
@@ -16,7 +15,7 @@ const formatMoney = (value, currencyCode = 'PLN') =>
   }).format(Number(value) || 0);
 
 export default function SavingsGoals() {
-  const { token, apiUrl, onLogout } = useAuth();
+  const { get, patch, del } = useApi();
 
   const [goals, setGoals] = useState([]);
   const [isFetching, setIsFetching] = useState(true);
@@ -25,21 +24,15 @@ export default function SavingsGoals() {
   const { loading: isDeleting, run: runDelete } = useAsyncAction();
 
   const fetchGoals = useCallback(async () => {
-    if (!token) return;
     try {
-      const data = await apiFetch(
-        `${apiUrl}/savings-goals/`,
-        token,
-        {},
-        onLogout
-      );
+      const data = await get('/savings-goals/');
       setGoals(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error('Error fetching savings goals:', error);
     } finally {
       setIsFetching(false);
     }
-  }, [apiUrl, token, onLogout]);
+  }, [get]);
 
   useEffect(() => {
     fetchGoals();
@@ -50,12 +43,7 @@ export default function SavingsGoals() {
     if (amount <= 0 || isAdding) return;
 
     runAdd(async () => {
-      await apiFetch(
-        `${apiUrl}/savings-goals/${goalId}/add`,
-        token,
-        { method: 'PATCH', body: JSON.stringify({ amount }) },
-        onLogout
-      );
+      await patch(`/savings-goals/${goalId}/add`, { amount });
 
       setContributions((prev) => ({ ...prev, [goalId]: '' }));
       await fetchGoals();
@@ -66,12 +54,7 @@ export default function SavingsGoals() {
     if (isDeleting) return;
 
     runDelete(async () => {
-      await apiFetch(
-        `${apiUrl}/savings-goals/${goalId}`,
-        token,
-        { method: 'DELETE' },
-        onLogout
-      );
+      await del(`/savings-goals/${goalId}`);
 
       setGoals((currentGoals) =>
         currentGoals.filter((goal) => goal.id_saving_goal !== goalId)

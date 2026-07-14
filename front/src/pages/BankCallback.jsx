@@ -1,19 +1,21 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
-import { apiFetch } from '@/lib/apiFetch';
-import { useAuth } from '@/context/AuthContext';
 import { useData } from '@/context/DataContext';
 
+import { useApi } from '@/hooks/useApi';
+
 export default function BankCallback() {
-  const { token, apiUrl } = useAuth();
+  const { post } = useApi();
   const { setRefreshing } = useData();
 
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const [status, setStatus] = useState('processing');
   const [errorMessage, setErrorMessage] = useState('');
+
+  const isProcessing = useRef(false);
 
   useEffect(() => {
     const code = searchParams.get('code');
@@ -31,12 +33,12 @@ export default function BankCallback() {
       return;
     }
 
+    if (isProcessing.current) return;
+    isProcessing.current = true;
+
     const completeAuthorization = async () => {
       try {
-        const data = await apiFetch(`${apiUrl}/api/banking/callback`, token, {
-          method: 'POST',
-          body: JSON.stringify({ code }),
-        });
+        const data = await post('/api/banking/callback', { code });
 
         toast.success('Bank connected successfully', {
           description: `Imported ${data.imported_accounts} account(s).`,
@@ -51,7 +53,7 @@ export default function BankCallback() {
     };
 
     completeAuthorization();
-  }, [searchParams, apiUrl, token, navigate, setRefreshing]);
+  }, [searchParams, post, navigate, setRefreshing]);
 
   return (
     <div className="flex flex-1 flex-col items-center justify-center p-8 gap-4">

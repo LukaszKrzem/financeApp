@@ -17,13 +17,12 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { IconPlus } from '@tabler/icons-react';
-import { apiFetch } from '@/lib/apiFetch';
-import { useAuth } from '@/context/AuthContext';
 import { useData } from '@/context/DataContext';
 import { useAsyncAction } from '@/hooks/useAsyncAction';
+import { useApi } from '@/hooks/useApi';
 
 export function AddAccountDialog() {
-  const { token, apiUrl, onLogout } = useAuth();
+  const { post } = useApi();
   const { currencies = [], setRefreshing } = useData();
   const { loading: isSubmitting, run } = useAsyncAction();
 
@@ -38,19 +37,11 @@ export function AddAccountDialog() {
     if (!name || !balance || !currencyId) return;
 
     run(async () => {
-      await apiFetch(
-        `${apiUrl}/accounts/`,
-        token,
-        {
-          method: 'POST',
-          body: JSON.stringify({
-            name: name,
-            current_balance: parseFloat(balance),
-            Currency_id_currency: parseInt(currencyId),
-          }),
-        },
-        onLogout
-      );
+      await post('/accounts/', {
+        name: name,
+        current_balance: parseFloat(balance),
+        Currency_id_currency: parseInt(currencyId),
+      });
 
       setName('');
       setBalance('');

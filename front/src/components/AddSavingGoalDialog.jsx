@@ -17,13 +17,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { apiFetch } from '@/lib/apiFetch';
-import { useAuth } from '@/context/AuthContext';
+
+import { useApi } from '@/hooks/useApi';
 import { useData } from '@/context/DataContext';
 import { useAsyncAction } from '@/hooks/useAsyncAction';
 
 export function AddSavingGoalDialog({ onGoalAdded }) {
-  const { token, apiUrl, onLogout } = useAuth();
+  const { post } = useApi();
   const { currencies = [] } = useData();
   const { loading: isCreating, run } = useAsyncAction();
 
@@ -40,21 +40,13 @@ export function AddSavingGoalDialog({ onGoalAdded }) {
     if (!currencyId) return;
 
     run(async () => {
-      await apiFetch(
-        `${apiUrl}/savings-goals/`,
-        token,
-        {
-          method: 'POST',
-          body: JSON.stringify({
-            name,
-            target: Number(target),
-            current_amount: Number(currentAmount) || 0,
-            time_limit: timeLimit || null,
-            Currency_id_currency: parseInt(currencyId),
-          }),
-        },
-        onLogout
-      );
+      await post('/savings-goals/', {
+        name,
+        target: Number(target),
+        current_amount: Number(currentAmount) || 0,
+        time_limit: timeLimit || null,
+        Currency_id_currency: parseInt(currencyId),
+      });
 
       setName('');
       setTarget('');

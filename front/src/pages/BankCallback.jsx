@@ -67,8 +67,8 @@ export default function BankCallback() {
           <p className="text-destructive font-medium">Connection failed</p>
           <p className="text-sm text-muted-foreground">{errorMessage}</p>
           <Button
+            variant="link"
             onClick={() => navigate('/accounts', { replace: true })}
-            className="text-sm underline text-primary"
           >
             Back to Accounts
           </Button>

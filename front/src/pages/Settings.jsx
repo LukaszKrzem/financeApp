@@ -55,9 +55,11 @@ export default function Settings() {
         </div>
         <div className="bg-card border-border/50 border rounded-xl p-6">
           <h2 className="text-lg font-semibold mb-4">Account</h2>
-          <p className="text-sm text-muted-foreground mb-4">
-            Manage your account settings.
+          <p className="text-sm text-muted-foreground mb-1">
+            Logged in as{' '}
+            <span className="font-medium text-foreground">{user?.name}</span>
           </p>
+          <p className="text-sm text-muted-foreground mb-4">{user?.email}</p>
           <Button variant="destructive" onClick={onLogout}>
             Log out
           </Button>

@@ -8,7 +8,7 @@ import { CategoryBadge } from '@/lib/categoryBadge';
 import { formatMoney } from '@/lib/formatMoney';
 import { useData } from '@/context/DataContext';
 
-export const columns = [
+const columns = [
   {
     accessorKey: 'date',
     header: 'Date',

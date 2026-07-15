@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from 'recharts';
-import { getIconForCategory, DEFAULT_ICON } from '@/lib/categoryIcons';
-import { categoryColorMap, DEFAULT_CATEGORY_COLOR } from '@/lib/categoryBadge';
+import { getIconForCategory } from '@/lib/categoryIcons';
+import { categoryColorMap, DEFAULT_CATEGORY_COLOR } from '@/lib/categories';
 import { useData } from '@/context/DataContext';
 
 import {
@@ -11,15 +11,6 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-
-const chartColors = [
-  'var(--chart-1)',
-  'var(--chart-2)',
-  'var(--chart-3)',
-  'var(--chart-4)',
-  'var(--chart-5)',
-  'var(--primary)',
-];
 
 const isExpenseTransaction = (transaction) =>
   transaction.type === 'EXPENSE' ||

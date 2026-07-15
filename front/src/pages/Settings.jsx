@@ -4,7 +4,7 @@ import { IconSun, IconMoon, IconDeviceDesktop } from '@tabler/icons-react';
 import { useAuth } from '@/context/AuthContext';
 
 export default function Settings() {
-  const { user, token, onLogout } = useAuth();
+  const { user, onLogout } = useAuth();
 
   const { theme, setTheme } = useTheme();
 

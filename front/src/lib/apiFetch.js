@@ -23,7 +23,7 @@ export async function apiFetch(url, token, options = {}, onUnauthorized) {
   try {
     data = text ? JSON.parse(text) : null;
   } catch (e) {
-    throw new Error('Invalid JSON response from server');
+    throw new Error('Invalid JSON response from server', { cause: e });
   }
 
   if (!response.ok) {

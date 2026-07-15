@@ -42,7 +42,7 @@ export const categoryColors = {
     'bg-slate-100 text-slate-700 border-slate-200 dark:bg-slate-900/30 dark:text-slate-400 dark:border-slate-800',
 };
 
-export const categoryColorMap = {
+export const categoryColorMapLight = {
   Groceries: '#18181b', // zinc-900
   'Bills & Utilities': '#3f3f46', // zinc-700
   'Food & Restaurants': '#71717a', // zinc-500
@@ -66,4 +66,31 @@ export const categoryColorMap = {
   'Gifts & Refunds': '#404040', // neutral-700
   'Other Sales': '#737373', // neutral-500
 };
+
+export const categoryColorMapDark = {
+  Groceries: '#e4e4e7', // zinc-200
+  'Bills & Utilities': '#a1a1aa', // zinc-400
+  'Food & Restaurants': '#71717a', // zinc-500
+  'Internet & Phone': '#52525b', // zinc-600
+  Transport: '#3f3f46', // zinc-700
+  Fuel: '#27272a', // zinc-800
+  Household: '#d4d4d8', // zinc-300
+  Education: '#a1a1aa', // zinc-400
+  Subscriptions: '#71717a', // zinc-500
+  Clothing: '#e2e8f0', // slate-200
+  Entertainment: '#64748b', // slate-500
+  Hobby: '#475569', // slate-600
+  'Health & Medicine': '#334155', // slate-700
+  'Hygiene & Beauty': '#cbd5e1', // slate-300
+  'Gambling & Betting': '#64748b', // slate-500
+
+  Salary: '#e5e5e5', // neutral-200
+  'Investments & Interest': '#737373', // neutral-500
+  Freelance: '#525252', // neutral-600
+  Winnings: '#404040', // neutral-700
+  'Gifts & Refunds': '#d4d4d4', // neutral-300
+  'Other Sales': '#737373', // neutral-500
+};
+
+export const categoryColorMap = categoryColorMapLight;
 export const DEFAULT_CATEGORY_COLOR = '#9ca3af'; // gray-400

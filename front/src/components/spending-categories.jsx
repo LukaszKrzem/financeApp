@@ -1,8 +1,13 @@
 import { useMemo } from 'react';
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from 'recharts';
 import { getIconForCategory } from '@/lib/categoryIcons';
-import { categoryColorMap, DEFAULT_CATEGORY_COLOR } from '@/lib/categories';
+import {
+  categoryColorMapLight,
+  categoryColorMapDark,
+  DEFAULT_CATEGORY_COLOR,
+} from '@/lib/categories';
 import { useData } from '@/context/DataContext';
+import { useTheme } from '@/components/theme-provider';
 
 import {
   Card,
@@ -43,8 +48,11 @@ const CustomTooltip = ({ active, payload }) => {
 
 export function SpendingCategories() {
   const { transactions = [] } = useData();
+  const { theme, resolvedTheme } = useTheme();
+  const isDark = (resolvedTheme || theme) === 'dark';
 
   const categoryData = useMemo(() => {
+    const colorMap = isDark ? categoryColorMapDark : categoryColorMapLight;
     const categories = transactions
       .filter(isExpenseTransaction)
       .reduce((summary, transaction) => {
@@ -61,11 +69,11 @@ export function SpendingCategories() {
       .map(([name, value]) => ({
         name,
         value,
-        color: categoryColorMap[name] ?? DEFAULT_CATEGORY_COLOR,
+        color: colorMap[name] ?? DEFAULT_CATEGORY_COLOR,
         icon: getIconForCategory(name),
       }))
       .sort((a, b) => b.value - a.value);
-  }, [transactions]);
+  }, [transactions, isDark]);
 
   const total = useMemo(
     () => categoryData.reduce((acc, cat) => acc + cat.value, 0),

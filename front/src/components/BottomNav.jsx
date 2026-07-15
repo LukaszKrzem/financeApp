@@ -39,7 +39,7 @@ export function BottomNav() {
 
   return (
     <>
-      <nav className="fixed bottom-0 left-0 right-0 z-50 border-t bg-background shadow-[0_-5px_15px_rgba(0,0,0,0.05)] md:hidden pb-6 pt-2 px-2">
+      <nav className="fixed bottom-0 left-0 right-0 z-50 border-t bg-background shadow-[0_-5px_15px_rgba(0,0,0,0.05)] md:hidden pt-2 px-2 pb-[max(1rem,env(safe-area-inset-bottom))]">
         <div className="grid w-full grid-cols-5 mx-auto max-w-md items-end">
           <NavLink to="/dashboard" className={linkStyles}>
             <Home className="h-5 w-5 sm:h-6 sm:w-6 mb-0.5" />

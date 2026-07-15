@@ -26,8 +26,8 @@ import {
 import { useData } from '@/context/DataContext';
 
 const chartConfig = {
-  spending: { label: 'Spending', color: 'var(--chart-4)' },
-  income: { label: 'Income', color: 'var(--chart-1)' },
+  spending: { label: 'Spending', color: 'var(--foreground)' },
+  income: { label: 'Income', color: 'var(--muted-foreground)' },
 };
 
 const formatCompactMoney = (value, currency = 'PLN') => {
@@ -235,6 +235,7 @@ export function ChartAreaInteractive() {
                 fill="url(#fillIncome)"
                 stroke="var(--color-income)"
                 strokeWidth={2}
+                strokeDasharray="4 4"
               />
             )}
             {(seriesFilter === 'BOTH' || seriesFilter === 'SPENDING') && (

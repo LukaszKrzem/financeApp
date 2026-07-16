@@ -40,7 +40,7 @@ const chartConfig = {
 };
 
 export function ChartAreaInteractive() {
-  const { transactions = [], accounts = [] } = useData();
+  const { transactions = [], accounts = [], currencies = [] } = useData();
 
   const isMobile = useIsMobile();
   const [timeRange, setTimeRange] = React.useState('6m');
@@ -71,6 +71,12 @@ export function ChartAreaInteractive() {
   const currency = selectedAccount?.currency_code || 'PLN';
 
   const chartData = React.useMemo(() => {
+    const accountRate = selectedAccount
+      ? currencies.find(
+          (c) => c.id_currency === selectedAccount.Currency_id_currency
+        )?.exchange_rate
+      : 1;
+
     const endDate = new Date();
     endDate.setHours(23, 59, 59, 999);
     const startDate = new Date();
@@ -95,11 +101,13 @@ export function ChartAreaInteractive() {
         grouped[monthStr] = { date: monthStr, spending: 0, income: 0 };
 
       const amount = parseFloat(tx.amount) || 0;
-      const exchangeRate = parseFloat(tx.exchange_rate) || 1;
+      const txRate = parseFloat(tx.exchange_rate) || 1;
+
+      const rate = txRate / (parseFloat(accountRate) || 1);
       const isIncome = tx.type === 'INCOME';
 
-      if (isIncome) grouped[monthStr].income += amount * exchangeRate;
-      else grouped[monthStr].spending += amount * exchangeRate;
+      if (isIncome) grouped[monthStr].income += amount * rate;
+      else grouped[monthStr].spending += amount * rate;
     });
 
     const filledData = [];
@@ -119,7 +127,7 @@ export function ChartAreaInteractive() {
     }
 
     return filledData;
-  }, [transactions, timeRange, accountId]);
+  }, [transactions, timeRange, accountId, selectedAccount, currencies]);
 
   const totals = React.useMemo(() => {
     return chartData.reduce(
@@ -196,7 +204,11 @@ export function ChartAreaInteractive() {
           </Select>
         </CardAction>
       </CardHeader>
-      <CardContent className="px-2 pt-4 sm:px-6 sm:pt-6">
+
+      <CardContent
+        className="px-2 pt-4 sm:px-6 sm:pt-6"
+        style={{ touchAction: 'pan-y' }}
+      >
         <div className="mb-4 grid grid-cols-3 gap-3">
           <div className="flex items-baseline justify-between gap-2 rounded-lg border border-border/50 bg-accent/30 px-3 py-2.5">
             <span className="text-xs font-medium text-muted-foreground">
@@ -306,6 +318,8 @@ export function ChartAreaInteractive() {
             />
             <ChartTooltip
               cursor={false}
+              trigger="click"
+              isAnimationActive={false}
               content={
                 <ChartTooltipContent
                   labelFormatter={(value) => {

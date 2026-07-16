@@ -358,8 +358,6 @@ export function ChartAreaInteractive() {
             />
             <ChartTooltip
               cursor={false}
-              trigger="click"
-              isAnimationActive={false}
               content={
                 <ChartTooltipContent
                   labelFormatter={(value) =>

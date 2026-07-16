@@ -39,6 +39,43 @@ const chartConfig = {
   net: { label: 'net', color: 'var(--color-net-chart)' },
 };
 
+const TIME_RANGES = [
+  { label: 'Last Month', value: '1m' },
+  { label: '3 Months', value: '3m' },
+  { label: '6 Months', value: '6m' },
+  { label: 'Year to Date', value: 'ytd' },
+];
+
+const MONTHS_BACK = { '1m': 1, '3m': 3, '6m': 6, ytd: 0 };
+
+const SERIES_FILTERS = ['BOTH', 'INCOME', 'SPENDING'];
+const SERIES_FILTER_LABELS = {
+  BOTH: 'All',
+  INCOME: 'Income',
+  SPENDING: 'Spending',
+};
+
+const parseMonthKey = (v) => {
+  const [year, month] = v.split('-');
+  return new Date(year, month - 1);
+};
+
+function NetTooltipValue({ value, currency }) {
+  const isPositive = Number(value) >= 0;
+  return (
+    <span
+      className={
+        isPositive
+          ? 'text-[var(--color-income-chart)]'
+          : 'text-[var(--color-spending-chart)]'
+      }
+    >
+      {isPositive ? '+' : ''}
+      {formatMoney(Number(value), currency)}
+    </span>
+  );
+}
+
 export function ChartAreaInteractive() {
   const { transactions = [], accounts = [], currencies = [] } = useData();
 
@@ -47,26 +84,13 @@ export function ChartAreaInteractive() {
   const [accountId, setAccountId] = React.useState('ALL');
   const [seriesFilter, setSeriesFilter] = React.useState('BOTH');
 
-  const timeRanges = [
-    { label: 'Last Month', value: '1m' },
-    { label: '3 Months', value: '3m' },
-    { label: '6 Months', value: '6m' },
-    { label: 'Year to Date', value: 'ytd' },
-  ];
-
-  const MONTHS_MAP = {
-    '1m': 1,
-    '3m': 3,
-    '6m': 6,
-    ytd: new Date().getMonth() + 1,
-  };
-
   React.useEffect(() => {
     if (isMobile) setTimeRange('3m');
   }, [isMobile]);
 
-  const selectedAccount = accounts.find(
-    (a) => String(a.id_account) === accountId
+  const selectedAccount = React.useMemo(
+    () => accounts.find((a) => String(a.id_account) === accountId),
+    [accounts, accountId]
   );
   const currency = selectedAccount?.currency_code || 'PLN';
 
@@ -80,7 +104,7 @@ export function ChartAreaInteractive() {
     const endDate = new Date();
     endDate.setHours(23, 59, 59, 999);
     const startDate = new Date();
-    startDate.setMonth(startDate.getMonth() - (MONTHS_MAP[timeRange] ?? 6));
+    startDate.setMonth(startDate.getMonth() - (MONTHS_BACK[timeRange] ?? 6));
     if (timeRange === 'ytd') {
       startDate.setMonth(0);
     }
@@ -145,19 +169,69 @@ export function ChartAreaInteractive() {
   const showSpending = seriesFilter === 'BOTH' || seriesFilter === 'SPENDING';
   const showNet = seriesFilter === 'BOTH';
 
+  const stats = [
+    {
+      key: 'income',
+      label: 'Income',
+      value: totals.income,
+      color: 'var(--color-income-chart)',
+    },
+    {
+      key: 'spending',
+      label: 'Spending',
+      value: totals.spending,
+      color: 'var(--color-spending-chart)',
+    },
+    {
+      key: 'net',
+      label: 'Net',
+      value: totals.net,
+      color:
+        totals.net >= 0
+          ? 'var(--color-income-chart)'
+          : 'var(--color-spending-chart)',
+      signed: true,
+    },
+  ];
+
+  const seriesConfig = [
+    {
+      key: 'net',
+      color: 'var(--color-net-chart)',
+      stopOpacity: [0.15, 0.02],
+      dashed: true,
+      visible: showNet,
+    },
+    {
+      key: 'income',
+      color: 'var(--color-income-chart)',
+      stopOpacity: [0.2, 0.02],
+      visible: showIncome,
+    },
+    {
+      key: 'spending',
+      color: 'var(--color-spending-chart)',
+      stopOpacity: [0.25, 0.03],
+      visible: showSpending,
+    },
+  ];
+
   return (
     <Card className="@container/card border-border/50">
-      <CardHeader>
+      <CardHeader className="grid-cols-1 has-data-[slot=card-action]:grid-cols-1 sm:has-data-[slot=card-action]:grid-cols-[1fr_auto]">
         <CardTitle>Spending Overview</CardTitle>
         <CardDescription>
           Comparing income vs spending over time
         </CardDescription>
-        <CardAction className="flex flex-wrap gap-2 pt-2">
+        <CardAction className="col-start-1 row-start-3 row-span-1 self-stretch justify-self-start sm:col-start-2 sm:row-span-2 sm:row-start-1 sm:self-start sm:justify-self-end flex flex-col sm:flex-row flex-wrap gap-2 pt-2 w-full sm:w-auto">
           <Label htmlFor="account-select" className="sr-only">
             Account:
           </Label>
           <Select value={accountId} onValueChange={(val) => setAccountId(val)}>
-            <SelectTrigger className="w-36 h-8 text-xs" id="account-select">
+            <SelectTrigger
+              className="w-full sm:w-36 h-8 text-xs"
+              id="account-select"
+            >
               <SelectValue placeholder="All accounts" />
             </SelectTrigger>
             <SelectContent>
@@ -172,30 +246,26 @@ export function ChartAreaInteractive() {
               ))}
             </SelectContent>
           </Select>
-          <div className="flex gap-1">
-            {['BOTH', 'INCOME', 'SPENDING'].map((filter) => (
+          <div className="flex gap-1 w-full sm:w-auto">
+            {SERIES_FILTERS.map((filter) => (
               <Button
                 key={filter}
                 variant={seriesFilter === filter ? 'secondary' : 'ghost'}
                 size="sm"
-                className="h-8 px-3 text-xs w-[72px] data-[active=true]:bg-accent"
+                className="h-8 px-3 text-xs flex-1 sm:flex-initial sm:w-[72px] data-[active=true]:bg-accent"
                 data-active={seriesFilter === filter}
                 onClick={() => setSeriesFilter(filter)}
               >
-                {filter === 'BOTH'
-                  ? 'All'
-                  : filter === 'INCOME'
-                    ? 'Income'
-                    : 'Spending'}
+                {SERIES_FILTER_LABELS[filter]}
               </Button>
             ))}
           </div>
           <Select value={timeRange} onValueChange={setTimeRange}>
-            <SelectTrigger className="w-32 h-8 text-xs">
+            <SelectTrigger className="w-full sm:w-32 h-8 text-xs">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              {timeRanges.map((range) => (
+              {TIME_RANGES.map((range) => (
                 <SelectItem key={range.value} value={range.value}>
                   {range.label}
                 </SelectItem>
@@ -209,38 +279,24 @@ export function ChartAreaInteractive() {
         className="px-2 pt-4 sm:px-6 sm:pt-6"
         style={{ touchAction: 'pan-y' }}
       >
-        <div className="mb-4 grid grid-cols-3 gap-3">
-          <div className="flex items-baseline justify-between gap-2 rounded-lg border border-border/50 bg-accent/30 px-3 py-2.5">
-            <span className="text-xs font-medium text-muted-foreground">
-              Income
-            </span>
-            <span className="text-sm font-bold tabular-nums text-[var(--color-income-chart)]">
-              {formatMoney(totals.income, currency)}
-            </span>
-          </div>
-          <div className="flex items-baseline justify-between gap-2 rounded-lg border border-border/50 bg-accent/30 px-3 py-2.5">
-            <span className="text-xs font-medium text-muted-foreground">
-              Spending
-            </span>
-            <span className="text-sm font-bold tabular-nums text-[var(--color-spending-chart)]">
-              {formatMoney(totals.spending, currency)}
-            </span>
-          </div>
-          <div className="flex items-baseline justify-between gap-2 rounded-lg border border-border/50 bg-accent/30 px-3 py-2.5">
-            <span className="text-xs font-medium text-muted-foreground">
-              Net
-            </span>
-            <span
-              className={`text-sm font-bold tabular-nums ${
-                totals.net >= 0
-                  ? 'text-[var(--color-income-chart)]'
-                  : 'text-[var(--color-spending-chart)]'
-              }`}
+        <div className="mb-4 grid grid-cols-1 sm:grid-cols-3 gap-3">
+          {stats.map((s) => (
+            <div
+              key={s.key}
+              className="flex items-center justify-between gap-2 rounded-lg border border-border/50 bg-accent/30 px-3 py-2.5"
             >
-              {totals.net >= 0 ? '+' : ''}
-              {formatMoney(totals.net, currency)}
-            </span>
-          </div>
+              <span className="text-xs font-medium text-muted-foreground">
+                {s.label}
+              </span>
+              <span
+                className="text-sm font-bold tabular-nums"
+                style={{ color: s.color }}
+              >
+                {s.signed && s.value >= 0 ? '+' : ''}
+                {formatMoney(s.value, currency)}
+              </span>
+            </div>
+          ))}
         </div>
 
         <ChartContainer
@@ -252,42 +308,27 @@ export function ChartAreaInteractive() {
             margin={{ top: 4, right: 4, bottom: 0, left: 0 }}
           >
             <defs>
-              <linearGradient id="fillSpending" x1="0" y1="0" x2="0" y2="1">
-                <stop
-                  offset="5%"
-                  stopColor="var(--color-spending-chart)"
-                  stopOpacity={0.25}
-                />
-                <stop
-                  offset="95%"
-                  stopColor="var(--color-spending-chart)"
-                  stopOpacity={0.03}
-                />
-              </linearGradient>
-              <linearGradient id="fillIncome" x1="0" y1="0" x2="0" y2="1">
-                <stop
-                  offset="5%"
-                  stopColor="var(--color-income-chart)"
-                  stopOpacity={0.2}
-                />
-                <stop
-                  offset="95%"
-                  stopColor="var(--color-income-chart)"
-                  stopOpacity={0.02}
-                />
-              </linearGradient>
-              <linearGradient id="fillNet" x1="0" y1="0" x2="0" y2="1">
-                <stop
-                  offset="5%"
-                  stopColor="var(--color-net-chart)"
-                  stopOpacity={0.15}
-                />
-                <stop
-                  offset="95%"
-                  stopColor="var(--color-net-chart)"
-                  stopOpacity={0.02}
-                />
-              </linearGradient>
+              {seriesConfig.map((s) => (
+                <linearGradient
+                  key={s.key}
+                  id={`fill-${s.key}`}
+                  x1="0"
+                  y1="0"
+                  x2="0"
+                  y2="1"
+                >
+                  <stop
+                    offset="5%"
+                    stopColor={s.color}
+                    stopOpacity={s.stopOpacity[0]}
+                  />
+                  <stop
+                    offset="95%"
+                    stopColor={s.color}
+                    stopOpacity={s.stopOpacity[1]}
+                  />
+                </linearGradient>
+              ))}
             </defs>
             <CartesianGrid
               vertical={false}
@@ -299,13 +340,12 @@ export function ChartAreaInteractive() {
               tickLine={false}
               axisLine={false}
               tickMargin={8}
-              tickFormatter={(v) => {
-                const [year, month] = v.split('-');
-                return new Date(year, month - 1).toLocaleDateString('en-US', {
+              tickFormatter={(v) =>
+                parseMonthKey(v).toLocaleDateString('en-US', {
                   month: 'short',
                   year: '2-digit',
-                });
-              }}
+                })
+              }
             />
             <YAxis
               type="number"
@@ -322,31 +362,20 @@ export function ChartAreaInteractive() {
               isAnimationActive={false}
               content={
                 <ChartTooltipContent
-                  labelFormatter={(value) => {
-                    const [year, month] = value.split('-');
-                    return new Date(year, month - 1).toLocaleDateString(
-                      'en-US',
-                      {
-                        month: 'long',
-                        year: 'numeric',
-                      }
-                    );
-                  }}
+                  labelFormatter={(value) =>
+                    parseMonthKey(value).toLocaleDateString('en-US', {
+                      month: 'long',
+                      year: 'numeric',
+                    })
+                  }
                   formatter={(val, name) => {
                     if (name === 'net') {
-                      const isPositive = Number(val) >= 0;
                       return [
-                        <span
+                        <NetTooltipValue
                           key={name}
-                          className={
-                            isPositive
-                              ? 'text-[var(--color-income-chart)]'
-                              : 'text-[var(--color-spending-chart)]'
-                          }
-                        >
-                          {isPositive ? '+' : ''}
-                          {formatMoney(Number(val), currency)}
-                        </span>,
+                          value={val}
+                          currency={currency}
+                        />,
                         <span key={`${name}-label`} className="ml-2">
                           {chartConfig.net.label}
                         </span>,
@@ -363,58 +392,31 @@ export function ChartAreaInteractive() {
               }
             />
             {showNet && (
-              <>
-                <ReferenceLine
-                  y={0}
-                  stroke="var(--border)"
-                  strokeDasharray="4 4"
-                  strokeOpacity={0.5}
-                />
-                <Area
-                  dataKey="net"
-                  type="monotone"
-                  fill="url(#fillNet)"
-                  stroke="var(--color-net-chart)"
-                  strokeWidth={2}
-                  strokeDasharray="4 4"
-                  animationDuration={600}
-                  activeDot={{
-                    r: 4,
-                    style: { fill: 'var(--color-net-chart)', strokeWidth: 0 },
-                  }}
-                />
-              </>
-            )}
-            {showIncome && (
-              <Area
-                dataKey="income"
-                type="monotone"
-                fill="url(#fillIncome)"
-                stroke="var(--color-income-chart)"
-                strokeWidth={2}
-                animationDuration={600}
-                activeDot={{
-                  r: 4,
-                  style: { fill: 'var(--color-income-chart)', strokeWidth: 0 },
-                }}
+              <ReferenceLine
+                y={0}
+                stroke="var(--border)"
+                strokeDasharray="4 4"
+                strokeOpacity={0.5}
               />
             )}
-            {showSpending && (
-              <Area
-                dataKey="spending"
-                type="monotone"
-                fill="url(#fillSpending)"
-                stroke="var(--color-spending-chart)"
-                strokeWidth={2}
-                animationDuration={600}
-                activeDot={{
-                  r: 4,
-                  style: {
-                    fill: 'var(--color-spending-chart)',
-                    strokeWidth: 0,
-                  },
-                }}
-              />
+            {seriesConfig.map(
+              (s) =>
+                s.visible && (
+                  <Area
+                    key={s.key}
+                    dataKey={s.key}
+                    type="monotone"
+                    fill={`url(#fill-${s.key})`}
+                    stroke={s.color}
+                    strokeWidth={2}
+                    strokeDasharray={s.dashed ? '4 4' : undefined}
+                    animationDuration={600}
+                    activeDot={{
+                      r: 4,
+                      style: { fill: s.color, strokeWidth: 0 },
+                    }}
+                  />
+                )
             )}
           </AreaChart>
         </ChartContainer>

@@ -24,7 +24,7 @@ import { ConfirmDeleteDialog } from '@/components/ConfirmDeleteDialog';
 import { useApi } from '@/hooks/useApi';
 
 export default function Accounts() {
-  const { accounts, loading, currencies, setRefreshing } = useData();
+  const { accounts, loading, setRefreshing } = useData();
 
   const { post, patch, del } = useApi();
 
@@ -52,6 +52,7 @@ export default function Accounts() {
     } catch (error) {
       console.error('Error starting bank connection:', error);
       toast.error('Connection failed', { description: error.message });
+    } finally {
       setConnecting(false);
     }
   };
@@ -74,28 +75,26 @@ export default function Accounts() {
 
   return (
     <div className="flex flex-1 flex-col p-4 lg:p-6 gap-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h2 className="text-2xl font-semibold tracking-tight">
+          <h2 className="text-xl sm:text-2xl font-semibold tracking-tight">
             Your Financial Accounts
           </h2>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-xs sm:text-sm text-muted-foreground">
             Monitor and manage your available wallets and balances
           </p>
         </div>
         <div className="flex items-center gap-2">
           <Button
             variant="outline"
+            size="sm"
             onClick={() => setSelectBankOpen(true)}
             disabled={connecting}
             className="flex items-center gap-2"
           >
             {connecting ? 'Connecting...' : 'Connect bank'}
           </Button>
-          <AddAccountDialog
-            onAccountAdded={() => setRefreshing((prev) => prev + 1)}
-            currencies={currencies}
-          />
+          <AddAccountDialog />
         </div>
       </div>
 
@@ -121,33 +120,37 @@ export default function Accounts() {
             return (
               <div
                 key={account.id_account}
-                className="rounded-xl border bg-card text-card-foreground shadow-sm p-5 flex flex-col gap-2 duration-200 hover:shadow-md"
+                className="rounded-xl border bg-card text-card-foreground shadow-sm p-4 sm:p-5 flex flex-col gap-2 duration-200 hover:shadow-md"
               >
-                <div className="flex justify-between items-center gap-2">
+                <div className="flex justify-between items-start sm:items-center gap-2">
                   <span
-                    className="font-semibold text-lg text-foreground truncate"
+                    className="font-semibold text-base sm:text-lg text-foreground truncate"
                     title={account.name}
                   >
                     {account.name}
                   </span>
 
-                  <div className="flex items-center gap-1 shrink-0">
+                  <div className="flex items-center gap-1 shrink-0 flex-wrap justify-end">
                     {isSyncing && (
                       <IconRefresh className="size-4 animate-spin text-muted-foreground" />
                     )}
 
                     {account.bank_account_uid && (
-                      <span className="text-xs px-2 py-0.5 rounded bg-emerald-100 text-emerald-700 dark:bg-emerald-900 dark:text-emerald-300">
+                      <span className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 rounded bg-emerald-100 text-emerald-700 dark:bg-emerald-900 dark:text-emerald-300 whitespace-nowrap">
                         Connected
                       </span>
                     )}
-                    <span className="text-xs font-mono px-2 py-0.5 rounded bg-muted text-muted-foreground">
+                    <span className="text-[10px] sm:text-xs font-mono px-1.5 sm:px-2 py-0.5 rounded bg-muted text-muted-foreground">
                       {account.currency_code}
                     </span>
 
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="size-7">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="size-7 sm:size-7"
+                        >
                           <IconDotsVertical className="size-4" />
                         </Button>
                       </DropdownMenuTrigger>
@@ -182,11 +185,11 @@ export default function Accounts() {
                     </DropdownMenu>
                   </div>
                 </div>
-                <div className="mt-2">
-                  <span className="text-sm text-muted-foreground block">
+                <div className="mt-1 sm:mt-2">
+                  <span className="text-xs sm:text-sm text-muted-foreground block">
                     Current Balance
                   </span>
-                  <span className="text-3xl font-bold tracking-tight text-primary">
+                  <span className="text-2xl sm:text-3xl font-bold tracking-tight text-primary">
                     {compactNumber}
                   </span>
                 </div>

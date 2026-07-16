@@ -54,7 +54,7 @@ export function AddAccountDialog() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="gap-2">
+        <Button className="gap-2" size="sm">
           <IconPlus className="size-4" />
           Add Account
         </Button>
@@ -84,6 +84,7 @@ export function AddAccountDialog() {
               type="number"
               step="0.01"
               min="0.00"
+              inputMode="decimal"
               placeholder="e.g. 100.00"
               value={balance}
               onChange={(e) => setBalance(e.target.value)}

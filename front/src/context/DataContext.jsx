@@ -1,10 +1,12 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import { useApi } from '@/hooks/useApi';
+import { useAuth } from '@/context/AuthContext';
 
 const DataContext = createContext();
 
 export function DataProvider({ children }) {
   const { get } = useApi();
+  const { token } = useAuth();
   const [data, setData] = useState({
     accounts: [],
     transactions: [],
@@ -16,6 +18,16 @@ export function DataProvider({ children }) {
   const [refreshing, setRefreshing] = useState(0);
 
   useEffect(() => {
+    if (!token) {
+      setData((prev) => ({
+        ...prev,
+        accounts: [],
+        transactions: [],
+        budgets: [],
+        loading: false,
+      }));
+      return;
+    }
     const fetchData = async () => {
       setData((prev) => ({ ...prev, loading: true }));
       try {
@@ -41,7 +53,7 @@ export function DataProvider({ children }) {
       }
     };
     fetchData();
-  }, [get, refreshing]);
+  }, [get, token, refreshing]);
 
   return (
     <DataContext.Provider value={{ ...data, setRefreshing }}>

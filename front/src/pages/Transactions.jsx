@@ -7,6 +7,13 @@ import { CategoryBadge } from '@/lib/categoryBadge';
 import { formatMoney } from '@/lib/formatMoney';
 import { useData } from '@/context/DataContext';
 import { DatePicker } from '@/components/ui/date-picker';
+import { SegmentedControl } from '@/components/ui/segmented-control';
+
+const FILTER_OPTIONS = [
+  { value: 'ALL', label: 'All' },
+  { value: 'INCOME', label: 'Income' },
+  { value: 'EXPENSE', label: 'Spending' },
+];
 
 const columns = [
   {
@@ -89,21 +96,11 @@ export default function Transactions() {
       <div className="bg-card border-border/50 border rounded-xl p-4">
         <div className="flex flex-col md:flex-row gap-4 mb-6 md:items-center">
           <div className="flex gap-2">
-            {['ALL', 'EXPENSE', 'INCOME'].map((type) => (
-              <Button
-                key={type}
-                variant={typeFilter === type ? 'default' : 'outline'}
-                size="sm"
-                className="flex-1 md:flex-none"
-                onClick={() => setTypeFilter(type)}
-              >
-                {type === 'ALL'
-                  ? 'All'
-                  : type === 'EXPENSE'
-                    ? 'Expenses'
-                    : 'Income'}
-              </Button>
-            ))}
+            <SegmentedControl
+              options={FILTER_OPTIONS}
+              value={typeFilter}
+              onChange={setTypeFilter}
+            />
           </div>
 
           <div className="flex flex-col sm:flex-row items-center gap-2 md:ml-auto w-full md:w-auto">

@@ -8,7 +8,6 @@ import {
   ReferenceLine,
 } from 'recharts';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import {
   Card,
@@ -31,6 +30,7 @@ import {
 } from '@/components/ui/select';
 import { useData } from '@/context/DataContext';
 import { formatMoney } from '@/lib/formatMoney';
+import { SegmentedControl } from '@/components/ui/segmented-control';
 
 const chartConfig = {
   spending: { label: 'Spending', color: 'var(--color-spending-chart)' },
@@ -47,12 +47,11 @@ const TIME_RANGES = [
 
 const MONTHS_BACK = { '1m': 1, '3m': 3, '6m': 6, ytd: 0 };
 
-const SERIES_FILTERS = ['BOTH', 'INCOME', 'SPENDING'];
-const SERIES_FILTER_LABELS = {
-  BOTH: 'All',
-  INCOME: 'Income',
-  SPENDING: 'Spending',
-};
+const SERIES_FILTERS = [
+  { value: 'BOTH', label: 'All' },
+  { value: 'INCOME', label: 'Income' },
+  { value: 'SPENDING', label: 'Spending' },
+];
 
 const parseMonthKey = (v) => {
   const [year, month] = v.split('-');
@@ -263,26 +262,11 @@ export function ChartAreaInteractive() {
             </Select>
           </div>
 
-          <div className="flex gap-1 w-full sm:w-auto bg-muted/50 p-1 rounded-lg border border-border/50">
-            {SERIES_FILTERS.map((filter) => {
-              const isActive = seriesFilter === filter;
-              return (
-                <Button
-                  key={filter}
-                  variant="ghost"
-                  size="sm"
-                  className={`h-7 px-2 text-[11px] sm:text-xs flex-1 sm:flex-initial sm:w-[72px] transition-color duration-200 ${
-                    isActive
-                      ? 'bg-background text-foreground shadow-sm font-semibold'
-                      : 'text-muted-foreground hover:text-foreground hover:bg-transparent'
-                  }`}
-                  onClick={() => setSeriesFilter(filter)}
-                >
-                  {SERIES_FILTER_LABELS[filter]}
-                </Button>
-              );
-            })}
-          </div>
+          <SegmentedControl
+            options={SERIES_FILTERS}
+            value={seriesFilter}
+            onChange={setSeriesFilter}
+          />
         </CardAction>
       </CardHeader>
 

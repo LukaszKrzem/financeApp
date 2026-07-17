@@ -10,12 +10,12 @@ DB_URL = os.getenv("DATABASE_URL")
 if not DB_URL:
     raise ValueError("DATABASE_URL environment variable not set")
 
-if DB_URL.startswith("postgresql://"):
+if DB_URL.startswith("postgres://"):
     DB_URL = DB_URL.replace("postgres://", "postgresql://", 1)
 # Engine manages connections to the database,
 # SessionLocal is a factory for creating new sessions,
 # Base is the base class for our models
-engine = create_engine(DB_URL)
+engine = create_engine(DB_URL, pool_pre_ping=True)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 

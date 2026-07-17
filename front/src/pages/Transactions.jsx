@@ -1,3 +1,4 @@
+import * as React from 'react';
 import { useState } from 'react';
 import { SimpleDataTable } from '@/components/simple-data-table';
 import { Button } from '@/components/ui/button';
@@ -60,15 +61,19 @@ export default function Transactions() {
 
   const isMobile = useIsMobile();
 
-  const filteredTransactions = transactions
-    .filter((t) => typeFilter === 'ALL' || t.type === typeFilter)
-    .filter((t) => !dateFrom || new Date(t.date) >= dateFrom)
-    .filter((t) => {
-      if (!dateTo) return true;
-      const end = new Date(dateTo);
-      end.setHours(23, 59, 59, 999);
-      return new Date(t.date) <= end;
+  const filteredTransactions = React.useMemo(() => {
+    return transactions.filter((t) => {
+      if (typeFilter !== 'ALL' && t.type !== typeFilter) return false;
+      const txDate = new Date(t.date);
+      if (dateFrom && txDate < dateFrom) return false;
+      if (dateTo) {
+        const end = new Date(dateTo);
+        end.setHours(23, 59, 59, 999);
+        if (txDate > end) return false;
+      }
+      return true;
     });
+  }, [transactions, typeFilter, dateFrom, dateTo]);
 
   return (
     <div className="flex flex-1 flex-col p-4 md:p-6 gap-6">

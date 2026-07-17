@@ -63,7 +63,12 @@ export default function Transactions() {
   const filteredTransactions = transactions
     .filter((t) => typeFilter === 'ALL' || t.type === typeFilter)
     .filter((t) => !dateFrom || new Date(t.date) >= dateFrom)
-    .filter((t) => !dateTo || new Date(t.date) <= dateTo);
+    .filter((t) => {
+      if (!dateTo) return true;
+      const end = new Date(dateTo);
+      end.setHours(23, 59, 59, 999);
+      return new Date(t.date) <= end;
+    });
 
   return (
     <div className="flex flex-1 flex-col p-4 md:p-6 gap-6">

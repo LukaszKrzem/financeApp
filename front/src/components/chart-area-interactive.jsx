@@ -115,7 +115,7 @@ export function ChartAreaInteractive() {
       if (accountId !== 'ALL' && String(tx.Account_id_account) !== accountId)
         return;
 
-      const txDate = new Date(tx.transaction_date || tx.date);
+      const txDate = new Date(tx.date);
       if (txDate < startDate || txDate > endDate) return;
 
       const monthStr = `${txDate.getFullYear()}-${String(txDate.getMonth() + 1).padStart(2, '0')}`;
@@ -219,36 +219,57 @@ export function ChartAreaInteractive() {
     <Card className="@container/card border-border/50">
       <CardHeader className="grid-cols-1 has-data-[slot=card-action]:grid-cols-1 sm:has-data-[slot=card-action]:grid-cols-[1fr_auto]">
         <CardTitle>Spending Overview</CardTitle>
-        <CardAction className="col-start-1 row-start-3 row-span-1 self-stretch justify-self-start sm:col-start-2 sm:row-span-2 sm:row-start-1 sm:self-start sm:justify-self-end flex flex-col sm:flex-row flex-wrap gap-2 pt-2 w-full sm:w-auto">
-          <Label htmlFor="account-select" className="sr-only">
-            Account:
-          </Label>
-          <Select value={accountId} onValueChange={(val) => setAccountId(val)}>
-            <SelectTrigger
-              className="w-full sm:w-36 h-8 text-xs"
-              id="account-select"
-            >
-              <SelectValue placeholder="All accounts" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="ALL">All accounts</SelectItem>
-              {accounts.map((acc) => (
-                <SelectItem
-                  key={String(acc.id_account)}
-                  value={String(acc.id_account)}
+        <CardAction className="col-start-1 row-start-3 row-span-1 self-stretch justify-self-start sm:col-start-2 sm:row-span-2 sm:row-start-1 sm:self-start sm:justify-self-end flex flex-col sm:flex-row gap-2 pt-2 w-full sm:w-auto">
+          <div className="grid grid-cols-2 gap-2 w-full sm:w-auto sm:flex sm:flex-row">
+            <div>
+              <Label htmlFor="account-select" className="sr-only">
+                Account:
+              </Label>
+              <Select
+                value={accountId}
+                onValueChange={(val) => setAccountId(val)}
+              >
+                <SelectTrigger
+                  className="w-full sm:w-36 h-8 text-xs"
+                  id="account-select"
                 >
-                  {acc.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <div className="flex gap-1 w-full sm:w-auto">
+                  <SelectValue placeholder="All accounts" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="ALL">All accounts</SelectItem>
+                  {accounts.map((acc) => (
+                    <SelectItem
+                      key={String(acc.id_account)}
+                      value={String(acc.id_account)}
+                    >
+                      {acc.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <Select value={timeRange} onValueChange={setTimeRange}>
+              <SelectTrigger className="w-full sm:w-32 h-8 text-xs">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {TIME_RANGES.map((range) => (
+                  <SelectItem key={range.value} value={range.value}>
+                    {range.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="flex gap-1 w-full sm:w-auto bg-muted/30 p-0.5 rounded-lg border border-border/50">
             {SERIES_FILTERS.map((filter) => (
               <Button
                 key={filter}
                 variant={seriesFilter === filter ? 'secondary' : 'ghost'}
                 size="sm"
-                className="h-8 px-3 text-xs flex-1 sm:flex-initial sm:w-[72px] data-[active=true]:bg-accent"
+                className="h-7 px-2 text-[11px] sm:text-xs flex-1 sm:flex-initial sm:w-[72px] data-[active=true]:bg-accent shadow-none"
                 data-active={seriesFilter === filter}
                 onClick={() => setSeriesFilter(filter)}
               >
@@ -256,18 +277,6 @@ export function ChartAreaInteractive() {
               </Button>
             ))}
           </div>
-          <Select value={timeRange} onValueChange={setTimeRange}>
-            <SelectTrigger className="w-full sm:w-32 h-8 text-xs">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {TIME_RANGES.map((range) => (
-                <SelectItem key={range.value} value={range.value}>
-                  {range.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
         </CardAction>
       </CardHeader>
 
@@ -275,17 +284,17 @@ export function ChartAreaInteractive() {
         className="px-2 pt-4 sm:px-6 sm:pt-6"
         style={{ touchAction: 'pan-y' }}
       >
-        <div className="mb-4 grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <div className="mb-4 grid grid-cols-3 gap-2 sm:gap-3">
           {stats.map((s) => (
             <div
               key={s.key}
-              className="flex items-center justify-between gap-2 rounded-lg border border-border/50 bg-accent/30 px-3 py-2.5"
+              className="flex flex-col sm:flex-row items-center justify-center sm:justify-between gap-1 sm:gap-2 rounded-lg border border-border/50 bg-accent/30 px-2 py-2 sm:px-3 sm:py-2.5 text-center sm:text-left"
             >
-              <span className="text-xs font-medium text-muted-foreground">
+              <span className="text-[10px] sm:text-xs font-medium text-muted-foreground uppercase tracking-wider">
                 {s.label}
               </span>
               <span
-                className="text-sm font-bold tabular-nums"
+                className="text-xs sm:text-sm font-bold tabular-nums truncate w-full"
                 style={{ color: s.color }}
               >
                 {s.signed && s.value >= 0 ? '+' : ''}

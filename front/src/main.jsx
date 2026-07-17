@@ -5,6 +5,13 @@ import { ThemeProvider } from '@/components/theme-provider';
 import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from '@vercel/speed-insights/react';
 
+window.addEventListener('vite:preloadError', () => {
+  if (!sessionStorage.getItem('vite-reload-attempted')) {
+    sessionStorage.setItem('vite-reload-attempted', '1');
+    window.location.reload();
+  }
+});
+
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <ThemeProvider

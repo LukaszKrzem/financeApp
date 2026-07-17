@@ -1,12 +1,11 @@
 import { useState } from 'react';
 import { SimpleDataTable } from '@/components/simple-data-table';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { CategoryBadge } from '@/lib/categoryBadge';
 import { formatMoney } from '@/lib/formatMoney';
 import { useData } from '@/context/DataContext';
+import { DatePicker } from '@/components/ui/date-picker';
 
 const columns = [
   {
@@ -56,17 +55,15 @@ export default function Transactions() {
   const { transactions = [], loading } = useData();
 
   const [typeFilter, setTypeFilter] = useState('ALL');
-  const [dateFrom, setDateFrom] = useState('');
-  const [dateTo, setDateTo] = useState('');
+  const [dateFrom, setDateFrom] = useState(null);
+  const [dateTo, setDateTo] = useState(null);
 
   const isMobile = useIsMobile();
 
   const filteredTransactions = transactions
     .filter((t) => typeFilter === 'ALL' || t.type === typeFilter)
-    .filter((t) => !dateFrom || new Date(t.date) >= new Date(dateFrom))
-    .filter(
-      (t) => !dateTo || new Date(t.date) <= new Date(dateTo + 'T23:59:59')
-    );
+    .filter((t) => !dateFrom || new Date(t.date) >= dateFrom)
+    .filter((t) => !dateTo || new Date(t.date) <= dateTo);
 
   return (
     <div className="flex flex-1 flex-col p-4 md:p-6 gap-6">
@@ -99,33 +96,35 @@ export default function Transactions() {
             ))}
           </div>
 
-          <div className="flex items-center gap-2 md:ml-auto w-full md:w-auto">
-            <Label htmlFor="date-from">Date range:</Label>
-            <Input
-              id="date-from"
-              type="date"
-              value={dateFrom}
-              onChange={(e) => setDateFrom(e.target.value)}
-              className="flex-1 md:w-36 h-8 text-sm"
-            />
-            <span className="text-muted-foreground text-sm">—</span>
-            <Label htmlFor="date-to" className="sr-only">
-              Date to
-            </Label>
-            <Input
-              id="date-to"
-              type="date"
-              value={dateTo}
-              onChange={(e) => setDateTo(e.target.value)}
-              className="flex-1 md:w-36 h-8 text-sm"
-            />
+          <div className="flex flex-col sm:flex-row items-center gap-2 md:ml-auto w-full md:w-auto">
+            <div className="flex items-center gap-2 w-full">
+              <div className="flex-1 min-w-0">
+                <DatePicker
+                  date={dateFrom}
+                  setDate={setDateFrom}
+                  placeholder="From"
+                />
+              </div>
+              <span className="text-muted-foreground text-sm flex-shrink-0">
+                —
+              </span>
+              <div className="flex-1 min-w-0">
+                <DatePicker
+                  date={dateTo}
+                  setDate={setDateTo}
+                  placeholder="To"
+                />
+              </div>
+            </div>
+
             {(dateFrom || dateTo) && (
               <Button
                 variant="ghost"
                 size="sm"
+                className="w-full sm:w-auto mt-2 sm:mt-0"
                 onClick={() => {
-                  setDateFrom('');
-                  setDateTo('');
+                  setDateFrom(null);
+                  setDateTo(null);
                 }}
               >
                 Clear

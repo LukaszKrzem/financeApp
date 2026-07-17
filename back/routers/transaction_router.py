@@ -142,7 +142,7 @@ def get_user_transactions(
         .filter(structure.Account.User_id_user == current_user.id_user)
         .order_by(structure.Transaction.date.desc())
         .all()
-    )  # Fixed it to include join correctly
+    )
     transactions_with_data = []
     for trans, cat, cur in results:
         transactions_with_data.append(

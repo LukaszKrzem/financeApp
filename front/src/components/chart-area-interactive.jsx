@@ -357,9 +357,10 @@ export function ChartAreaInteractive() {
               domain={['auto', 'auto']}
               tickLine={false}
               axisLine={false}
-              tickMargin={8}
+              tickMargin={isMobile ? 2 : 8}
               tickFormatter={(val) => formatMoney(val, currency)}
-              width={65}
+              width={isMobile ? 30 : 65}
+              fontSize={isMobile ? 8 : 12}
             />
             <ChartTooltip
               cursor={false}

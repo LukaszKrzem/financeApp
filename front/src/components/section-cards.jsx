@@ -3,7 +3,6 @@ import {
   IconArrowUp,
   IconTrendingDown,
   IconTrendingUp,
-  IconAlertTriangle,
 } from '@tabler/icons-react';
 import { useMemo } from 'react';
 
@@ -37,21 +36,22 @@ function TrendBadge({ percent, goodDirection = 'up' }) {
   );
 }
 
-function StatusBadge({ label, tone = 'neutral' }) {
+function UsageBadge({ percent, tone = 'neutral' }) {
   const toneClass =
     tone === 'warning'
       ? 'text-amber-500'
       : tone === 'danger'
         ? 'text-destructive'
-        : 'text-muted-foreground';
-  const Icon = tone === 'danger' ? IconAlertTriangle : null;
+        : tone === 'good'
+          ? 'text-emerald-500'
+          : 'text-muted-foreground';
+
   return (
     <Badge
       variant="outline"
-      className={`h-5 px-1.5 text-[10px] font-bold gap-0.5 border-none bg-transparent ${toneClass}`}
+      className={`h-5 px-1.5 text-[12px] font-bold gap-0.5 border-none bg-transparent ${toneClass}`}
     >
-      {Icon && <Icon className="size-3 shrink-0" />}
-      {label}
+      {percent}%
     </Badge>
   );
 }
@@ -78,7 +78,7 @@ function StatCard({
   footer,
 }) {
   return (
-    <Card className="@container/card border-border/50 bg-card overflow-hidden shadow-none transition-colors hover:border-border">
+    <Card className="@container/card border-border/50 bg-card overflow-hidden shadow-none transition-colors hover:border-border py-3">
       <div className="px-3 flex flex-col h-full gap-2">
         <div className="flex items-center justify-between min-w-0 min-h-5 mb-0.5">
           <div className="flex items-center gap-1.5 min-w-0">
@@ -100,9 +100,7 @@ function StatCard({
           </h3>
         </div>
 
-        {footer && (
-          <div className="mt-auto flex flex-col gap-1.5">{footer}</div>
-        )}
+        {footer && <div className=" flex flex-col gap-1.5">{footer}</div>}
       </div>
     </Card>
   );
@@ -160,35 +158,42 @@ export function SectionCards() {
     return buckets;
   }, [transactions, baseRate]);
 
+  const { budgetLeft, averageBudgetUsage } = useMemo(() => {
+    if (!budgets.length) return { budgetLeft: 0, averageBudgetUsage: 0 };
+
+    const totals = budgets.reduce(
+      (acc, budget) => {
+        const limit = Number(budget.limit) || 0;
+        const spent = Number(budget.current_spent) || 0;
+        const budgetRate =
+          parseFloat(
+            currencies.find(
+              (c) => c.id_currency === budget.Currency_id_currency
+            )?.exchange_rate
+          ) || 1;
+
+        acc.totalLimit += limit * (budgetRate / baseRate);
+        acc.totalSpent += spent * (budgetRate / baseRate);
+        return acc;
+      },
+      { totalLimit: 0, totalSpent: 0 }
+    );
+
+    const left = totals.totalLimit - totals.totalSpent;
+    const usage =
+      totals.totalLimit > 0
+        ? Math.round((totals.totalSpent / totals.totalLimit) * 100)
+        : 0;
+
+    return { budgetLeft: left, averageBudgetUsage: usage };
+  }, [budgets, currencies, baseRate]);
+
   const spentTrend = pctChange(current.spent, previous.spent);
   const incomeTrend = pctChange(current.income, previous.income);
 
   const savings = current.income - current.spent;
   const savingsPercent =
     current.income > 0 ? Math.round((savings / current.income) * 100) : 0;
-
-  const budgetLeft = useMemo(() => {
-    return budgets.reduce((sum, budget) => {
-      const limit = Number(budget.limit) || 0;
-      const spent = Number(budget.current_spent) || 0;
-      const budgetRate =
-        parseFloat(
-          currencies.find((c) => c.id_currency === budget.Currency_id_currency)
-            ?.exchange_rate
-        ) || 1;
-      return sum + (limit - spent) * (budgetRate / baseRate);
-    }, 0);
-  }, [budgets, currencies, baseRate]);
-
-  const averageBudgetUsage =
-    budgets.length > 0
-      ? Math.round(
-          budgets.reduce(
-            (sum, budget) => sum + (Number(budget.percent_used) || 0),
-            0
-          ) / budgets.length
-        )
-      : 0;
 
   const budgetColor =
     averageBudgetUsage > 100
@@ -202,7 +207,7 @@ export function SectionCards() {
       ? 'danger'
       : averageBudgetUsage >= 80
         ? 'warning'
-        : null;
+        : 'neutral';
 
   return (
     <div className="grid grid-cols-2 gap-2 px-3 @4xl/main:grid-cols-4 lg:px-6">
@@ -214,12 +219,9 @@ export function SectionCards() {
         value={formatMoney(current.spent, baseCurrency)}
         action={<TrendBadge percent={spentTrend} goodDirection="down" />}
         footer={
-          <>
-            <span className="text-[11px] text-muted-foreground font-medium">
-              vs. last month
-            </span>
-            <div className="h-1.5 w-full shrink-0 invisible" />
-          </>
+          <span className="text-[11px] text-muted-foreground font-medium">
+            vs. last month
+          </span>
         }
       />
 
@@ -231,12 +233,9 @@ export function SectionCards() {
         value={formatMoney(current.income, baseCurrency)}
         action={<TrendBadge percent={incomeTrend} goodDirection="up" />}
         footer={
-          <>
-            <span className="text-[11px] text-muted-foreground font-medium">
-              vs. last month
-            </span>
-            <div className="h-1.5 w-full shrink-0 invisible" />
-          </>
+          <span className="text-[11px] text-muted-foreground font-medium">
+            vs. last month
+          </span>
         }
       />
 
@@ -247,20 +246,16 @@ export function SectionCards() {
         label="Savings"
         value={formatMoney(savings, baseCurrency)}
         action={
-          savings < 0 ? <StatusBadge label="Deficit" tone="danger" /> : null
+          <UsageBadge
+            percent={savingsPercent}
+            tone={savings >= 0 ? 'good' : 'danger'}
+          />
         }
         footer={
-          <>
-            <span className="text-[10px] text-muted-foreground font-medium truncate">
-              {savings >= 0
-                ? `${savingsPercent}% saved`
-                : 'Spending exceeded income'}
-            </span>
-            <ProgressBar
-              percent={savings < 0 ? 100 : savingsPercent}
-              colorClass={savings >= 0 ? 'bg-emerald-500' : 'bg-destructive'}
-            />
-          </>
+          <ProgressBar
+            percent={savings < 0 ? 100 : savingsPercent}
+            colorClass={savings >= 0 ? 'bg-emerald-500' : 'bg-destructive'}
+          />
         }
       />
 
@@ -271,27 +266,19 @@ export function SectionCards() {
         label="Budget"
         value={formatMoney(budgetLeft, baseCurrency)}
         action={
-          budgetTone ? (
-            <StatusBadge
-              label={budgetTone === 'danger' ? 'Over' : 'Near limit'}
-              tone={budgetTone}
-            />
+          budgets.length > 0 ? (
+            <UsageBadge percent={averageBudgetUsage} tone={budgetTone} />
           ) : null
         }
         footer={
           budgets.length > 0 ? (
-            <>
-              <span className="text-[10px] text-muted-foreground font-medium truncate">
-                {averageBudgetUsage}% used
-              </span>
-              <ProgressBar
-                percent={averageBudgetUsage}
-                colorClass={budgetColor}
-              />
-            </>
+            <ProgressBar
+              percent={averageBudgetUsage}
+              colorClass={budgetColor}
+            />
           ) : (
             <>
-              <span className="text-[10px] text-muted-foreground">
+              <span className="text-[11px] text-muted-foreground font-medium">
                 No budgets set
               </span>
               <div className="h-1.5 w-full shrink-0 invisible" />

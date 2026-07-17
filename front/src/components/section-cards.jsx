@@ -3,16 +3,12 @@ import {
   IconArrowUp,
   IconTrendingDown,
   IconTrendingUp,
+  IconAlertTriangle,
 } from '@tabler/icons-react';
 import { useMemo } from 'react';
 
 import { Badge } from '@/components/ui/badge';
-import {
-  Card,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+import { Card } from '@/components/ui/card';
 import { useData } from '@/context/DataContext';
 import { formatMoney } from '@/lib/formatMoney';
 
@@ -30,15 +26,32 @@ function TrendBadge({ percent, goodDirection = 'up' }) {
   return (
     <Badge
       variant="outline"
-      className={
-        isGood
-          ? 'text-primary border-primary/30'
-          : 'text-destructive border-destructive/30'
-      }
+      className={`h-5 px-1.5 text-[12px] font-bold gap-0.5 border-none bg-transparent ${
+        isGood ? 'text-emerald-500' : 'text-destructive'
+      }`}
     >
-      <Icon className="size-3" />
+      <Icon className="size-5 shrink-0" />
       {isUp ? '+' : ''}
       {percent}%
+    </Badge>
+  );
+}
+
+function StatusBadge({ label, tone = 'neutral' }) {
+  const toneClass =
+    tone === 'warning'
+      ? 'text-amber-500'
+      : tone === 'danger'
+        ? 'text-destructive'
+        : 'text-muted-foreground';
+  const Icon = tone === 'danger' ? IconAlertTriangle : null;
+  return (
+    <Badge
+      variant="outline"
+      className={`h-5 px-1.5 text-[10px] font-bold gap-0.5 border-none bg-transparent ${toneClass}`}
+    >
+      {Icon && <Icon className="size-3 shrink-0" />}
+      {label}
     </Badge>
   );
 }
@@ -46,9 +59,9 @@ function TrendBadge({ percent, goodDirection = 'up' }) {
 function ProgressBar({ percent, colorClass }) {
   const clamped = Math.min(Math.max(percent, 0), 100);
   return (
-    <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
+    <div className="h-1.5 w-full overflow-hidden rounded-full bg-black/10 dark:bg-white/10 shrink-0">
       <div
-        className={`h-full rounded-full ${colorClass}`}
+        className={`h-full rounded-full transition-all duration-500 ${colorClass}`}
         style={{ width: `${clamped}%` }}
       />
     </div>
@@ -65,24 +78,32 @@ function StatCard({
   footer,
 }) {
   return (
-    <Card className="@container/card border-border/50 bg-card gap-0 overflow-hidden py-0">
-      <CardHeader className="flex flex-col gap-1 px-3 py-2.5">
-        <div className="flex items-center justify-between gap-2">
-          <CardDescription className="flex items-center gap-1.5 text-xs">
+    <Card className="@container/card border-border/50 bg-card overflow-hidden shadow-none transition-colors hover:border-border">
+      <div className="px-3 flex flex-col h-full gap-2">
+        <div className="flex items-center justify-between min-w-0 min-h-5 mb-0.5">
+          <div className="flex items-center gap-1.5 min-w-0">
             <span
-              className={`flex size-5 items-center justify-center rounded-md ${iconBg}`}
+              className={`flex size-5 shrink-0 items-center justify-center rounded-md ${iconBg}`}
             >
               <Icon className={`size-3 ${iconColor}`} />
             </span>
-            {label}
-          </CardDescription>
-          {action}
+            <span className="text-[11px] font-medium text-muted-foreground truncate uppercase tracking-wider">
+              {label}
+            </span>
+          </div>
+          <div className="shrink-0">{action}</div>
         </div>
-        <CardTitle className="text-lg font-semibold tabular-nums break-words">
-          {value}
-        </CardTitle>
-        {footer && <div className="flex flex-col gap-1 text-xs">{footer}</div>}
-      </CardHeader>
+
+        <div>
+          <h3 className="text-base @[160px]:text-lg font-bold tabular-nums tracking-tight leading-none text-foreground truncate">
+            {value}
+          </h3>
+        </div>
+
+        {footer && (
+          <div className="mt-auto flex flex-col gap-1.5">{footer}</div>
+        )}
+      </div>
     </Card>
   );
 }
@@ -176,19 +197,29 @@ export function SectionCards() {
         ? 'bg-amber-500'
         : 'bg-chart-3';
 
+  const budgetTone =
+    averageBudgetUsage > 100
+      ? 'danger'
+      : averageBudgetUsage >= 80
+        ? 'warning'
+        : null;
+
   return (
-    <div className="grid grid-cols-2 gap-3 px-4 @5xl/main:grid-cols-4 lg:px-6">
+    <div className="grid grid-cols-2 gap-2 px-3 @4xl/main:grid-cols-4 lg:px-6">
       <StatCard
         icon={IconArrowDown}
         iconBg="bg-primary/10"
         iconColor="text-primary"
-        label="This Month's Spending"
+        label="Spending"
         value={formatMoney(current.spent, baseCurrency)}
         action={<TrendBadge percent={spentTrend} goodDirection="down" />}
         footer={
-          <div className="line-clamp-1 flex gap-2 font-medium text-muted-foreground">
-            vs. last month
-          </div>
+          <>
+            <span className="text-[11px] text-muted-foreground font-medium">
+              vs. last month
+            </span>
+            <div className="h-1.5 w-full shrink-0 invisible" />
+          </>
         }
       />
 
@@ -196,32 +227,38 @@ export function SectionCards() {
         icon={IconArrowUp}
         iconBg="bg-chart-2/10"
         iconColor="text-chart-2"
-        label="This Month's Income"
+        label="Income"
         value={formatMoney(current.income, baseCurrency)}
         action={<TrendBadge percent={incomeTrend} goodDirection="up" />}
         footer={
-          <div className="line-clamp-1 flex gap-2 font-medium text-muted-foreground">
-            vs. last month
-          </div>
+          <>
+            <span className="text-[11px] text-muted-foreground font-medium">
+              vs. last month
+            </span>
+            <div className="h-1.5 w-full shrink-0 invisible" />
+          </>
         }
       />
 
       <StatCard
-        icon={IconTrendingUp}
-        iconBg="bg-chart-3/10"
-        iconColor="text-chart-3"
-        label="Monthly Savings"
+        icon={savings >= 0 ? IconTrendingUp : IconTrendingDown}
+        iconBg={savings >= 0 ? 'bg-chart-3/10' : 'bg-destructive/10'}
+        iconColor={savings >= 0 ? 'text-chart-3' : 'text-destructive'}
+        label="Savings"
         value={formatMoney(savings, baseCurrency)}
+        action={
+          savings < 0 ? <StatusBadge label="Deficit" tone="danger" /> : null
+        }
         footer={
           <>
-            <div className="line-clamp-1 flex gap-2 font-medium text-muted-foreground">
+            <span className="text-[10px] text-muted-foreground font-medium truncate">
               {savings >= 0
-                ? `${savingsPercent}% of income saved`
+                ? `${savingsPercent}% saved`
                 : 'Spending exceeded income'}
-            </div>
+            </span>
             <ProgressBar
               percent={savings < 0 ? 100 : savingsPercent}
-              colorClass={savings >= 0 ? 'bg-primary' : 'bg-destructive'}
+              colorClass={savings >= 0 ? 'bg-emerald-500' : 'bg-destructive'}
             />
           </>
         }
@@ -231,23 +268,34 @@ export function SectionCards() {
         icon={IconTrendingDown}
         iconBg="bg-chart-4/10"
         iconColor="text-chart-4"
-        label="Budget Left"
+        label="Budget"
         value={formatMoney(budgetLeft, baseCurrency)}
+        action={
+          budgetTone ? (
+            <StatusBadge
+              label={budgetTone === 'danger' ? 'Over' : 'Near limit'}
+              tone={budgetTone}
+            />
+          ) : null
+        }
         footer={
           budgets.length > 0 ? (
             <>
-              <div className="line-clamp-1 flex gap-2 font-medium text-muted-foreground">
-                {averageBudgetUsage}% of budget used
-              </div>
+              <span className="text-[10px] text-muted-foreground font-medium truncate">
+                {averageBudgetUsage}% used
+              </span>
               <ProgressBar
                 percent={averageBudgetUsage}
                 colorClass={budgetColor}
               />
             </>
           ) : (
-            <div className="line-clamp-1 flex gap-2 font-medium text-muted-foreground">
-              No budgets defined yet
-            </div>
+            <>
+              <span className="text-[10px] text-muted-foreground">
+                No budgets set
+              </span>
+              <div className="h-1.5 w-full shrink-0 invisible" />
+            </>
           )
         }
       />

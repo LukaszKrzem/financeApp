@@ -14,7 +14,6 @@ import {
   Card,
   CardAction,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
@@ -220,9 +219,6 @@ export function ChartAreaInteractive() {
     <Card className="@container/card border-border/50">
       <CardHeader className="grid-cols-1 has-data-[slot=card-action]:grid-cols-1 sm:has-data-[slot=card-action]:grid-cols-[1fr_auto]">
         <CardTitle>Spending Overview</CardTitle>
-        <CardDescription>
-          Comparing income vs spending over time
-        </CardDescription>
         <CardAction className="col-start-1 row-start-3 row-span-1 self-stretch justify-self-start sm:col-start-2 sm:row-span-2 sm:row-start-1 sm:self-start sm:justify-self-end flex flex-col sm:flex-row flex-wrap gap-2 pt-2 w-full sm:w-auto">
           <Label htmlFor="account-select" className="sr-only">
             Account:

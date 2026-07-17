@@ -263,19 +263,25 @@ export function ChartAreaInteractive() {
             </Select>
           </div>
 
-          <div className="flex gap-1 w-full sm:w-auto bg-muted/30 p-0.5 rounded-lg border border-border/50">
-            {SERIES_FILTERS.map((filter) => (
-              <Button
-                key={filter}
-                variant={seriesFilter === filter ? 'secondary' : 'ghost'}
-                size="sm"
-                className="h-7 px-2 text-[11px] sm:text-xs flex-1 sm:flex-initial sm:w-[72px] data-[active=true]:bg-accent shadow-none"
-                data-active={seriesFilter === filter}
-                onClick={() => setSeriesFilter(filter)}
-              >
-                {SERIES_FILTER_LABELS[filter]}
-              </Button>
-            ))}
+          <div className="flex gap-1 w-full sm:w-auto bg-muted/50 p-1 rounded-lg border border-border/50">
+            {SERIES_FILTERS.map((filter) => {
+              const isActive = seriesFilter === filter;
+              return (
+                <Button
+                  key={filter}
+                  variant="ghost"
+                  size="sm"
+                  className={`h-7 px-2 text-[11px] sm:text-xs flex-1 sm:flex-initial sm:w-[72px] transition-color duration-200 ${
+                    isActive
+                      ? 'bg-background text-foreground shadow-sm font-semibold'
+                      : 'text-muted-foreground hover:text-foreground hover:bg-transparent'
+                  }`}
+                  onClick={() => setSeriesFilter(filter)}
+                >
+                  {SERIES_FILTER_LABELS[filter]}
+                </Button>
+              );
+            })}
           </div>
         </CardAction>
       </CardHeader>

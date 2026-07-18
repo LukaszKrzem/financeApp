@@ -61,6 +61,7 @@ export function Register() {
                 <Input
                   id="name"
                   type="text"
+                  placeholder="e.g. John Doe"
                   autoComplete="name"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
@@ -88,6 +89,7 @@ export function Register() {
                 <Input
                   id="password"
                   type="password"
+                  placeholder="Min. 8 characters"
                   autoComplete="new-password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}

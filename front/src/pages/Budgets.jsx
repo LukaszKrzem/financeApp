@@ -3,6 +3,8 @@ import { AddBudgetDialog } from '@/components/AddBudgetDialog';
 import { useData } from '@/context/DataContext';
 import { formatMoney } from '@/lib/formatMoney';
 import { CardSkeleton } from '@/components/ui/card-skeleton';
+import { IconTargetArrow } from '@tabler/icons-react';
+import { EmptyState } from '@/components/ui/empty-state';
 
 export default function BudgetsPage() {
   const { budgets = [], loading } = useData();
@@ -24,9 +26,12 @@ export default function BudgetsPage() {
       {loading ? (
         <CardSkeleton count={3} />
       ) : (budgets || []).length === 0 ? (
-        <p className="text-sm text-muted-foreground col-span-full text-center py-8">
-          You haven't defined any budget limits yet.
-        </p>
+        <EmptyState
+          icon={IconTargetArrow}
+          title="No budgets yet"
+          description="Set spending limits for your categories to keep your finances on track."
+          action={<AddBudgetDialog />}
+        />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {budgets.map((budget) => {

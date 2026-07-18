@@ -238,6 +238,8 @@ export function SectionCards() {
     );
   }
 
+  const hasTransactions = transactions.length > 0;
+
   return (
     <div className="grid grid-cols-2 gap-2 px-3 @4xl/main:grid-cols-4 lg:px-6">
       <StatCard
@@ -246,10 +248,14 @@ export function SectionCards() {
         iconColor="text-primary"
         label="Spending"
         value={formatMoney(current.spent, baseCurrency)}
-        action={<TrendBadge percent={spentTrend} goodDirection="down" />}
+        action={
+          hasTransactions ? (
+            <TrendBadge percent={spentTrend} goodDirection="down" />
+          ) : null
+        }
         footer={
           <span className="text-[11px] text-muted-foreground font-medium">
-            vs. last month
+            {hasTransactions ? 'vs. last month' : 'No transactions yet'}
           </span>
         }
       />
@@ -260,10 +266,14 @@ export function SectionCards() {
         iconColor="text-chart-2"
         label="Income"
         value={formatMoney(current.income, baseCurrency)}
-        action={<TrendBadge percent={incomeTrend} goodDirection="up" />}
+        action={
+          hasTransactions ? (
+            <TrendBadge percent={incomeTrend} goodDirection="up" />
+          ) : null
+        }
         footer={
           <span className="text-[11px] text-muted-foreground font-medium">
-            vs. last month
+            {hasTransactions ? 'vs. last month' : 'No transactions yet'}
           </span>
         }
       />
@@ -275,16 +285,27 @@ export function SectionCards() {
         label="Savings"
         value={formatMoney(savings, baseCurrency)}
         action={
-          <UsageBadge
-            percent={savingsPercent}
-            tone={savings >= 0 ? 'good' : 'danger'}
-          />
+          hasTransactions ? (
+            <UsageBadge
+              percent={savingsPercent}
+              tone={savings >= 0 ? 'good' : 'danger'}
+            />
+          ) : null
         }
         footer={
-          <ProgressBar
-            percent={savings < 0 ? 100 : savingsPercent}
-            colorClass={savings >= 0 ? 'bg-emerald-500' : 'bg-destructive'}
-          />
+          hasTransactions ? (
+            <ProgressBar
+              percent={savings < 0 ? 100 : savingsPercent}
+              colorClass={savings >= 0 ? 'bg-emerald-500' : 'bg-destructive'}
+            />
+          ) : (
+            <>
+              <span className="text-[11px] text-muted-foreground font-medium">
+                No transactions yet
+              </span>
+              <div className="h-1.5 w-full shrink-0 invisible" />
+            </>
+          )
         }
       />
 

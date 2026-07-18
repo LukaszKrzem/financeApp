@@ -5,6 +5,8 @@ import { formatMoney } from '@/lib/formatMoney';
 import { useData } from '@/context/DataContext';
 import { isIncome } from '@/lib/transactionHelpers';
 import { RowSkeleton } from '@/components/ui/row-skeleton';
+import { EmptyState } from '@/components/ui/empty-state';
+import { IconReceipt2 } from '@tabler/icons-react';
 
 import {
   Card,
@@ -28,9 +30,12 @@ export function RecentTransactions() {
           {loading ? (
             <RowSkeleton count={5} />
           ) : transactions.length === 0 ? (
-            <div className="text-center py-4 text-sm text-muted-foreground">
-              No transactions to display.
-            </div>
+            <EmptyState
+              icon={IconReceipt2}
+              title="No transactions yet"
+              description="Your latest income and expenses will appear here."
+              className="py-8"
+            />
           ) : (
             transactions.slice(0, 7).map((transaction) => {
               const typeLower = transaction.type?.toLowerCase() ?? 'expense';
@@ -90,14 +95,16 @@ export function RecentTransactions() {
             })
           )}
         </div>
-        <div className="px-6 pb-4">
-          <Link
-            to="/transactions"
-            className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-          >
-            View all transactions →
-          </Link>
-        </div>
+        {transactions.length > 0 && (
+          <div className="px-6 pb-4">
+            <Link
+              to="/transactions"
+              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+            >
+              View all transactions →
+            </Link>
+          </div>
+        )}
       </CardContent>
     </Card>
   );

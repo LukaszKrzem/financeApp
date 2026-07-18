@@ -32,6 +32,10 @@ import { useData } from '@/context/DataContext';
 import { formatMoney } from '@/lib/formatMoney';
 import { SegmentedControl } from '@/components/ui/segmented-control';
 import { isIncome } from '@/lib/transactionHelpers';
+import { Skeleton } from '@/components/ui/skeleton';
+import { EmptyState } from '@/components/ui/empty-state';
+import { IconTrendingUp } from '@tabler/icons-react';
+import { AddTransactionDialog } from './AddTransactionDialog';
 
 const chartConfig = {
   spending: { label: 'Spending', color: 'var(--color-spending-chart)' },
@@ -75,8 +79,26 @@ function NetTooltipValue({ value, currency }) {
   );
 }
 
+function ChartAreaSkeleton() {
+  return (
+    <div className="space-y-4 w-full">
+      <div className="grid grid-cols-3 gap-2 sm:gap-3">
+        <Skeleton className="h-[60px] sm:h-[68px] w-full rounded-lg" />
+        <Skeleton className="h-[60px] sm:h-[68px] w-full rounded-lg" />
+        <Skeleton className="h-[60px] sm:h-[68px] w-full rounded-lg" />
+      </div>
+      <Skeleton className="h-[250px] w-full rounded-lg" />
+    </div>
+  );
+}
+
 export function ChartAreaInteractive() {
-  const { transactions = [], accounts = [], currencies = [] } = useData();
+  const {
+    transactions = [],
+    accounts = [],
+    currencies = [],
+    loading,
+  } = useData();
 
   const isMobile = useIsMobile();
   const [timeRange, setTimeRange] = React.useState('6m');
@@ -218,202 +240,225 @@ export function ChartAreaInteractive() {
     <Card className="@container/card border-border/50">
       <CardHeader className="grid-cols-1 has-data-[slot=card-action]:grid-cols-1 sm:has-data-[slot=card-action]:grid-cols-[1fr_auto]">
         <CardTitle>Spending Overview</CardTitle>
-        <CardAction className="col-start-1 row-start-3 row-span-1 self-stretch justify-self-start sm:col-start-2 sm:row-span-2 sm:row-start-1 sm:self-start sm:justify-self-end flex flex-col sm:flex-row gap-2 pt-2 w-full sm:w-auto">
-          <div className="grid grid-cols-2 gap-2 w-full sm:w-auto sm:flex sm:flex-row">
-            <div>
-              <Label htmlFor="account-select" className="sr-only">
-                Account:
-              </Label>
-              <Select
-                value={accountId}
-                onValueChange={(val) => setAccountId(val)}
-              >
-                <SelectTrigger
-                  className="w-full sm:w-36 h-8 text-xs"
-                  id="account-select"
+
+        {(loading || transactions.length > 0) && (
+          <CardAction className="col-start-1 row-start-3 row-span-1 self-stretch justify-self-start sm:col-start-2 sm:row-span-2 sm:row-start-1 sm:self-start sm:justify-self-end flex flex-col sm:flex-row gap-2 pt-2 w-full sm:w-auto">
+            <div className="grid grid-cols-2 gap-2 w-full sm:w-auto sm:flex sm:flex-row">
+              <div>
+                <Label htmlFor="account-select" className="sr-only">
+                  Account:
+                </Label>
+                <Select
+                  value={accountId}
+                  onValueChange={(val) => setAccountId(val)}
+                  disabled={loading}
                 >
-                  <SelectValue placeholder="All accounts" />
+                  <SelectTrigger
+                    className="w-full sm:w-36 h-8 text-xs"
+                    id="account-select"
+                  >
+                    <SelectValue placeholder="All accounts" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="ALL">All accounts</SelectItem>
+                    {accounts.map((acc) => (
+                      <SelectItem
+                        key={String(acc.id_account)}
+                        value={String(acc.id_account)}
+                      >
+                        {acc.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <Select
+                value={timeRange}
+                onValueChange={setTimeRange}
+                disabled={loading}
+              >
+                <SelectTrigger className="w-full sm:w-32 h-8 text-xs">
+                  <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="ALL">All accounts</SelectItem>
-                  {accounts.map((acc) => (
-                    <SelectItem
-                      key={String(acc.id_account)}
-                      value={String(acc.id_account)}
-                    >
-                      {acc.name}
+                  {TIME_RANGES.map((range) => (
+                    <SelectItem key={range.value} value={range.value}>
+                      {range.label}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
 
-            <Select value={timeRange} onValueChange={setTimeRange}>
-              <SelectTrigger className="w-full sm:w-32 h-8 text-xs">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {TIME_RANGES.map((range) => (
-                  <SelectItem key={range.value} value={range.value}>
-                    {range.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <SegmentedControl
-            options={SERIES_FILTERS}
-            value={seriesFilter}
-            onChange={setSeriesFilter}
-          />
-        </CardAction>
+            <div className={loading ? 'pointer-events-none opacity-50' : ''}>
+              <SegmentedControl
+                options={SERIES_FILTERS}
+                value={seriesFilter}
+                onChange={setSeriesFilter}
+              />
+            </div>
+          </CardAction>
+        )}
       </CardHeader>
 
       <CardContent
         className="px-2 pt-4 sm:px-6 sm:pt-6"
         style={{ touchAction: 'pan-y' }}
       >
-        <div className="mb-4 grid grid-cols-3 gap-2 sm:gap-3">
-          {stats.map((s) => (
-            <div
-              key={s.key}
-              className="flex flex-col sm:flex-row items-center justify-center sm:justify-between gap-1 sm:gap-2 rounded-lg border border-border/50 bg-accent/30 px-2 py-2 sm:px-3 sm:py-2.5 text-center sm:text-left"
-            >
-              <span className="text-[10px] sm:text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                {s.label}
-              </span>
-              <span
-                className="text-xs sm:text-sm font-bold tabular-nums truncate w-full"
-                style={{ color: s.color }}
-              >
-                {s.signed && s.value >= 0 ? '+' : ''}
-                {formatMoney(s.value, currency)}
-              </span>
-            </div>
-          ))}
-        </div>
-
-        <ChartContainer
-          config={chartConfig}
-          className="aspect-auto h-[250px] w-full [--color-income-chart:oklch(0.627_0.194_149.214)] [--color-spending-chart:oklch(0.577_0.245_27.325)] [--color-net-chart:oklch(0.546_0.245_262.881)]"
-        >
-          <AreaChart
-            data={chartData}
-            margin={{ top: 4, right: 4, bottom: 0, left: 0 }}
-          >
-            <defs>
-              {seriesConfig.map((s) => (
-                <linearGradient
+        {loading ? (
+          <ChartAreaSkeleton />
+        ) : transactions.length === 0 ? (
+          <EmptyState
+            icon={IconTrendingUp}
+            title="No data to analyze"
+            description="Your cash flow trends will appear here once you add some transactions."
+            action={<AddTransactionDialog />}
+          />
+        ) : (
+          <>
+            <div className="mb-4 grid grid-cols-3 gap-2 sm:gap-3">
+              {stats.map((s) => (
+                <div
                   key={s.key}
-                  id={`fill-${s.key}`}
-                  x1="0"
-                  y1="0"
-                  x2="0"
-                  y2="1"
+                  className="flex flex-col sm:flex-row items-center justify-center sm:justify-between gap-1 sm:gap-2 rounded-lg border border-border/50 bg-accent/30 px-2 py-2 sm:px-3 sm:py-2.5 text-center sm:text-left"
                 >
-                  <stop
-                    offset="5%"
-                    stopColor={s.color}
-                    stopOpacity={s.stopOpacity[0]}
-                  />
-                  <stop
-                    offset="95%"
-                    stopColor={s.color}
-                    stopOpacity={s.stopOpacity[1]}
-                  />
-                </linearGradient>
+                  <span className="text-[10px] sm:text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                    {s.label}
+                  </span>
+                  <span
+                    className="text-xs sm:text-sm font-bold tabular-nums truncate w-full"
+                    style={{ color: s.color }}
+                  >
+                    {s.signed && s.value >= 0 ? '+' : ''}
+                    {formatMoney(s.value, currency)}
+                  </span>
+                </div>
               ))}
-            </defs>
-            <CartesianGrid
-              vertical={false}
-              strokeDasharray="3 3"
-              stroke="var(--border)"
-            />
-            <XAxis
-              dataKey="date"
-              tickLine={false}
-              axisLine={false}
-              tickMargin={8}
-              tickFormatter={(v) =>
-                parseMonthKey(v).toLocaleDateString('en-US', {
-                  month: 'short',
-                  year: '2-digit',
-                })
-              }
-            />
-            <YAxis
-              type="number"
-              domain={['auto', 'auto']}
-              tickLine={false}
-              axisLine={false}
-              tickMargin={isMobile ? 2 : 8}
-              tickFormatter={(val) => formatMoney(val, currency)}
-              width={isMobile ? 30 : 65}
-              fontSize={isMobile ? 8 : 12}
-            />
-            <ChartTooltip
-              cursor={false}
-              content={
-                <ChartTooltipContent
-                  labelFormatter={(value) =>
-                    parseMonthKey(value).toLocaleDateString('en-US', {
-                      month: 'long',
-                      year: 'numeric',
+            </div>
+
+            <ChartContainer
+              config={chartConfig}
+              className="aspect-auto h-[250px] w-full [--color-income-chart:oklch(0.627_0.194_149.214)] [--color-spending-chart:oklch(0.577_0.245_27.325)] [--color-net-chart:oklch(0.546_0.245_262.881)]"
+            >
+              <AreaChart
+                data={chartData}
+                margin={{ top: 4, right: 4, bottom: 0, left: 0 }}
+              >
+                <defs>
+                  {seriesConfig.map((s) => (
+                    <linearGradient
+                      key={s.key}
+                      id={`fill-${s.key}`}
+                      x1="0"
+                      y1="0"
+                      x2="0"
+                      y2="1"
+                    >
+                      <stop
+                        offset="5%"
+                        stopColor={s.color}
+                        stopOpacity={s.stopOpacity[0]}
+                      />
+                      <stop
+                        offset="95%"
+                        stopColor={s.color}
+                        stopOpacity={s.stopOpacity[1]}
+                      />
+                    </linearGradient>
+                  ))}
+                </defs>
+                <CartesianGrid
+                  vertical={false}
+                  strokeDasharray="3 3"
+                  stroke="var(--border)"
+                />
+                <XAxis
+                  dataKey="date"
+                  tickLine={false}
+                  axisLine={false}
+                  tickMargin={8}
+                  tickFormatter={(v) =>
+                    parseMonthKey(v).toLocaleDateString('en-US', {
+                      month: 'short',
+                      year: '2-digit',
                     })
                   }
-                  formatter={(val, name) => {
-                    if (name === 'net') {
-                      return [
-                        <NetTooltipValue
-                          key={name}
-                          value={val}
-                          currency={currency}
-                        />,
-                        <span key={`${name}-label`} className="ml-2">
-                          {chartConfig.net.label}
-                        </span>,
-                      ];
-                    }
-                    return [
-                      formatMoney(Number(val), currency),
-                      <span key={name} className="ml-2">
-                        {name}
-                      </span>,
-                    ];
-                  }}
                 />
-              }
-            />
-            {showNet && (
-              <ReferenceLine
-                y={0}
-                stroke="var(--border)"
-                strokeDasharray="4 4"
-                strokeOpacity={0.5}
-              />
-            )}
-            {seriesConfig.map(
-              (s) =>
-                s.visible && (
-                  <Area
-                    key={s.key}
-                    dataKey={s.key}
-                    type="monotone"
-                    fill={`url(#fill-${s.key})`}
-                    stroke={s.color}
-                    strokeWidth={2}
-                    strokeDasharray={s.dashed ? '4 4' : undefined}
-                    animationDuration={600}
-                    activeDot={{
-                      r: 4,
-                      style: { fill: s.color, strokeWidth: 0 },
-                    }}
+                <YAxis
+                  type="number"
+                  domain={['auto', 'auto']}
+                  tickLine={false}
+                  axisLine={false}
+                  tickMargin={isMobile ? 2 : 8}
+                  tickFormatter={(val) => formatMoney(val, currency)}
+                  width={isMobile ? 30 : 65}
+                  fontSize={isMobile ? 8 : 12}
+                />
+                <ChartTooltip
+                  cursor={false}
+                  content={
+                    <ChartTooltipContent
+                      labelFormatter={(value) =>
+                        parseMonthKey(value).toLocaleDateString('en-US', {
+                          month: 'long',
+                          year: 'numeric',
+                        })
+                      }
+                      formatter={(val, name) => {
+                        if (name === 'net') {
+                          return [
+                            <NetTooltipValue
+                              key={name}
+                              value={val}
+                              currency={currency}
+                            />,
+                            <span key={`${name}-label`} className="ml-2">
+                              {chartConfig.net.label}
+                            </span>,
+                          ];
+                        }
+                        return [
+                          formatMoney(Number(val), currency),
+                          <span key={name} className="ml-2">
+                            {name}
+                          </span>,
+                        ];
+                      }}
+                    />
+                  }
+                />
+                {showNet && (
+                  <ReferenceLine
+                    y={0}
+                    stroke="var(--border)"
+                    strokeDasharray="4 4"
+                    strokeOpacity={0.5}
                   />
-                )
-            )}
-          </AreaChart>
-        </ChartContainer>
+                )}
+                {seriesConfig.map(
+                  (s) =>
+                    s.visible && (
+                      <Area
+                        key={s.key}
+                        dataKey={s.key}
+                        type="monotone"
+                        fill={`url(#fill-${s.key})`}
+                        stroke={s.color}
+                        strokeWidth={2}
+                        strokeDasharray={s.dashed ? '4 4' : undefined}
+                        animationDuration={600}
+                        activeDot={{
+                          r: 4,
+                          style: { fill: s.color, strokeWidth: 0 },
+                        }}
+                      />
+                    )
+                )}
+              </AreaChart>
+            </ChartContainer>
+          </>
+        )}
       </CardContent>
     </Card>
   );

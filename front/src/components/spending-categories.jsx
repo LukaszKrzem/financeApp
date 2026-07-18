@@ -11,6 +11,8 @@ import { useTheme } from '@/components/theme-provider';
 import { isExpense } from '@/lib/transactionHelpers';
 import { formatMoney } from '@/lib/formatMoney';
 import { Skeleton } from '@/components/ui/skeleton';
+import { EmptyState } from '@/components/ui/empty-state';
+import { IconChartPie } from '@tabler/icons-react';
 
 import {
   Card,
@@ -104,9 +106,11 @@ export function SpendingCategories() {
         {loading ? (
           <SpendingCategoriesSkeleton />
         ) : categoryData.length === 0 ? (
-          <div className="py-12 text-center text-sm text-muted-foreground">
-            No expenses to display yet.
-          </div>
+          <EmptyState
+            icon={IconChartPie}
+            title="No expenses yet"
+            description="Your spending breakdown will appear here once you add some transactions."
+          />
         ) : (
           <div className="flex flex-col gap-6 lg:flex-row lg:items-center">
             <div className="mx-auto h-[180px] w-[180px] lg:mx-0">

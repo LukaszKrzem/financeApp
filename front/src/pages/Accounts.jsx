@@ -21,6 +21,8 @@ import { useAsyncAction } from '@/hooks/useAsyncAction';
 import { RenameAccountDialog } from '@/components/RenameAccountDialog';
 import { ConfirmDeleteDialog } from '@/components/ConfirmDeleteDialog';
 import { CardSkeleton } from '@/components/ui/card-skeleton';
+import { IconWallet } from '@tabler/icons-react';
+import { EmptyState } from '@/components/ui/empty-state';
 
 import { useApi } from '@/hooks/useApi';
 
@@ -102,9 +104,12 @@ export default function Accounts() {
       {loading ? (
         <CardSkeleton count={3} />
       ) : (accounts || []).length === 0 ? (
-        <p className="text-sm text-muted-foreground col-span-full text-center py-8">
-          You haven't created any financial accounts yet.
-        </p>
+        <EmptyState
+          icon={IconWallet}
+          title="No accounts yet"
+          description="Add your first account to start tracking your balances and transactions."
+          action={<AddAccountDialog />}
+        />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {accounts.map((account) => {

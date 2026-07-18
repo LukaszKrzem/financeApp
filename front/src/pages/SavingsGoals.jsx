@@ -10,6 +10,8 @@ import { useApi } from '@/hooks/useApi';
 import { formatMoney } from '@/lib/formatMoney';
 import { useData } from '@/context/DataContext';
 import { CardSkeleton } from '@/components/ui/card-skeleton';
+import { IconPigMoney } from '@tabler/icons-react';
+import { EmptyState } from '@/components/ui/empty-state';
 
 export default function SavingsGoals() {
   const { patch, del } = useApi();
@@ -59,9 +61,12 @@ export default function SavingsGoals() {
       {isFetching ? (
         <CardSkeleton count={3} />
       ) : savingsGoals.length === 0 ? (
-        <p className="text-sm text-muted-foreground text-center py-8">
-          You haven't created any savings goals yet.
-        </p>
+        <EmptyState
+          icon={IconPigMoney}
+          title="No savings goals yet"
+          description="Create a goal to start putting money aside for what matters to you."
+          action={<AddSavingGoalDialog onGoalAdded={refreshData} />}
+        />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {savingsGoals.map((goal) => {

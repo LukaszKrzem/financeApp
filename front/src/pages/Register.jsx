@@ -12,15 +12,14 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { GoogleLogin, GoogleOAuthProvider } from '@react-oauth/google';
+import { GoogleLogin } from '@react-oauth/google';
 import { useAuth } from '@/context/AuthContext';
 import { useAsyncAction } from '@/hooks/useAsyncAction';
 import { toast } from 'sonner';
 import { useApi } from '@/hooks/useApi';
 
 export function Register() {
-  const { onLogin, googleClientId, handleGoogleLogin, handleDemoLogin } =
-    useAuth();
+  const { onLogin, handleGoogleLogin, handleDemoLogin } = useAuth();
   const { post } = useApi();
   const { loading, run } = useAsyncAction();
 
@@ -122,24 +121,18 @@ export function Register() {
               </div>
 
               <div className="w-full flex justify-center">
-                <GoogleOAuthProvider
-                  clientId={
-                    googleClientId || import.meta.env.VITE_GOOGLE_CLIENT_ID
+                <GoogleLogin
+                  onSuccess={(googleToken) =>
+                    run(() => handleGoogleLogin(googleToken))
                   }
-                >
-                  <GoogleLogin
-                    onSuccess={(googleToken) =>
-                      run(() => handleGoogleLogin(googleToken))
-                    }
-                    onError={() => {
-                      console.error('Login Failed');
-                      toast.error('Google Login Failed', {
-                        description:
-                          'Could not authenticate with your Google account.',
-                      });
-                    }}
-                  />
-                </GoogleOAuthProvider>
+                  onError={() => {
+                    console.error('Login Failed');
+                    toast.error('Google Login Failed', {
+                      description:
+                        'Could not authenticate with your Google account.',
+                    });
+                  }}
+                />
               </div>
             </CardFooter>
           </form>

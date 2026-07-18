@@ -10,7 +10,6 @@ import { apiFetch } from '@/lib/apiFetch';
 const AuthContext = createContext();
 
 const API_URL = import.meta.env.VITE_API_URL;
-const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
 export function AuthProvider({ children }) {
   const [token, setToken] = useState(localStorage.getItem('token'));
@@ -92,7 +91,6 @@ export function AuthProvider({ children }) {
         user,
         loading,
         apiUrl: API_URL,
-        googleClientId: GOOGLE_CLIENT_ID,
         onLogin,
         onLogout,
         handleGoogleLogin,

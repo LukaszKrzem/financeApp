@@ -15,6 +15,7 @@ import { ResponsiveDialog } from '@/components/ui/responsive-dialog';
 import { useApi } from '@/hooks/useApi';
 import { useData } from '@/context/DataContext';
 import { useAsyncAction } from '@/hooks/useAsyncAction';
+import { CurrencySelect } from './ui/currency-select';
 
 export function AddBudgetDialog() {
   const { post } = useApi();
@@ -113,25 +114,13 @@ export function AddBudgetDialog() {
           </div>
           <div className="flex flex-col gap-2 w-[100px]">
             <Label htmlFor="budget-currency">Currency</Label>
-            <Select
+            <CurrencySelect
+              id="budget-currency"
               value={currencyId}
-              onValueChange={setCurrencyId}
+              onChange={setCurrencyId}
+              currencies={currencies}
               disabled={isSubmitting}
-            >
-              <SelectTrigger id="budget-currency">
-                <SelectValue placeholder="Currency" />
-              </SelectTrigger>
-              <SelectContent>
-                {currencies.map((cur) => (
-                  <SelectItem
-                    key={cur.id_currency}
-                    value={cur.id_currency.toString()}
-                  >
-                    {cur.code}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            />
           </div>
         </div>
 

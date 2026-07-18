@@ -2,18 +2,12 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import { IconPlus } from '@tabler/icons-react';
 import { ResponsiveDialog } from '@/components/ui/responsive-dialog';
 import { useData } from '@/context/DataContext';
 import { useAsyncAction } from '@/hooks/useAsyncAction';
 import { useApi } from '@/hooks/useApi';
+import { CurrencySelect } from './ui/currency-select';
 
 export function AddAccountDialog() {
   const { post } = useApi();
@@ -89,26 +83,13 @@ export function AddAccountDialog() {
 
         <div className="flex flex-col gap-2">
           <Label htmlFor="account-currency">Currency</Label>
-          <Select
+          <CurrencySelect
+            id="budget-currency"
             value={currencyId}
-            onValueChange={setCurrencyId}
-            required
+            onChange={setCurrencyId}
+            currencies={currencies}
             disabled={isSubmitting}
-          >
-            <SelectTrigger className="w-full" id="account-currency">
-              <SelectValue placeholder="Select currency" />
-            </SelectTrigger>
-            <SelectContent>
-              {currencies.map((currency) => (
-                <SelectItem
-                  key={currency.id_currency}
-                  value={currency.id_currency.toString()}
-                >
-                  {currency.code}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          />
         </div>
         <Button type="submit" className="w-full mt-2" disabled={isSubmitting}>
           {isSubmitting ? 'Creating...' : 'Confirm Account'}

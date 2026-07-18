@@ -31,6 +31,7 @@ import {
 import { useData } from '@/context/DataContext';
 import { formatMoney } from '@/lib/formatMoney';
 import { SegmentedControl } from '@/components/ui/segmented-control';
+import { isIncome } from '@/lib/transactionHelpers';
 
 const chartConfig = {
   spending: { label: 'Spending', color: 'var(--color-spending-chart)' },
@@ -126,9 +127,8 @@ export function ChartAreaInteractive() {
       const txRate = parseFloat(tx.exchange_rate) || 1;
 
       const rate = txRate / (parseFloat(accountRate) || 1);
-      const isIncome = tx.type === 'INCOME';
-
-      if (isIncome) grouped[monthStr].income += amount * rate;
+      const transactionIsIncome = isIncome(tx);
+      if (transactionIsIncome) grouped[monthStr].income += amount * rate;
       else grouped[monthStr].spending += amount * rate;
     });
 

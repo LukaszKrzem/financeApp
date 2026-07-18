@@ -8,6 +8,7 @@ import { formatMoney } from '@/lib/formatMoney';
 import { useData } from '@/context/DataContext';
 import { DatePicker } from '@/components/ui/date-picker';
 import { SegmentedControl } from '@/components/ui/segmented-control';
+import { isExpense, getSignedAmount } from '@/lib/transactionHelpers';
 
 const FILTER_OPTIONS = [
   { value: 'ALL', label: 'All' },
@@ -38,20 +39,17 @@ const columns = [
   {
     id: 'amount',
     header: 'Amount',
-    accessorFn: (row) => {
-      const val = parseFloat(row.amount);
-      return row.type === 'EXPENSE' ? -val : val;
-    },
+    accessorFn: (row) => getSignedAmount(row),
     cell: ({ row }) => {
+      const expense = isExpense(row.original);
       const amount = row.getValue('amount');
-      const isExpense = amount < 0;
       const formatted = formatMoney(amount, row.original.currency_code);
 
       return (
         <div
-          className={`font-semibold ${isExpense ? 'text-red-500' : 'text-emerald-500'}`}
+          className={`font-semibold ${expense ? 'text-red-500' : 'text-emerald-500'}`}
         >
-          {isExpense ? '-' : '+'}
+          {expense ? '-' : '+'}
           {formatted}
         </div>
       );
@@ -151,7 +149,7 @@ export default function Transactions() {
         ) : isMobile ? (
           <div className="flex flex-col rounded-lg border border-border/50 overflow-hidden">
             {filteredTransactions.map((t) => {
-              const isExpense = t.type === 'EXPENSE';
+              const expense = isExpense(t);
               const formattedAmount = formatMoney(t.amount, t.currency_code);
 
               return (
@@ -162,7 +160,7 @@ export default function Transactions() {
                   <div className="flex items-center gap-3 min-w-0">
                     <div
                       className={`w-1 h-9 rounded-full flex-shrink-0 ${
-                        isExpense ? 'bg-red-500' : 'bg-emerald-500'
+                        expense ? 'bg-red-500' : 'bg-emerald-500'
                       }`}
                     />
                     <div className="flex flex-col gap-1 min-w-0">
@@ -186,10 +184,10 @@ export default function Transactions() {
 
                   <span
                     className={`text-sm font-semibold flex-shrink-0 ml-4 whitespace-nowrap ${
-                      isExpense ? 'text-red-500' : 'text-emerald-500'
+                      expense ? 'text-red-500' : 'text-emerald-500'
                     }`}
                   >
-                    {isExpense ? '-' : '+'}
+                    {expense ? '-' : '+'}
                     {formattedAmount}
                   </span>
                 </div>

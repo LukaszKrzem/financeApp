@@ -70,7 +70,7 @@ export default function BudgetsPage() {
                 <p className="text-[11px] text-muted-foreground mt-1">
                   {limit - spent >= 0
                     ? `You have ${formatMoney(limit - spent, budget.currency_code)} left`
-                    : `You have exceeded the limit by ${formatMoney(Math.abs(limit - spent), budget.currency_code)}!`}
+                    : `You have exceeded the limit by ${formatMoney(limit - spent, budget.currency_code)}!`}
                 </p>
               </div>
             );

@@ -3,6 +3,7 @@ import { CategoryBadge } from '@/lib/categoryBadge';
 import { Link } from 'react-router-dom';
 import { formatMoney } from '@/lib/formatMoney';
 import { useData } from '@/context/DataContext';
+import { isIncome } from '@/lib/transactionHelpers';
 
 import {
   Card,
@@ -38,7 +39,7 @@ export function RecentTransactions() {
           ) : (
             transactions.slice(0, 7).map((transaction) => {
               const typeLower = transaction.type.toLowerCase();
-              const isIncome = typeLower === 'income';
+              const transactionIsIncome = isIncome(transaction);
               const catName = transaction.category_name || 'Other';
               const Icon = getIconForCategory(catName, typeLower);
               const displayName = transaction.description || catName;
@@ -77,10 +78,12 @@ export function RecentTransactions() {
                   <div className="flex items-center gap-2 shrink-0 ml-2">
                     <span
                       className={`text-sm sm:text-base font-semibold flex-shrink-0 ml-4 whitespace-nowrap ${
-                        isIncome ? 'text-emerald-500' : 'text-red-500'
+                        transactionIsIncome
+                          ? 'text-emerald-500'
+                          : 'text-red-500'
                       }`}
                     >
-                      {isIncome ? '+' : '-'}
+                      {transactionIsIncome ? '+' : '-'}
                       {formatMoney(
                         transaction.amount,
                         transaction.currency_code

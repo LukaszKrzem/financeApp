@@ -10,8 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import { useData } from '@/context/DataContext';
 import { formatMoney } from '@/lib/formatMoney';
-
-const isIncomeTransaction = (transaction) => transaction.type === 'INCOME';
+import { isIncome } from '@/lib/transactionHelpers';
 
 const pctChange = (curr, prev) => {
   if (prev === 0) return curr === 0 ? 0 : 100;
@@ -140,7 +139,7 @@ export function SectionCards() {
       const txRate = parseFloat(t.exchange_rate) || 1;
       const amount = (Number(t.amount) || 0) * (txRate / baseRate);
 
-      const bucketKey = isIncomeTransaction(t) ? 'income' : 'spent';
+      const bucketKey = isIncome(t) ? 'income' : 'spent';
 
       if (
         date.getFullYear() === currentYear &&

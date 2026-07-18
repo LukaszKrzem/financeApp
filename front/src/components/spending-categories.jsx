@@ -8,6 +8,8 @@ import {
 } from '@/lib/categories';
 import { useData } from '@/context/DataContext';
 import { useTheme } from '@/components/theme-provider';
+import { isExpense } from '@/lib/transactionHelpers';
+import { formatMoney } from '@/lib/formatMoney';
 
 import {
   Card,
@@ -16,19 +18,6 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-
-const isExpenseTransaction = (transaction) =>
-  transaction.type === 'EXPENSE' ||
-  transaction.is_income === 'F' ||
-  transaction.is_income === 'N';
-
-const formatMoney = (value) =>
-  new Intl.NumberFormat('pl-PL', {
-    style: 'currency',
-    currency: 'PLN',
-    maximumFractionDigits: 0,
-    notation: 'compact',
-  }).format(value);
 
 const CustomTooltip = ({ active, payload }) => {
   if (active && payload && payload.length) {
@@ -54,11 +43,12 @@ export function SpendingCategories() {
   const categoryData = useMemo(() => {
     const colorMap = isDark ? categoryColorMapDark : categoryColorMapLight;
     const categories = transactions
-      .filter(isExpenseTransaction)
+      .filter(isExpense)
       .reduce((summary, transaction) => {
         const categoryName = transaction.category_name || 'Other';
         const exchangeRate = parseFloat(transaction.exchange_rate) || 1;
-        const amount = Number(transaction.amount) || 0;
+
+        const amount = Math.abs(Number(transaction.amount)) || 0;
 
         summary[categoryName] =
           (summary[categoryName] || 0) + amount * exchangeRate;
@@ -84,7 +74,7 @@ export function SpendingCategories() {
     <Card className="border-border/50">
       <CardHeader>
         <CardTitle>Spending by Category</CardTitle>
-        <CardDescription>This month&apos;s breakdown</CardDescription>
+        <CardDescription>Where your money goes</CardDescription>
       </CardHeader>
       <CardContent>
         {categoryData.length === 0 ? (

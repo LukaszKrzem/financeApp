@@ -13,6 +13,7 @@ export function DataProvider({ children }) {
     budgets: [],
     categories: [],
     currencies: [],
+    savingsGoals: [],
     loading: true,
   });
   const [refreshing, setRefreshing] = useState(0);
@@ -24,6 +25,7 @@ export function DataProvider({ children }) {
         accounts: [],
         transactions: [],
         budgets: [],
+        savingsGoals: [],
         loading: false,
       }));
       return;
@@ -31,20 +33,28 @@ export function DataProvider({ children }) {
     const fetchData = async () => {
       setData((prev) => ({ ...prev, loading: true }));
       try {
-        const [accounts, transactions, budgets, categories, currencies] =
-          await Promise.all([
-            get('/accounts/'),
-            get('/transactions/'),
-            get('/budgets/'),
-            get('/categories/'),
-            get('/currencies/'),
-          ]);
+        const [
+          accounts,
+          transactions,
+          budgets,
+          categories,
+          currencies,
+          savingsGoals,
+        ] = await Promise.all([
+          get('/accounts/'),
+          get('/transactions/'),
+          get('/budgets/'),
+          get('/categories/'),
+          get('/currencies/'),
+          get('/savings-goals/'),
+        ]);
         setData({
           accounts,
           transactions,
           budgets,
           categories,
           currencies,
+          savingsGoals,
           loading: false,
         });
       } catch (err) {
@@ -55,8 +65,10 @@ export function DataProvider({ children }) {
     fetchData();
   }, [get, token, refreshing]);
 
+  const refreshData = () => setRefreshing((prev) => prev + 1);
+
   return (
-    <DataContext.Provider value={{ ...data, setRefreshing }}>
+    <DataContext.Provider value={{ ...data, refreshData }}>
       {children}
     </DataContext.Provider>
   );

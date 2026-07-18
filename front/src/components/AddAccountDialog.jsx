@@ -23,7 +23,7 @@ import { useApi } from '@/hooks/useApi';
 
 export function AddAccountDialog() {
   const { post } = useApi();
-  const { currencies = [], setRefreshing } = useData();
+  const { currencies = [], refreshData } = useData();
   const { loading: isSubmitting, run } = useAsyncAction();
 
   const [open, setOpen] = useState(false);
@@ -47,7 +47,7 @@ export function AddAccountDialog() {
       setBalance('');
       setCurrencyId('');
       setOpen(false);
-      setRefreshing((prev) => prev + 1);
+      refreshData();
     });
   };
 

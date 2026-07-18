@@ -34,7 +34,7 @@ export function AddTransactionDialog({ trigger }) {
     accounts = [],
     categories = [],
     currencies = [],
-    setRefreshing,
+    refreshData,
   } = useData();
   const { loading: isSubmitting, run } = useAsyncAction();
 
@@ -98,7 +98,7 @@ export function AddTransactionDialog({ trigger }) {
       setAmount('');
       setDescription('');
       setOpen(false);
-      setRefreshing((prev) => prev + 1);
+      refreshData();
     });
   };
 

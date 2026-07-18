@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useState } from 'react';
 import { IconTrash } from '@tabler/icons-react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -7,36 +7,17 @@ import { Progress } from '@/components/ui/progress';
 import { useAsyncAction } from '@/hooks/useAsyncAction';
 import { AddSavingGoalDialog } from '@/components/AddSavingGoalDialog';
 import { useApi } from '@/hooks/useApi';
-
-const formatMoney = (value, currencyCode = 'PLN') =>
-  new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: currencyCode,
-  }).format(Number(value) || 0);
+import { formatMoney } from '@/lib/formatMoney';
+import { useData } from '@/context/DataContext';
 
 export default function SavingsGoals() {
-  const { get, patch, del } = useApi();
+  const { patch, del } = useApi();
 
-  const [goals, setGoals] = useState([]);
-  const [isFetching, setIsFetching] = useState(true);
   const [contributions, setContributions] = useState({});
   const { loading: isAdding, run: runAdd } = useAsyncAction();
   const { loading: isDeleting, run: runDelete } = useAsyncAction();
 
-  const fetchGoals = useCallback(async () => {
-    try {
-      const data = await get('/savings-goals/');
-      setGoals(Array.isArray(data) ? data : []);
-    } catch (error) {
-      console.error('Error fetching savings goals:', error);
-    } finally {
-      setIsFetching(false);
-    }
-  }, [get]);
-
-  useEffect(() => {
-    fetchGoals();
-  }, [fetchGoals]);
+  const { savingsGoals = [], loading: isFetching, refreshData } = useData();
 
   const handleAddContribution = (goalId) => {
     const amount = Number(contributions[goalId]) || 0;
@@ -46,7 +27,7 @@ export default function SavingsGoals() {
       await patch(`/savings-goals/${goalId}/add`, { amount });
 
       setContributions((prev) => ({ ...prev, [goalId]: '' }));
-      await fetchGoals();
+      await refreshData();
     });
   };
 
@@ -55,10 +36,7 @@ export default function SavingsGoals() {
 
     runDelete(async () => {
       await del(`/savings-goals/${goalId}`);
-
-      setGoals((currentGoals) =>
-        currentGoals.filter((goal) => goal.id_saving_goal !== goalId)
-      );
+      await refreshData();
     });
   };
 
@@ -74,20 +52,20 @@ export default function SavingsGoals() {
           </p>
         </div>
 
-        <AddSavingGoalDialog onGoalAdded={fetchGoals} />
+        <AddSavingGoalDialog onGoalAdded={refreshData} />
       </div>
 
       {isFetching ? (
         <p className="text-sm text-muted-foreground text-center py-8">
           Loading savings goals...
         </p>
-      ) : goals.length === 0 ? (
+      ) : savingsGoals.length === 0 ? (
         <p className="text-sm text-muted-foreground text-center py-8">
           You haven't created any savings goals yet.
         </p>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {goals.map((goal) => {
+          {savingsGoals.map((goal) => {
             const percent = Math.min(Number(goal.percent_complete) || 0, 100);
             const left = Number(goal.target) - Number(goal.current_amount);
 

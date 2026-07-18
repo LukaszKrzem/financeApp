@@ -8,7 +8,7 @@ import { useApi } from '@/hooks/useApi';
 
 export default function BankCallback() {
   const { post } = useApi();
-  const { setRefreshing } = useData();
+  const { refreshData } = useData();
 
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
@@ -43,7 +43,7 @@ export default function BankCallback() {
         toast.success('Bank connected successfully', {
           description: `Imported ${data.imported_accounts} account(s).`,
         });
-        setRefreshing((prev) => prev + 1);
+        refreshData();
         navigate('/accounts', { replace: true });
       } catch (err) {
         console.error('Error completing bank authorization:', err);
@@ -53,7 +53,7 @@ export default function BankCallback() {
     };
 
     completeAuthorization();
-  }, [searchParams, post, navigate, setRefreshing]);
+  }, [searchParams, post, navigate, refreshData]);
 
   return (
     <div className="flex flex-1 flex-col items-center justify-center p-8 gap-4">

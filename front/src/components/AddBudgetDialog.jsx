@@ -24,7 +24,7 @@ import { useAsyncAction } from '@/hooks/useAsyncAction';
 
 export function AddBudgetDialog() {
   const { post } = useApi();
-  const { categories = [], currencies = [], setRefreshing } = useData();
+  const { categories = [], currencies = [], refreshData } = useData();
   const { loading: isSubmitting, run } = useAsyncAction();
 
   const [open, setOpen] = useState(false);
@@ -55,7 +55,7 @@ export function AddBudgetDialog() {
       setCategory('');
       setCurrencyId('');
       setOpen(false);
-      setRefreshing((prev) => prev + 1);
+      refreshData();
     });
   };
 

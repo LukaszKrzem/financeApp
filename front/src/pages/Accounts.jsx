@@ -24,7 +24,7 @@ import { ConfirmDeleteDialog } from '@/components/ConfirmDeleteDialog';
 import { useApi } from '@/hooks/useApi';
 
 export default function Accounts() {
-  const { accounts, loading, setRefreshing } = useData();
+  const { accounts, loading, refreshData } = useData();
 
   const { post, patch, del } = useApi();
 
@@ -64,7 +64,7 @@ export default function Accounts() {
       toast.success('Sync successful', {
         description: `Imported: ${data.imported}, Skipped: ${data.skipped}.`,
       });
-      setRefreshing((prev) => prev + 1);
+      refreshData();
     } catch (error) {
       console.error('Error syncing bank transactions:', error);
       toast.error('Sync failed', { description: error.message });
@@ -207,7 +207,7 @@ export default function Accounts() {
           runRename(async () => {
             await patch(`/accounts/${renamingAccount.id_account}`, { name });
             setRenamingAccount(null);
-            setRefreshing((prev) => prev + 1);
+            refreshData();
           })
         }
       />
@@ -222,7 +222,7 @@ export default function Accounts() {
           runDelete(async () => {
             await del(`/accounts/${deletingAccount.id_account}`);
             setDeletingAccount(null);
-            setRefreshing((prev) => prev + 1);
+            refreshData();
           })
         }
       />

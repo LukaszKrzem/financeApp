@@ -3,13 +3,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog';
-import {
   Select,
   SelectContent,
   SelectItem,
@@ -17,6 +10,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { IconPlus } from '@tabler/icons-react';
+import { ResponsiveDialog } from '@/components/ui/responsive-dialog';
 import { useData } from '@/context/DataContext';
 import { useAsyncAction } from '@/hooks/useAsyncAction';
 import { useApi } from '@/hooks/useApi';
@@ -52,75 +46,74 @@ export function AddAccountDialog() {
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
+    <ResponsiveDialog
+      open={open}
+      onOpenChange={setOpen}
+      title="Create New Account"
+      trigger={
         <Button className="gap-2" size="sm">
           <IconPlus className="size-4" />
           Add Account
         </Button>
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
-        <DialogHeader>
-          <DialogTitle>Create New Account</DialogTitle>
-        </DialogHeader>
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4 py-4">
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="account-name">Account Name</Label>
-            <Input
-              id="account-name"
-              type="text"
-              placeholder="e.g. Main Wallet"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
-              disabled={isSubmitting}
-            />
-          </div>
+      }
+    >
+      <form onSubmit={handleSubmit} className="flex flex-col gap-4 py-4">
+        <div className="flex flex-col gap-2">
+          <Label htmlFor="account-name">Account Name</Label>
+          <Input
+            id="account-name"
+            type="text"
+            placeholder="e.g. Main Wallet"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            required
+            disabled={isSubmitting}
+          />
+        </div>
 
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="account-balance">Initial Balance</Label>
-            <Input
-              id="account-balance"
-              type="number"
-              step="0.01"
-              min="0.00"
-              inputMode="decimal"
-              placeholder="e.g. 100.00"
-              value={balance}
-              onChange={(e) => setBalance(e.target.value)}
-              required
-              disabled={isSubmitting}
-            />
-          </div>
+        <div className="flex flex-col gap-2">
+          <Label htmlFor="account-balance">Initial Balance</Label>
+          <Input
+            id="account-balance"
+            type="number"
+            step="0.01"
+            min="0.00"
+            inputMode="decimal"
+            placeholder="e.g. 100.00"
+            value={balance}
+            onChange={(e) => setBalance(e.target.value)}
+            required
+            disabled={isSubmitting}
+          />
+        </div>
 
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="account-currency">Currency</Label>
-            <Select
-              value={currencyId}
-              onValueChange={setCurrencyId}
-              required
-              disabled={isSubmitting}
-            >
-              <SelectTrigger className="w-full" id="account-currency">
-                <SelectValue placeholder="Select currency" />
-              </SelectTrigger>
-              <SelectContent>
-                {currencies.map((currency) => (
-                  <SelectItem
-                    key={currency.id_currency}
-                    value={currency.id_currency.toString()}
-                  >
-                    {currency.code}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <Button type="submit" className="w-full mt-2" disabled={isSubmitting}>
-            {isSubmitting ? 'Creating...' : 'Confirm Account'}
-          </Button>
-        </form>
-      </DialogContent>
-    </Dialog>
+        <div className="flex flex-col gap-2">
+          <Label htmlFor="account-currency">Currency</Label>
+          <Select
+            value={currencyId}
+            onValueChange={setCurrencyId}
+            required
+            disabled={isSubmitting}
+          >
+            <SelectTrigger className="w-full" id="account-currency">
+              <SelectValue placeholder="Select currency" />
+            </SelectTrigger>
+            <SelectContent>
+              {currencies.map((currency) => (
+                <SelectItem
+                  key={currency.id_currency}
+                  value={currency.id_currency.toString()}
+                >
+                  {currency.code}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <Button type="submit" className="w-full mt-2" disabled={isSubmitting}>
+          {isSubmitting ? 'Creating...' : 'Confirm Account'}
+        </Button>
+      </form>
+    </ResponsiveDialog>
   );
 }

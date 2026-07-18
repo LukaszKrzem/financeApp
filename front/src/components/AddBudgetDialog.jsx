@@ -3,13 +3,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog';
-import {
   Select,
   SelectContent,
   SelectItem,
@@ -17,6 +10,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { IconPlus } from '@tabler/icons-react';
+import { ResponsiveDialog } from '@/components/ui/responsive-dialog';
 
 import { useApi } from '@/hooks/useApi';
 import { useData } from '@/context/DataContext';
@@ -60,92 +54,91 @@ export function AddBudgetDialog() {
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
+    <ResponsiveDialog
+      open={open}
+      onOpenChange={setOpen}
+      title="Create New Budget"
+      trigger={
         <Button className="gap-2">
           <IconPlus className="size-4" />
           Add Budget
         </Button>
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
-        <DialogHeader>
-          <DialogTitle>Create New Budget</DialogTitle>
-        </DialogHeader>
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4 py-4">
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="budget-category">Category</Label>
+      }
+    >
+      <form onSubmit={handleSubmit} className="flex flex-col gap-4 py-4">
+        <div className="flex flex-col gap-2">
+          <Label htmlFor="budget-category">Category</Label>
+          <Select
+            onValueChange={setCategory}
+            value={category}
+            disabled={isSubmitting}
+          >
+            <SelectTrigger id="budget-category">
+              <SelectValue placeholder="Select a category" />
+            </SelectTrigger>
+            <SelectContent>
+              {(categories || []).length === 0 ? (
+                <p className="p-2 text-xs text-muted-foreground text-center">
+                  Loading categories...
+                </p>
+              ) : (
+                categories.map((cat) => {
+                  const catId =
+                    cat.id_category !== undefined ? cat.id_category : cat.id;
+                  return (
+                    <SelectItem key={catId} value={String(catId)}>
+                      {cat.name}
+                    </SelectItem>
+                  );
+                })
+              )}
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="flex gap-2">
+          <div className="flex flex-col gap-2 flex-1">
+            <Label htmlFor="budget-limit">Limit</Label>
+            <Input
+              id="budget-limit"
+              type="number"
+              step="0.01"
+              min="0.00"
+              placeholder="e.g. 1500"
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
+              required
+              disabled={isSubmitting}
+            />
+          </div>
+          <div className="flex flex-col gap-2 w-[100px]">
+            <Label htmlFor="budget-currency">Currency</Label>
             <Select
-              onValueChange={setCategory}
-              value={category}
+              value={currencyId}
+              onValueChange={setCurrencyId}
               disabled={isSubmitting}
             >
-              <SelectTrigger id="budget-category">
-                <SelectValue placeholder="Select a category" />
+              <SelectTrigger id="budget-currency">
+                <SelectValue placeholder="Currency" />
               </SelectTrigger>
               <SelectContent>
-                {(categories || []).length === 0 ? (
-                  <p className="p-2 text-xs text-muted-foreground text-center">
-                    Loading categories...
-                  </p>
-                ) : (
-                  categories.map((cat) => {
-                    const catId =
-                      cat.id_category !== undefined ? cat.id_category : cat.id;
-                    return (
-                      <SelectItem key={catId} value={String(catId)}>
-                        {cat.name}
-                      </SelectItem>
-                    );
-                  })
-                )}
+                {currencies.map((cur) => (
+                  <SelectItem
+                    key={cur.id_currency}
+                    value={cur.id_currency.toString()}
+                  >
+                    {cur.code}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
+        </div>
 
-          <div className="flex gap-2">
-            <div className="flex flex-col gap-2 flex-1">
-              <Label htmlFor="budget-limit">Limit</Label>
-              <Input
-                id="budget-limit"
-                type="number"
-                step="0.01"
-                min="0.00"
-                placeholder="e.g. 1500"
-                value={amount}
-                onChange={(e) => setAmount(e.target.value)}
-                required
-                disabled={isSubmitting}
-              />
-            </div>
-            <div className="flex flex-col gap-2 w-[100px]">
-              <Label htmlFor="budget-currency">Currency</Label>
-              <Select
-                value={currencyId}
-                onValueChange={setCurrencyId}
-                disabled={isSubmitting}
-              >
-                <SelectTrigger id="budget-currency">
-                  <SelectValue placeholder="Currency" />
-                </SelectTrigger>
-                <SelectContent>
-                  {currencies.map((cur) => (
-                    <SelectItem
-                      key={cur.id_currency}
-                      value={cur.id_currency.toString()}
-                    >
-                      {cur.code}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
-          <Button type="submit" className="w-full mt-2" disabled={isSubmitting}>
-            {isSubmitting ? 'Creating...' : 'Confirm Budget'}
-          </Button>
-        </form>
-      </DialogContent>
-    </Dialog>
+        <Button type="submit" className="w-full mt-2" disabled={isSubmitting}>
+          {isSubmitting ? 'Creating...' : 'Confirm Budget'}
+        </Button>
+      </form>
+    </ResponsiveDialog>
   );
 }

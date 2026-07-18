@@ -2,13 +2,7 @@ import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from '@/components/ui/dialog';
+import { ResponsiveDialog } from '@/components/ui/responsive-dialog';
 
 export function RenameAccountDialog({ account, onClose, onSave, isSaving }) {
   const [newName, setNewName] = useState('');
@@ -18,31 +12,29 @@ export function RenameAccountDialog({ account, onClose, onSave, isSaving }) {
   }, [account]);
 
   return (
-    <Dialog open={!!account} onOpenChange={(o) => !o && onClose()}>
-      <DialogContent className="sm:max-w-[400px]">
-        <DialogHeader>
-          <DialogTitle>Rename account</DialogTitle>
-          <DialogDescription>
-            Choose a new name for this account.
-          </DialogDescription>
-        </DialogHeader>
-        <Label htmlFor="account-rename">New account name</Label>
-        <Input
-          id="account-rename"
-          value={newName}
-          onChange={(e) => setNewName(e.target.value)}
-          onKeyDown={(e) => e.key === 'Enter' && onSave(newName)}
-          disabled={isSaving}
-          autoFocus
-        />
-        <Button
-          onClick={() => onSave(newName)}
-          disabled={isSaving || !newName.trim()}
-          className="w-full mt-2"
-        >
-          {isSaving ? 'Saving...' : 'Save'}
-        </Button>
-      </DialogContent>
-    </Dialog>
+    <ResponsiveDialog
+      open={!!account}
+      onOpenChange={(o) => !o && onClose()}
+      title="Rename account"
+      description="Choose a new name for this account."
+      contentClassName="sm:max-w-[400px]"
+    >
+      <Label htmlFor="account-rename">New account name</Label>
+      <Input
+        id="account-rename"
+        value={newName}
+        onChange={(e) => setNewName(e.target.value)}
+        onKeyDown={(e) => e.key === 'Enter' && onSave(newName)}
+        disabled={isSaving}
+        autoFocus
+      />
+      <Button
+        onClick={() => onSave(newName)}
+        disabled={isSaving || !newName.trim()}
+        className="w-full mt-2"
+      >
+        {isSaving ? 'Saving...' : 'Save'}
+      </Button>
+    </ResponsiveDialog>
   );
 }

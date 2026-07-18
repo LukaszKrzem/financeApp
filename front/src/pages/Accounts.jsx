@@ -20,6 +20,7 @@ import { useData } from '@/context/DataContext';
 import { useAsyncAction } from '@/hooks/useAsyncAction';
 import { RenameAccountDialog } from '@/components/RenameAccountDialog';
 import { ConfirmDeleteDialog } from '@/components/ConfirmDeleteDialog';
+import { CardSkeleton } from '@/components/ui/card-skeleton';
 
 import { useApi } from '@/hooks/useApi';
 
@@ -99,9 +100,7 @@ export default function Accounts() {
       </div>
 
       {loading ? (
-        <p className="text-sm text-muted-foreground text-center py-8">
-          Loading accounts...
-        </p>
+        <CardSkeleton count={3} />
       ) : (accounts || []).length === 0 ? (
         <p className="text-sm text-muted-foreground col-span-full text-center py-8">
           You haven't created any financial accounts yet.

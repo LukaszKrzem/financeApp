@@ -2,6 +2,7 @@ import { Progress } from '@/components/ui/progress';
 import { AddBudgetDialog } from '@/components/AddBudgetDialog';
 import { useData } from '@/context/DataContext';
 import { formatMoney } from '@/lib/formatMoney';
+import { CardSkeleton } from '@/components/ui/card-skeleton';
 
 export default function BudgetsPage() {
   const { budgets = [], loading } = useData();
@@ -21,9 +22,7 @@ export default function BudgetsPage() {
       </div>
 
       {loading ? (
-        <p className="text-sm text-muted-foreground text-center py-8">
-          Loading data...
-        </p>
+        <CardSkeleton count={3} />
       ) : (budgets || []).length === 0 ? (
         <p className="text-sm text-muted-foreground col-span-full text-center py-8">
           You haven't defined any budget limits yet.

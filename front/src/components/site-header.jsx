@@ -16,7 +16,7 @@ export function SiteHeader() {
           className="mx-2 data-[orientation=vertical]:h-4 hidden md:block"
         />
         <h1 className="text-base font-medium">
-          {user?.name ? `Hello, ${user.name} 👋` : 'Expense Dashboard'}
+          {user?.name ? `Hello, ${user.name} 👋` : 'Smart Budget'}
         </h1>
 
         <div className="ml-auto flex items-center gap-3">

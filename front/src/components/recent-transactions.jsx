@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { formatMoney } from '@/lib/formatMoney';
 import { useData } from '@/context/DataContext';
 import { isIncome } from '@/lib/transactionHelpers';
+import { RowSkeleton } from '@/components/ui/row-skeleton';
 
 import {
   Card,
@@ -16,14 +17,6 @@ import {
 export function RecentTransactions() {
   const { transactions = [], loading } = useData();
 
-  if (loading) {
-    return (
-      <div className="p-6 text-center text-muted-foreground">
-        Loading transactions...
-      </div>
-    );
-  }
-
   return (
     <Card className="border-border/50 flex flex-col h-full">
       <CardHeader>
@@ -32,13 +25,15 @@ export function RecentTransactions() {
       </CardHeader>
       <CardContent className="p-0 flex-1">
         <div className="space-y-1 px-6 pb-6">
-          {transactions.length === 0 ? (
+          {loading ? (
+            <RowSkeleton count={5} />
+          ) : transactions.length === 0 ? (
             <div className="text-center py-4 text-sm text-muted-foreground">
               No transactions to display.
             </div>
           ) : (
             transactions.slice(0, 7).map((transaction) => {
-              const typeLower = transaction.type.toLowerCase();
+              const typeLower = transaction.type?.toLowerCase() ?? 'expense';
               const transactionIsIncome = isIncome(transaction);
               const catName = transaction.category_name || 'Other';
               const Icon = getIconForCategory(catName, typeLower);

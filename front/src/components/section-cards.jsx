@@ -3,21 +3,25 @@ import {
   IconArrowUp,
   IconTrendingDown,
   IconTrendingUp,
+  IconWallet,
 } from '@tabler/icons-react';
 import { useMemo } from 'react';
 
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
 import { useData } from '@/context/DataContext';
 import { formatMoney } from '@/lib/formatMoney';
 import { isIncome } from '@/lib/transactionHelpers';
 
 const pctChange = (curr, prev) => {
-  if (prev === 0) return curr === 0 ? 0 : 100;
+  if (prev === 0) return null;
   return Math.round(((curr - prev) / prev) * 100);
 };
 
 function TrendBadge({ percent, goodDirection = 'up' }) {
+  if (percent === null) return null;
+
   const isUp = percent >= 0;
   const isGood = goodDirection === 'up' ? isUp : !isUp;
   const Icon = isUp ? IconTrendingUp : IconTrendingDown;
@@ -105,12 +109,28 @@ function StatCard({
   );
 }
 
+function StatCardSkeleton() {
+  return (
+    <Card className="border-border/50 bg-card overflow-hidden shadow-none py-3">
+      <div className="px-3 flex flex-col h-full gap-2">
+        <div className="flex items-center gap-1.5">
+          <Skeleton className="size-5 rounded-md" />
+          <Skeleton className="h-3 w-14" />
+        </div>
+        <Skeleton className="h-5 w-20" />
+        <Skeleton className="h-1.5 w-full rounded-full" />
+      </div>
+    </Card>
+  );
+}
+
 export function SectionCards() {
   const {
     transactions = [],
     budgets = [],
     accounts = [],
     currencies = [],
+    loading,
   } = useData();
 
   const baseAccount = accounts[0];
@@ -135,7 +155,7 @@ export function SectionCards() {
     };
 
     transactions.forEach((t) => {
-      const date = new Date(t.transaction_date || t.date);
+      const date = new Date(t.date);
       const txRate = parseFloat(t.exchange_rate) || 1;
       const amount = (Number(t.amount) || 0) * (txRate / baseRate);
 
@@ -208,6 +228,16 @@ export function SectionCards() {
         ? 'warning'
         : 'neutral';
 
+  if (loading) {
+    return (
+      <div className="grid grid-cols-2 gap-2 px-3 @4xl/main:grid-cols-4 lg:px-6">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <StatCardSkeleton key={i} />
+        ))}
+      </div>
+    );
+  }
+
   return (
     <div className="grid grid-cols-2 gap-2 px-3 @4xl/main:grid-cols-4 lg:px-6">
       <StatCard
@@ -259,7 +289,7 @@ export function SectionCards() {
       />
 
       <StatCard
-        icon={IconTrendingDown}
+        icon={IconWallet}
         iconBg="bg-chart-4/10"
         iconColor="text-chart-4"
         label="Budget"

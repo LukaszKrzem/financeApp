@@ -10,6 +10,7 @@ import { useData } from '@/context/DataContext';
 import { useTheme } from '@/components/theme-provider';
 import { isExpense } from '@/lib/transactionHelpers';
 import { formatMoney } from '@/lib/formatMoney';
+import { Skeleton } from '@/components/ui/skeleton';
 
 import {
   Card,
@@ -35,8 +36,31 @@ const CustomTooltip = ({ active, payload }) => {
   return null;
 };
 
+function SpendingCategoriesSkeleton() {
+  return (
+    <div className="flex flex-col gap-6 lg:flex-row lg:items-center">
+      <Skeleton className="mx-auto size-[180px] rounded-full lg:mx-0 shrink-0" />
+      <div className="flex-1 space-y-3 w-full">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <div key={i} className="flex items-center gap-3">
+            <Skeleton className="size-8 rounded-lg shrink-0" />
+            <div className="flex-1 space-y-1.5">
+              <div className="flex items-center justify-between">
+                <Skeleton className="h-3.5 w-1/3" />
+                <Skeleton className="h-3.5 w-8" />
+              </div>
+              <Skeleton className="h-1.5 w-full rounded-full" />
+            </div>
+            <Skeleton className="h-3.5 w-12 shrink-0" />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export function SpendingCategories() {
-  const { transactions = [] } = useData();
+  const { transactions = [], loading } = useData();
   const { theme, resolvedTheme } = useTheme();
   const isDark = (resolvedTheme || theme) === 'dark';
 
@@ -77,7 +101,9 @@ export function SpendingCategories() {
         <CardDescription>Where your money goes</CardDescription>
       </CardHeader>
       <CardContent>
-        {categoryData.length === 0 ? (
+        {loading ? (
+          <SpendingCategoriesSkeleton />
+        ) : categoryData.length === 0 ? (
           <div className="py-12 text-center text-sm text-muted-foreground">
             No expenses to display yet.
           </div>
@@ -112,7 +138,10 @@ export function SpendingCategories() {
             <div className="flex-1 space-y-3">
               {categoryData.map((category) => {
                 const Icon = category.icon;
-                const percentage = ((category.value / total) * 100).toFixed(1);
+                const percentage =
+                  total > 0
+                    ? ((category.value / total) * 100).toFixed(1)
+                    : '0.0';
                 return (
                   <div key={category.name} className="flex items-center gap-3">
                     <div

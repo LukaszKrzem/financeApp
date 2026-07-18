@@ -9,6 +9,7 @@ import { useData } from '@/context/DataContext';
 import { DatePicker } from '@/components/ui/date-picker';
 import { SegmentedControl } from '@/components/ui/segmented-control';
 import { isExpense, getSignedAmount } from '@/lib/transactionHelpers';
+import { RowSkeleton } from '@/components/ui/row-skeleton';
 
 const FILTER_OPTIONS = [
   { value: 'ALL', label: 'All' },
@@ -139,9 +140,7 @@ export default function Transactions() {
         </div>
 
         {loading ? (
-          <div className="text-center py-10 text-muted-foreground">
-            Loading transactions...
-          </div>
+          <RowSkeleton count={6} />
         ) : filteredTransactions.length === 0 ? (
           <div className="text-center py-10 text-muted-foreground">
             No transactions found.

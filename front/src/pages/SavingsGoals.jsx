@@ -9,6 +9,7 @@ import { AddSavingGoalDialog } from '@/components/AddSavingGoalDialog';
 import { useApi } from '@/hooks/useApi';
 import { formatMoney } from '@/lib/formatMoney';
 import { useData } from '@/context/DataContext';
+import { CardSkeleton } from '@/components/ui/card-skeleton';
 
 export default function SavingsGoals() {
   const { patch, del } = useApi();
@@ -56,9 +57,7 @@ export default function SavingsGoals() {
       </div>
 
       {isFetching ? (
-        <p className="text-sm text-muted-foreground text-center py-8">
-          Loading savings goals...
-        </p>
+        <CardSkeleton count={3} />
       ) : savingsGoals.length === 0 ? (
         <p className="text-sm text-muted-foreground text-center py-8">
           You haven't created any savings goals yet.

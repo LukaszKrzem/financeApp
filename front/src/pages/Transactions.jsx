@@ -46,6 +46,7 @@ export default function Transactions() {
 
   const [editingTransaction, setEditingTransaction] = useState(null);
   const [deletingTransaction, setDeletingTransaction] = useState(null);
+  const [openDropdownId, setOpenDropdownId] = useState(null);
 
   const isMobile = useIsMobile();
 
@@ -292,12 +293,36 @@ export default function Transactions() {
                       {formattedAmount}
                     </span>
 
-                    <DropdownMenu>
+                    <DropdownMenu
+                      open={openDropdownId === t.id_transaction}
+                      onOpenChange={(isOpen) =>
+                        setOpenDropdownId(isOpen ? t.id_transaction : null)
+                      }
+                    >
                       <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="size-7">
-                          <IconDotsVertical className="size-4" />
-                        </Button>
+                        <div className="inline-block">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="size-7"
+                            onPointerDown={(e) => {
+                              if (e.pointerType === 'touch') {
+                                e.stopPropagation();
+                              }
+                            }}
+                            onClick={() => {
+                              setOpenDropdownId(
+                                openDropdownId === t.id_transaction
+                                  ? null
+                                  : t.id_transaction
+                              );
+                            }}
+                          >
+                            <IconDotsVertical className="size-4" />
+                          </Button>
+                        </div>
                       </DropdownMenuTrigger>
+
                       <DropdownMenuContent align="end">
                         <DropdownMenuItem
                           onClick={() => setEditingTransaction(t)}

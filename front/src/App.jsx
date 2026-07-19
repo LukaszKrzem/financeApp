@@ -1,4 +1,4 @@
-import { lazy, Suspense } from 'react';
+import { lazy, Suspense, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { Toaster } from '@/components/ui/sonner';
@@ -22,6 +22,27 @@ const Settings = lazy(() => import('./pages/Settings'));
 const BankCallback = lazy(() => import('./pages/BankCallback'));
 
 function App() {
+  useEffect(() => {
+    const updateThemeColor = () => {
+      const metaThemeColor = document.querySelector('meta[name="theme-color"]');
+      if (!metaThemeColor) return;
+
+      const isDark = document.documentElement.classList.contains('dark');
+
+      metaThemeColor.setAttribute('content', isDark ? '#181818' : '#ffffff');
+    };
+
+    updateThemeColor();
+
+    const observer = new MutationObserver(updateThemeColor);
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['class'],
+    });
+
+    return () => observer.disconnect();
+  }, []);
+
   return (
     <TooltipProvider>
       <AuthProvider>

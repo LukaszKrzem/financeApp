@@ -25,7 +25,12 @@ export function useApi() {
     [call]
   );
 
+  const put = useCallback(
+    (path, body) => call(path, { method: 'PUT', body: JSON.stringify(body) }),
+    [call]
+  );
+
   const del = useCallback((path) => call(path, { method: 'DELETE' }), [call]);
 
-  return { call, get, post, patch, del };
+  return { call, get, post, patch, put, del };
 }

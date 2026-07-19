@@ -2,17 +2,32 @@ import * as React from 'react';
 import { useState } from 'react';
 import { SimpleDataTable } from '@/components/simple-data-table';
 import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { CategoryBadge } from '@/lib/categoryBadge';
 import { formatMoney } from '@/lib/formatMoney';
 import { useData } from '@/context/DataContext';
+import { useApi } from '@/hooks/useApi';
+import { useAsyncAction } from '@/hooks/useAsyncAction';
 import { DatePicker } from '@/components/ui/date-picker';
 import { SegmentedControl } from '@/components/ui/segmented-control';
 import { isExpense, getSignedAmount } from '@/lib/transactionHelpers';
 import { RowSkeleton } from '@/components/ui/row-skeleton';
-import { IconReceipt, IconFilterOff } from '@tabler/icons-react';
+import {
+  IconReceipt,
+  IconFilterOff,
+  IconPencil,
+  IconTrash,
+  IconDotsVertical,
+} from '@tabler/icons-react';
 import { EmptyState } from '@/components/ui/empty-state';
 import { AddTransactionDialog } from '@/components/AddTransactionDialog';
+import { ConfirmDeleteDialog } from '@/components/ConfirmDeleteDialog';
 
 const FILTER_OPTIONS = [
   { value: 'ALL', label: 'All' },
@@ -20,58 +35,17 @@ const FILTER_OPTIONS = [
   { value: 'EXPENSE', label: 'Spending' },
 ];
 
-const columns = [
-  {
-    accessorKey: 'date',
-    header: 'Date',
-    cell: ({ row }) => {
-      const date = new Date(row.getValue('date'));
-      return date.toLocaleDateString('pl-PL');
-    },
-  },
-  {
-    accessorKey: 'description',
-    header: 'Description',
-  },
-  {
-    accessorKey: 'category_name',
-    header: 'Category',
-    cell: ({ row }) => (
-      <CategoryBadge category={row.getValue('category_name')} />
-    ),
-  },
-  {
-    id: 'amount',
-    header: 'Amount',
-    accessorFn: (row) => getSignedAmount(row),
-    cell: ({ row }) => {
-      const expense = isExpense(row.original);
-      const amount = row.getValue('amount');
-      const formatted = formatMoney(
-        amount,
-        row.original.currency_code,
-        false,
-        false
-      );
-
-      return (
-        <div
-          className={`font-semibold ${expense ? 'text-red-500' : 'text-emerald-500'}`}
-        >
-          {expense ? '-' : '+'}
-          {formatted}
-        </div>
-      );
-    },
-  },
-];
-
 export default function Transactions() {
-  const { transactions = [], loading } = useData();
+  const { transactions = [], loading, refreshData } = useData();
+  const { del } = useApi();
+  const { loading: isDeleting, run: runDelete } = useAsyncAction();
 
   const [typeFilter, setTypeFilter] = useState('ALL');
   const [dateFrom, setDateFrom] = useState(null);
   const [dateTo, setDateTo] = useState(null);
+
+  const [editingTransaction, setEditingTransaction] = useState(null);
+  const [deletingTransaction, setDeletingTransaction] = useState(null);
 
   const isMobile = useIsMobile();
 
@@ -90,6 +64,88 @@ export default function Transactions() {
       return true;
     });
   }, [transactions, typeFilter, dateFrom, dateTo]);
+
+  const handleDelete = () => {
+    runDelete(async () => {
+      await del(`/transactions/${deletingTransaction.id_transaction}`);
+      setDeletingTransaction(null);
+      refreshData();
+    });
+  };
+
+  const columns = [
+    {
+      accessorKey: 'date',
+      header: 'Date',
+      cell: ({ row }) => {
+        const date = new Date(row.getValue('date'));
+        return date.toLocaleDateString('pl-PL');
+      },
+    },
+    {
+      accessorKey: 'description',
+      header: 'Description',
+    },
+    {
+      accessorKey: 'category_name',
+      header: 'Category',
+      cell: ({ row }) => (
+        <CategoryBadge category={row.getValue('category_name')} />
+      ),
+    },
+    {
+      id: 'amount',
+      header: 'Amount',
+      accessorFn: (row) => getSignedAmount(row),
+      cell: ({ row }) => {
+        const expense = isExpense(row.original);
+        const amount = row.getValue('amount');
+        const formatted = formatMoney(
+          amount,
+          row.original.currency_code,
+          false,
+          false
+        );
+
+        return (
+          <div
+            className={`font-semibold ${expense ? 'text-red-500' : 'text-emerald-500'}`}
+          >
+            {expense ? '-' : '+'}
+            {formatted}
+          </div>
+        );
+      },
+    },
+    {
+      id: 'actions',
+      header: '',
+      cell: ({ row }) => (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="icon" className="size-7">
+              <IconDotsVertical className="size-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem
+              onClick={() => setEditingTransaction(row.original)}
+            >
+              <IconPencil className="size-4 mr-2" />
+              Edit
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => setDeletingTransaction(row.original)}
+              className="text-destructive focus:text-destructive"
+            >
+              <IconTrash className="size-4 mr-2" />
+              Delete
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      ),
+    },
+  ];
 
   return (
     <div className="flex flex-1 flex-col p-4 md:p-6 gap-6">
@@ -226,14 +282,39 @@ export default function Transactions() {
                     </div>
                   </div>
 
-                  <span
-                    className={`text-sm font-semibold flex-shrink-0 ml-4 whitespace-nowrap ${
-                      expense ? 'text-red-500' : 'text-emerald-500'
-                    }`}
-                  >
-                    {expense ? '-' : '+'}
-                    {formattedAmount}
-                  </span>
+                  <div className="flex items-center gap-1 shrink-0">
+                    <span
+                      className={`text-sm font-semibold whitespace-nowrap ml-2 ${
+                        expense ? 'text-red-500' : 'text-emerald-500'
+                      }`}
+                    >
+                      {expense ? '-' : '+'}
+                      {formattedAmount}
+                    </span>
+
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon" className="size-7">
+                          <IconDotsVertical className="size-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem
+                          onClick={() => setEditingTransaction(t)}
+                        >
+                          <IconPencil className="size-4 mr-2" />
+                          Edit
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() => setDeletingTransaction(t)}
+                          className="text-destructive focus:text-destructive"
+                        >
+                          <IconTrash className="size-4 mr-2" />
+                          Delete
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
                 </div>
               );
             })}
@@ -242,6 +323,22 @@ export default function Transactions() {
           <SimpleDataTable columns={columns} data={filteredTransactions} />
         )}
       </div>
+
+      <AddTransactionDialog
+        transaction={editingTransaction}
+        open={!!editingTransaction}
+        onOpenChange={(o) => !o && setEditingTransaction(null)}
+        trigger={<div className="hidden"></div>}
+      />
+
+      <ConfirmDeleteDialog
+        open={!!deletingTransaction}
+        onClose={() => setDeletingTransaction(null)}
+        isDeleting={isDeleting}
+        title="Delete transaction?"
+        description={`This will permanently delete "${deletingTransaction?.description || 'this transaction'}" and update your account balance. This cannot be undone.`}
+        onConfirm={handleDelete}
+      />
     </div>
   );
 }

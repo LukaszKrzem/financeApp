@@ -16,12 +16,23 @@ class TransactionCreate(pydantic.BaseModel):
     Currency_id_currency: int = 1
 
 
+class TransactionUpdate(pydantic.BaseModel):
+    amount: Decimal
+    description: Optional[str] = None
+    type: TransactionType
+    Account_id_account: int
+    Category_id_category: Optional[int] = None
+    Currency_id_currency: int = 1
+
+
 class TransactionOut(pydantic.BaseModel):
     id_transaction: int
     amount: Decimal
     date: datetime
     description: Optional[str]
-    type: TransactionType  # Made it TransactionType to avoid confusion
+    type: TransactionType
+    Category_id_category: Optional[int] = None
+    Currency_id_currency: Optional[int] = None
     Account_id_account: int
     category_name: Optional[str] = None
     exchange_rate: Optional[float] = None

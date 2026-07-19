@@ -15,8 +15,13 @@ import { useData } from '@/context/DataContext';
 import { useAsyncAction } from '@/hooks/useAsyncAction';
 import { CurrencySelect } from './ui/currency-select';
 
-export function AddTransactionDialog({ trigger }) {
-  const { post } = useApi();
+export function AddTransactionDialog({
+  trigger,
+  transaction,
+  open: controlledOpen,
+  onOpenChange: controlledOnOpenChange,
+}) {
+  const { post, put } = useApi();
   const {
     accounts = [],
     categories = [],
@@ -25,7 +30,12 @@ export function AddTransactionDialog({ trigger }) {
   } = useData();
   const { loading: isSubmitting, run } = useAsyncAction();
 
-  const [open, setOpen] = useState(false);
+  const isEditing = !!transaction;
+
+  const [internalOpen, setInternalOpen] = useState(false);
+  const open = controlledOpen ?? internalOpen;
+  const setOpen = controlledOnOpenChange ?? setInternalOpen;
+
   const [amount, setAmount] = useState('');
   const [type, setType] = useState('EXPENSE');
   const [description, setDescription] = useState('');
@@ -38,10 +48,42 @@ export function AddTransactionDialog({ trigger }) {
   const filteredCategories = categories.filter((cat) => cat.type === type);
 
   useEffect(() => {
-    setCategoryId('');
-  }, [type]);
+    if (!open) return;
+
+    if (isEditing) {
+      setAmount(String(transaction.amount));
+      setType(transaction.type);
+      setDescription(transaction.description || '');
+      setAccountId(String(transaction.Account_id_account));
+      setCategoryId(
+        transaction.Category_id_category
+          ? String(transaction.Category_id_category)
+          : ''
+      );
+      setCurrencyId(String(transaction.Currency_id_currency));
+    } else {
+      setAmount('');
+      setType('EXPENSE');
+      setDescription('');
+      setCategoryId('');
+      setTransactionFrequency('not_scheduled');
+      if (accounts.length > 0) {
+        setAccountId(accounts[0].id_account.toString());
+      }
+    }
+  }, [open, isEditing, transaction]);
 
   useEffect(() => {
+    const categoryExists = filteredCategories.some(
+      (cat) => cat.id_category.toString() === categoryId
+    );
+    if (!categoryExists && categoryId !== '') {
+      setCategoryId('');
+    }
+  }, [type, filteredCategories, categoryId]);
+
+  useEffect(() => {
+    if (isEditing) return;
     if (!accountId && accounts.length > 0) {
       setAccountId(accounts[0].id_account.toString());
     }
@@ -51,7 +93,7 @@ export function AddTransactionDialog({ trigger }) {
     if (selectedAccount) {
       setCurrencyId(selectedAccount.Currency_id_currency.toString());
     }
-  }, [accountId, accounts]);
+  }, [accountId, accounts, isEditing]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -69,19 +111,17 @@ export function AddTransactionDialog({ trigger }) {
         Currency_id_currency: parseInt(currencyId),
       };
 
-      const isScheduled = transactionFrequency !== 'not_scheduled';
-      const endpoint = isScheduled
-        ? '/scheduled-transactions/'
-        : '/transactions/';
-
-      if (isScheduled) {
-        payload.frequency = transactionFrequency;
+      if (isEditing) {
+        await put(`/transactions/${transaction.id_transaction}`, payload);
+      } else {
+        const isScheduled = transactionFrequency !== 'not_scheduled';
+        const endpoint = isScheduled
+          ? '/scheduled-transactions/'
+          : '/transactions/';
+        if (isScheduled) payload.frequency = transactionFrequency;
+        await post(endpoint, payload);
       }
 
-      await post(endpoint, payload);
-
-      setAmount('');
-      setDescription('');
       setOpen(false);
       refreshData();
     });
@@ -91,13 +131,15 @@ export function AddTransactionDialog({ trigger }) {
     <ResponsiveDialog
       open={open}
       onOpenChange={setOpen}
-      title="Add New Transaction"
-      trigger={trigger || <Button>+ Add Transaction</Button>}
+      title={isEditing ? 'Edit Transaction' : 'Add New Transaction'}
+      trigger={
+        trigger || (isEditing ? undefined : <Button>+ Add Transaction</Button>)
+      }
     >
       <form onSubmit={handleSubmit} className="space-y-4 mt-4">
         <div className="flex flex-col gap-2">
           <Label htmlFor="transaction-type">Type</Label>
-          <Select value={type} onValueChange={setType}>
+          <Select value={type} onValueChange={setType} disabled={isSubmitting}>
             <SelectTrigger id="transaction-type">
               <SelectValue placeholder="Type" />
             </SelectTrigger>
@@ -126,7 +168,7 @@ export function AddTransactionDialog({ trigger }) {
           <div className="flex flex-col gap-2 w-[100px]">
             <Label htmlFor="currency">Currency</Label>
             <CurrencySelect
-              id="budget-currency"
+              id="currency"
               value={currencyId}
               onChange={setCurrencyId}
               currencies={currencies}
@@ -195,29 +237,32 @@ export function AddTransactionDialog({ trigger }) {
               </SelectContent>
             </Select>
           </div>
-          <div className="flex flex-col gap-2 flex-1">
-            <Label htmlFor="frequency">Frequency</Label>
-            <Select
-              value={transactionFrequency}
-              onValueChange={setTransactionFrequency}
-              disabled={isSubmitting}
-            >
-              <SelectTrigger id="frequency">
-                <SelectValue placeholder="Frequency" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="not_scheduled">Not scheduled</SelectItem>
-                <SelectItem value="DAILY">Daily</SelectItem>
-                <SelectItem value="WEEKLY">Weekly</SelectItem>
-                <SelectItem value="MONTHLY">Monthly</SelectItem>
-                <SelectItem value="YEARLY">Yearly</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+
+          {!isEditing && (
+            <div className="flex flex-col gap-2 flex-1">
+              <Label htmlFor="frequency">Frequency</Label>
+              <Select
+                value={transactionFrequency}
+                onValueChange={setTransactionFrequency}
+                disabled={isSubmitting}
+              >
+                <SelectTrigger id="frequency">
+                  <SelectValue placeholder="Frequency" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="not_scheduled">Not scheduled</SelectItem>
+                  <SelectItem value="DAILY">Daily</SelectItem>
+                  <SelectItem value="WEEKLY">Weekly</SelectItem>
+                  <SelectItem value="MONTHLY">Monthly</SelectItem>
+                  <SelectItem value="YEARLY">Yearly</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          )}
         </div>
 
         <Button type="submit" className="w-full" disabled={isSubmitting}>
-          {isSubmitting ? 'Saving...' : 'Save'}
+          {isSubmitting ? 'Saving...' : isEditing ? 'Save Changes' : 'Save'}
         </Button>
       </form>
     </ResponsiveDialog>

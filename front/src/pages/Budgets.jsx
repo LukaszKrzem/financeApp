@@ -62,10 +62,10 @@ export default function BudgetsPage() {
                 </div>
                 <div className="flex items-baseline gap-1">
                   <span className="text-2xl font-bold">
-                    {formatMoney(spent, budget.currency_code)}
+                    {formatMoney(spent, budget.currency_code, false, false)}
                   </span>
                   <span className="text-sm text-muted-foreground">
-                    / {formatMoney(limit, budget.currency_code)}
+                    / {formatMoney(limit, budget.currency_code, false, false)}
                   </span>
                 </div>
 
@@ -73,8 +73,8 @@ export default function BudgetsPage() {
 
                 <p className="text-[11px] text-muted-foreground mt-1">
                   {limit - spent >= 0
-                    ? `You have ${formatMoney(limit - spent, budget.currency_code)} left`
-                    : `You have exceeded the limit by ${formatMoney(limit - spent, budget.currency_code)}!`}
+                    ? `You have ${formatMoney(limit - spent, budget.currency_code, false, false)} left`
+                    : `You have exceeded the limit by ${formatMoney(limit - spent, budget.currency_code, false, false)}!`}
                 </p>
               </div>
             );

@@ -100,10 +100,20 @@ export default function SavingsGoals() {
                 <div>
                   <div className="flex justify-between text-sm mb-2">
                     <span>
-                      {formatMoney(goal.current_amount, goal.currency_code)}
+                      {formatMoney(
+                        goal.current_amount,
+                        goal.currency_code,
+                        false,
+                        false
+                      )}
                     </span>
                     <span className="text-muted-foreground">
-                      {formatMoney(goal.target, goal.currency_code)}
+                      {formatMoney(
+                        goal.target,
+                        goal.currency_code,
+                        false,
+                        false
+                      )}
                     </span>
                   </div>
                   <Progress value={percent} className="h-2" />
@@ -111,7 +121,7 @@ export default function SavingsGoals() {
 
                 <p className="text-xs text-muted-foreground">
                   {left > 0
-                    ? `${formatMoney(left, goal.currency_code)} left to save`
+                    ? `${formatMoney(left, goal.currency_code, false, false)} left to save`
                     : 'Goal completed'}
                 </p>
 

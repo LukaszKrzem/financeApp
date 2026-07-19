@@ -86,7 +86,9 @@ export function RecentTransactions() {
                       {transactionIsIncome ? '+' : '-'}
                       {formatMoney(
                         transaction.amount,
-                        transaction.currency_code
+                        transaction.currency_code,
+                        false,
+                        false
                       )}
                     </span>
                   </div>

@@ -47,7 +47,12 @@ const columns = [
     cell: ({ row }) => {
       const expense = isExpense(row.original);
       const amount = row.getValue('amount');
-      const formatted = formatMoney(amount, row.original.currency_code);
+      const formatted = formatMoney(
+        amount,
+        row.original.currency_code,
+        false,
+        false
+      );
 
       return (
         <div
@@ -184,7 +189,12 @@ export default function Transactions() {
           <div className="flex flex-col rounded-lg border border-border/50 overflow-hidden">
             {filteredTransactions.map((t) => {
               const expense = isExpense(t);
-              const formattedAmount = formatMoney(t.amount, t.currency_code);
+              const formattedAmount = formatMoney(
+                t.amount,
+                t.currency_code,
+                false,
+                false
+              );
 
               return (
                 <div

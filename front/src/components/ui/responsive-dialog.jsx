@@ -31,7 +31,10 @@ export function ResponsiveDialog({
     return (
       <Dialog open={open} onOpenChange={onOpenChange}>
         {trigger && <DialogTrigger asChild>{trigger}</DialogTrigger>}
-        <DialogContent className={contentClassName}>
+        <DialogContent
+          className={contentClassName}
+          {...(!description ? { 'aria-describedby': undefined } : {})}
+        >
           <DialogHeader>
             <DialogTitle>{title}</DialogTitle>
             {description && (
@@ -45,9 +48,11 @@ export function ResponsiveDialog({
   }
 
   return (
-    <Drawer open={open} onOpenChange={onOpenChange}>
+    <Drawer open={open} onOpenChange={onOpenChange} repositionInputs={false}>
       {trigger && <DrawerTrigger asChild>{trigger}</DrawerTrigger>}
-      <DrawerContent>
+      <DrawerContent
+        {...(!description ? { 'aria-describedby': undefined } : {})}
+      >
         <DrawerHeader className="text-left">
           <DrawerTitle>{title}</DrawerTitle>
           {description && (

@@ -14,15 +14,19 @@ class UserOut(pydantic.BaseModel):
     email: str
     name: str
 
-    # Needed to convert sqlalchemy User model to this DTO
     class Config:
         from_attributes = True
 
 
-# DTO for user login | kinda pointless rn after using OAuth2
+# DTO for user login
 class UserLogin(pydantic.BaseModel):
     email: pydantic.EmailStr
     password: str
+
+
+# DTO for Google Auth
+class GoogleToken(pydantic.BaseModel):
+    token: str
 
 
 class TokenResponse(pydantic.BaseModel):

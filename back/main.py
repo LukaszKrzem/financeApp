@@ -5,6 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from back.routers import (
     account_router,
+    auth_router,
     budget_router,
     category_router,
     currency_router,
@@ -60,6 +61,7 @@ app.include_router(notification_router.router)
 app.include_router(savings_goal_router.router)
 app.include_router(currency_router.router)
 app.include_router(enable_banking_router.router)
+app.include_router(auth_router.router)
 
 
 # For testing if app is alive, can be removed later

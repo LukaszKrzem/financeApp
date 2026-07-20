@@ -23,6 +23,7 @@ def run_scheduled_transactions_catchup(db: sqlalchemy.orm.Session, user_id: int)
 
 
 def get_user_accounts(db: sqlalchemy.orm.Session, user_id: int) -> list[dict]:
+    run_scheduled_transactions_catchup(db, user_id)
     results = (
         db.query(structure.Account, structure.Currency)
         .join(

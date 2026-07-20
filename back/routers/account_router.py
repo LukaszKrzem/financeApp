@@ -14,7 +14,6 @@ router = APIRouter(prefix="/accounts", tags=["Accounts"])
 def get_user_accounts(
     db: sqlalchemy.orm.Session = Depends(get_db), current_user=Depends(get_current_user)
 ):
-    account_service.run_scheduled_transactions_catchup(db, current_user.id_user)
     return account_service.get_user_accounts(db, current_user.id_user)
 
 

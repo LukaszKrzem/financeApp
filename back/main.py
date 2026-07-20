@@ -11,7 +11,7 @@ from back.routers import (
     enable_banking_router,
     notification_router,
     savings_goal_router,
-    scheduled_router,
+    scheduled_transaction_router,
     transaction_router,
     user_router,
 )
@@ -54,7 +54,7 @@ app.include_router(user_router.router)
 app.include_router(account_router.router)
 app.include_router(transaction_router.router)
 app.include_router(category_router.router)
-app.include_router(scheduled_router.router)
+app.include_router(scheduled_transaction_router.router)
 app.include_router(budget_router.router)
 app.include_router(notification_router.router)
 app.include_router(savings_goal_router.router)

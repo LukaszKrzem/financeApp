@@ -75,12 +75,19 @@ def login_user(db: sqlalchemy.orm.Session, form_data: user_dto.UserLogin) -> dic
 
 def authenticate_google_user(db: sqlalchemy.orm.Session, google_token: str) -> dict:
     try:
-        payload = id_token.verify_oauth2_token(
+        payload = id_token.verify_token(
             google_token,
             google_requests.Request(),
             audience=GOOGLE_CLIENT_ID,
             certs_url="https://finance-app-lukaszkrzem.vercel.app/api/google-certs",
         )
+
+        if payload.get("iss") not in [
+            "accounts.google.com",
+            "https://accounts.google.com",
+        ]:
+            raise ValueError("Wrong issuer.")
+
         user_email = payload["email"]
         user_name = payload["name"]
     except Exception as e:

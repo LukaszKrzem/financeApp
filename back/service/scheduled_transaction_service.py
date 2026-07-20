@@ -101,7 +101,7 @@ def update_scheduled_transaction(
                 status_code=403, detail="New account not accessible or does not exist"
             )
 
-    update_data = data.dict(exclude_unset=True)
+    update_data = data.model_dump(exclude_unset=True)
 
     if "amount" in update_data or "type" in update_data:
         current_amount = update_data.get("amount", abs(db_transaction.amount))

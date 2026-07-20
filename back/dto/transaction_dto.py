@@ -3,6 +3,7 @@ from decimal import Decimal
 from typing import Optional
 
 import pydantic
+from pydantic import ConfigDict
 
 from back.structure import TransactionType
 
@@ -40,5 +41,4 @@ class TransactionOut(pydantic.BaseModel):
     exchange_rate: Optional[float] = None
     currency_code: Optional[str] = None
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)

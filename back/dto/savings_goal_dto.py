@@ -3,6 +3,7 @@ from decimal import Decimal
 from typing import Optional
 
 import pydantic
+from pydantic import ConfigDict
 
 
 class SavingsGoalCreate(pydantic.BaseModel):
@@ -37,5 +38,4 @@ class SavingsGoalOut(pydantic.BaseModel):
     currency_code: str
     percent_complete: float
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)

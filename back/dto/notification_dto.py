@@ -1,6 +1,7 @@
 from datetime import datetime
 
 import pydantic
+from pydantic import ConfigDict
 
 
 class NotificationOut(pydantic.BaseModel):
@@ -10,5 +11,4 @@ class NotificationOut(pydantic.BaseModel):
     is_read: str
     User_id_user: int
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)

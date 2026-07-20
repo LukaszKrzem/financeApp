@@ -1,4 +1,5 @@
 import pydantic
+from pydantic import ConfigDict
 
 
 class AccountOut(pydantic.BaseModel):
@@ -10,8 +11,7 @@ class AccountOut(pydantic.BaseModel):
     bank_connection_id: int | None = None
     bank_account_uid: str | None = None
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class AccountCreate(pydantic.BaseModel):

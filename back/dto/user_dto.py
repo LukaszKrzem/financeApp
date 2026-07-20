@@ -1,4 +1,5 @@
 import pydantic
+from pydantic import ConfigDict
 
 
 # DTO for user registration
@@ -14,8 +15,7 @@ class UserOut(pydantic.BaseModel):
     email: str
     name: str
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 # DTO for user login

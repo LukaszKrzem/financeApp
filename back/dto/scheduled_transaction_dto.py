@@ -3,6 +3,7 @@ from decimal import Decimal
 from typing import Optional
 
 import pydantic
+from pydantic import ConfigDict
 
 from back.structure import TransactionType
 
@@ -28,8 +29,7 @@ class ScheduledTransactionOut(pydantic.BaseModel):
     Category_id_category: int
     Currency_id_currency: int = 1
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class ScheduledTransactionUpdate(pydantic.BaseModel):

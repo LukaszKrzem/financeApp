@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 from back.structure import TransactionType
 
@@ -8,5 +8,4 @@ class CategoryOut(BaseModel):
     name: str
     type: TransactionType
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)

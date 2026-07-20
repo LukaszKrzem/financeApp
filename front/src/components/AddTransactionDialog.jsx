@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { format } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -14,6 +15,7 @@ import { useApi } from '@/hooks/useApi';
 import { useData } from '@/context/DataContext';
 import { useAsyncAction } from '@/hooks/useAsyncAction';
 import { CurrencySelect } from './ui/currency-select';
+import { DatePicker } from '@/components/ui/date-picker';
 
 export function AddTransactionDialog({
   trigger,
@@ -44,6 +46,7 @@ export function AddTransactionDialog({
   const [currencyId, setCurrencyId] = useState('');
   const [transactionFrequency, setTransactionFrequency] =
     useState('not_scheduled');
+  const [date, setDate] = useState(new Date());
 
   const filteredCategories = categories.filter((cat) => cat.type === type);
 
@@ -61,17 +64,19 @@ export function AddTransactionDialog({
           : ''
       );
       setCurrencyId(String(transaction.Currency_id_currency));
+      setDate(transaction.date ? new Date(transaction.date) : new Date());
     } else {
       setAmount('');
       setType('EXPENSE');
       setDescription('');
       setCategoryId('');
       setTransactionFrequency('not_scheduled');
+      setDate(new Date());
       if (accounts.length > 0) {
         setAccountId(accounts[0].id_account.toString());
       }
     }
-  }, [open, isEditing, transaction]);
+  }, [open, isEditing, transaction, accounts]);
 
   useEffect(() => {
     const categoryExists = filteredCategories.some(
@@ -101,6 +106,7 @@ export function AddTransactionDialog({
 
     run(async () => {
       if (!categoryId) throw new Error('Please select a category');
+      if (!date) throw new Error('Please select a date');
 
       const payload = {
         amount: parseFloat(amount),
@@ -109,6 +115,7 @@ export function AddTransactionDialog({
         Account_id_account: parseInt(accountId),
         Category_id_category: parseInt(categoryId),
         Currency_id_currency: parseInt(currencyId),
+        date: format(date, 'yyyy-MM-dd'),
       };
 
       if (isEditing) {
@@ -137,17 +144,27 @@ export function AddTransactionDialog({
       }
     >
       <form onSubmit={handleSubmit} className="space-y-4 mt-4">
-        <div className="flex flex-col gap-2">
-          <Label htmlFor="transaction-type">Type</Label>
-          <Select value={type} onValueChange={setType} disabled={isSubmitting}>
-            <SelectTrigger id="transaction-type">
-              <SelectValue placeholder="Type" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="EXPENSE">Expense</SelectItem>
-              <SelectItem value="INCOME">Income</SelectItem>
-            </SelectContent>
-          </Select>
+        <div className="flex gap-2">
+          <div className="flex flex-col gap-2 flex-1">
+            <Label htmlFor="transaction-type">Type</Label>
+            <Select
+              value={type}
+              onValueChange={setType}
+              disabled={isSubmitting}
+            >
+              <SelectTrigger id="transaction-type">
+                <SelectValue placeholder="Type" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="EXPENSE">Expense</SelectItem>
+                <SelectItem value="INCOME">Income</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="flex flex-col gap-2 flex-1">
+            <Label>Date</Label>
+            <DatePicker date={date} setDate={setDate} />
+          </div>
         </div>
 
         <div className="flex gap-2">

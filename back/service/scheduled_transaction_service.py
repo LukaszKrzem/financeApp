@@ -1,4 +1,3 @@
-from datetime import date
 from typing import List
 
 import sqlalchemy.orm
@@ -32,7 +31,7 @@ def create_scheduled_transaction(
 
     new_scheduled = structure.ScheduledTransaction(
         frequency=data.frequency,
-        next_date=date.today(),
+        next_date=data.date,
         amount=final_amount,
         description=data.description,
         Account_id_account=data.Account_id_account,

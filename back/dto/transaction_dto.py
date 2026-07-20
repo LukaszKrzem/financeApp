@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import date, datetime
 from decimal import Decimal
 from typing import Optional
 
@@ -9,6 +9,7 @@ from back.structure import TransactionType
 
 class TransactionCreate(pydantic.BaseModel):
     amount: Decimal
+    date: date
     description: Optional[str] = None
     type: TransactionType
     Account_id_account: int
@@ -18,6 +19,7 @@ class TransactionCreate(pydantic.BaseModel):
 
 class TransactionUpdate(pydantic.BaseModel):
     amount: Decimal
+    date: date
     description: Optional[str] = None
     type: TransactionType
     Account_id_account: int

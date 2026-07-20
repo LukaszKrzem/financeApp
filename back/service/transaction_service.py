@@ -1,5 +1,5 @@
 import logging
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta
 from decimal import Decimal
 from typing import List
 
@@ -145,11 +145,9 @@ def create_user_transaction(
         db, account, currency_trans, transaction_data.amount, transaction_data.type
     )
 
-    tx_date = getattr(transaction_data, "date", datetime.now(timezone.utc))
-
     new_transaction = structure.Transaction(
         amount=transaction_data.amount,
-        date=tx_date,
+        date=transaction_data.date,
         description=transaction_data.description,
         type=transaction_data.type,
         Account_id_account=transaction_data.Account_id_account,

@@ -20,6 +20,7 @@ const SavingsGoals = lazy(() => import('./pages/SavingsGoals'));
 const Transactions = lazy(() => import('./pages/Transactions'));
 const Settings = lazy(() => import('./pages/Settings'));
 const BankCallback = lazy(() => import('./pages/BankCallback'));
+const Subscriptions = lazy(() => import('./pages/Subscriptions'));
 
 function App() {
   useEffect(() => {
@@ -65,6 +66,7 @@ function App() {
                     <Route path="/savings-goals" element={<SavingsGoals />} />
                     <Route path="/settings" element={<Settings />} />
                     <Route path="/bank-callback" element={<BankCallback />} />
+                    <Route path="/subscriptions" element={<Subscriptions />} />
                   </Route>
                 </Route>
 

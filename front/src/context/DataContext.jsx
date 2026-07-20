@@ -14,6 +14,7 @@ export function DataProvider({ children }) {
     categories: [],
     currencies: [],
     savingsGoals: [],
+    scheduledTransactions: [],
     loading: true,
   });
   const [refreshing, setRefreshing] = useState(0);
@@ -26,6 +27,7 @@ export function DataProvider({ children }) {
         transactions: [],
         budgets: [],
         savingsGoals: [],
+        scheduledTransactions: [],
         loading: false,
       }));
       return;
@@ -40,6 +42,7 @@ export function DataProvider({ children }) {
           categories,
           currencies,
           savingsGoals,
+          scheduledTransactions,
         ] = await Promise.all([
           get('/accounts/'),
           get('/transactions/'),
@@ -47,6 +50,7 @@ export function DataProvider({ children }) {
           get('/categories/'),
           get('/currencies/'),
           get('/savings-goals/'),
+          get('/scheduled-transactions/'),
         ]);
         setData({
           accounts,
@@ -55,6 +59,7 @@ export function DataProvider({ children }) {
           categories,
           currencies,
           savingsGoals,
+          scheduledTransactions,
           loading: false,
         });
       } catch (err) {

@@ -27,3 +27,26 @@ def get_user_scheduled_transactions(
     current_user=Depends(get_current_user),
 ):
     return scheduled_service.get_user_scheduled_transactions(db, current_user.id_user)
+
+
+@router.patch("/{transaction_id}", response_model=scheduled_dto.ScheduledTransactionOut)
+def update_scheduled_transaction(
+    transaction_id: int,
+    data: scheduled_dto.ScheduledTransactionUpdate,
+    db: sqlalchemy.orm.Session = Depends(get_db),
+    current_user=Depends(get_current_user),
+):
+    return scheduled_service.update_scheduled_transaction(
+        db, transaction_id, data, current_user.id_user
+    )
+
+
+@router.delete("/{transaction_id}")
+def delete_scheduled_transaction(
+    transaction_id: int,
+    db: sqlalchemy.orm.Session = Depends(get_db),
+    current_user=Depends(get_current_user),
+):
+    return scheduled_service.delete_scheduled_transaction(
+        db, transaction_id, current_user.id_user
+    )

@@ -22,8 +22,9 @@ export function AddTransactionDialog({
   transaction,
   open: controlledOpen,
   onOpenChange: controlledOnOpenChange,
+  defaultFrequency = 'not_scheduled',
 }) {
-  const { post, put } = useApi();
+  const { post, put, patch } = useApi();
   const {
     accounts = [],
     categories = [],
@@ -45,7 +46,7 @@ export function AddTransactionDialog({
   const [categoryId, setCategoryId] = useState('');
   const [currencyId, setCurrencyId] = useState('');
   const [transactionFrequency, setTransactionFrequency] =
-    useState('not_scheduled');
+    useState(defaultFrequency);
   const [date, setDate] = useState(new Date());
 
   const filteredCategories = categories.filter((cat) => cat.type === type);
@@ -54,29 +55,38 @@ export function AddTransactionDialog({
     if (!open) return;
 
     if (isEditing) {
-      setAmount(String(transaction.amount));
+      setAmount(String(Math.abs(transaction.amount)));
       setType(transaction.type);
       setDescription(transaction.description || '');
-      setAccountId(String(transaction.Account_id_account));
-      setCategoryId(
-        transaction.Category_id_category
-          ? String(transaction.Category_id_category)
-          : ''
+      setAccountId(
+        String(transaction.Account_id_account || transaction.account_id || '')
       );
-      setCurrencyId(String(transaction.Currency_id_currency));
+      setCategoryId(
+        String(
+          transaction.Category_id_category || transaction.category_id || ''
+        )
+      );
+      setCurrencyId(
+        String(
+          transaction.Currency_id_currency || transaction.currency_id || ''
+        )
+      );
       setDate(transaction.date ? new Date(transaction.date) : new Date());
+      if (transaction.frequency) {
+        setTransactionFrequency(transaction.frequency);
+      }
     } else {
       setAmount('');
       setType('EXPENSE');
       setDescription('');
       setCategoryId('');
-      setTransactionFrequency('not_scheduled');
+      setTransactionFrequency(defaultFrequency);
       setDate(new Date());
       if (accounts.length > 0) {
         setAccountId(accounts[0].id_account.toString());
       }
     }
-  }, [open, isEditing, transaction, accounts]);
+  }, [open, isEditing, transaction, accounts, defaultFrequency]);
 
   useEffect(() => {
     const categoryExists = filteredCategories.some(
@@ -108,8 +118,10 @@ export function AddTransactionDialog({
       if (!categoryId) throw new Error('Please select a category');
       if (!date) throw new Error('Please select a date');
 
+      const parsedAmount = parseFloat(String(amount).replace(',', '.'));
+
       const payload = {
-        amount: parseFloat(amount),
+        amount: parsedAmount,
         type,
         description,
         Account_id_account: parseInt(accountId),
@@ -119,13 +131,23 @@ export function AddTransactionDialog({
       };
 
       if (isEditing) {
-        await put(`/transactions/${transaction.id_transaction}`, payload);
+        const isScheduled = 'id_schedule_transaction' in transaction;
+
+        if (isScheduled) {
+          await patch(
+            `/scheduled-transactions/${transaction.id_schedule_transaction}`,
+            payload
+          );
+        } else {
+          await put(`/transactions/${transaction.id_transaction}`, payload);
+        }
       } else {
         const isScheduled = transactionFrequency !== 'not_scheduled';
         const endpoint = isScheduled
           ? '/scheduled-transactions/'
           : '/transactions/';
         if (isScheduled) payload.frequency = transactionFrequency;
+
         await post(endpoint, payload);
       }
 

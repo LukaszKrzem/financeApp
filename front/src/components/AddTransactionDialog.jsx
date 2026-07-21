@@ -34,6 +34,8 @@ export function AddTransactionDialog({
   const { loading: isSubmitting, run } = useAsyncAction();
 
   const isEditing = !!transaction;
+  const isEditingScheduled =
+    isEditing && 'id_schedule_transaction' in transaction;
 
   const [internalOpen, setInternalOpen] = useState(false);
   const open = controlledOpen ?? internalOpen;
@@ -132,8 +134,8 @@ export function AddTransactionDialog({
 
       if (isEditing) {
         const isScheduled = 'id_schedule_transaction' in transaction;
-
         if (isScheduled) {
+          payload.frequency = transactionFrequency;
           await patch(
             `/scheduled-transactions/${transaction.id_schedule_transaction}`,
             payload
@@ -277,7 +279,7 @@ export function AddTransactionDialog({
             </Select>
           </div>
 
-          {!isEditing && (
+          {(!isEditing || isEditingScheduled) && (
             <div className="flex flex-col gap-2 flex-1">
               <Label htmlFor="frequency">Frequency</Label>
               <Select
@@ -289,7 +291,9 @@ export function AddTransactionDialog({
                   <SelectValue placeholder="Frequency" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="not_scheduled">Not scheduled</SelectItem>
+                  {!isEditingScheduled && (
+                    <SelectItem value="not_scheduled">Not scheduled</SelectItem>
+                  )}
                   <SelectItem value="DAILY">Daily</SelectItem>
                   <SelectItem value="WEEKLY">Weekly</SelectItem>
                   <SelectItem value="MONTHLY">Monthly</SelectItem>

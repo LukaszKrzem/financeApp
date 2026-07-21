@@ -160,4 +160,4 @@ def delete_scheduled_transaction(
     db.delete(db_transaction)
     db.commit()
 
-    return {"status": "success", "message": "Scheduled transaction deleted"}
+    return None

@@ -5,7 +5,7 @@ import back.service.scheduled_transaction_service as scheduled_service
 import sqlalchemy.orm
 from back.database import get_db
 from back.dependencies import get_current_user
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, status
 
 router = APIRouter(prefix="/scheduled-transactions", tags=["Scheduled Transactions"])
 
@@ -41,12 +41,13 @@ def update_scheduled_transaction(
     )
 
 
-@router.delete("/{transaction_id}")
+@router.delete("/{transaction_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_scheduled_transaction(
     transaction_id: int,
     db: sqlalchemy.orm.Session = Depends(get_db),
     current_user=Depends(get_current_user),
 ):
-    return scheduled_service.delete_scheduled_transaction(
+    scheduled_service.delete_scheduled_transaction(
         db, transaction_id, current_user.id_user
     )
+    return None

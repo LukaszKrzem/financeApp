@@ -1,5 +1,3 @@
-from typing import List
-
 import sqlalchemy.orm
 from fastapi import HTTPException
 
@@ -46,22 +44,42 @@ def create_scheduled_transaction(
     return new_scheduled
 
 
-def get_user_scheduled_transactions(
-    db: sqlalchemy.orm.Session, user_id: int
-) -> List[structure.ScheduledTransaction]:
-
+def get_user_scheduled_transactions(db: sqlalchemy.orm.Session, user_id: int):
     results = (
-        db.query(structure.ScheduledTransaction)
+        db.query(
+            structure.ScheduledTransaction,
+            structure.Account.name.label("account_name"),
+            structure.Category.name.label("category_name"),
+            structure.Currency.code.label("currency_code"),
+        )
         .join(
             structure.Account,
             structure.ScheduledTransaction.Account_id_account
             == structure.Account.id_account,
         )
+        .join(
+            structure.Category,
+            structure.ScheduledTransaction.Category_id_category
+            == structure.Category.id_category,
+        )
+        .join(
+            structure.Currency,
+            structure.ScheduledTransaction.Currency_id_currency
+            == structure.Currency.id_currency,
+        )
         .filter(structure.Account.User_id_user == user_id)
         .all()
     )
 
-    return results
+    formatted_results = []
+    for tx, acc_name, cat_name, cur_code in results:
+        tx_dict = tx.__dict__.copy()
+        tx_dict["account_name"] = acc_name
+        tx_dict["category_name"] = cat_name
+        tx_dict["currency_code"] = cur_code
+        formatted_results.append(tx_dict)
+
+    return formatted_results
 
 
 def update_scheduled_transaction(

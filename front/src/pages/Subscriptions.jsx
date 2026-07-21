@@ -125,8 +125,6 @@ export default function SubscriptionsPage() {
     scheduledTransactions = [],
     loading,
     currencies = [],
-    accounts = [],
-    categories = [],
     refreshData,
   } = useData();
 
@@ -134,19 +132,6 @@ export default function SubscriptionsPage() {
 
   const [deletingSubscription, setDeletingSubscription] = useState(null);
   const [editingSubscription, setEditingSubscription] = useState(null);
-
-  const currencyMap = useMemo(
-    () => Object.fromEntries(currencies.map((c) => [c.id_currency, c])),
-    [currencies]
-  );
-  const categoryMap = useMemo(
-    () => Object.fromEntries(categories.map((c) => [c.id_category, c])),
-    [categories]
-  );
-  const accountMap = useMemo(
-    () => Object.fromEntries(accounts.map((a) => [a.id_account, a])),
-    [accounts]
-  );
 
   const baseCurrency = useMemo(
     () =>
@@ -164,16 +149,18 @@ export default function SubscriptionsPage() {
 
       if (sub.amount > 0) return;
 
-      const curr = currencyMap[sub.Currency_id_currency];
+      const curr = currencies.find(
+        (c) => c.id_currency === sub.Currency_id_currency
+      );
       const rate = curr ? Number(curr.exchange_rate) : 1;
       const amountInBase = Math.abs(sub.amount) * rate;
 
       switch (sub.frequency?.toUpperCase()) {
         case 'DAILY':
-          monthlyBurn += amountInBase * 30.44;
+          monthlyBurn += amountInBase * 30;
           break;
         case 'WEEKLY':
-          monthlyBurn += amountInBase * 4.33;
+          monthlyBurn += amountInBase * 4;
           break;
         case 'YEARLY':
           monthlyBurn += amountInBase / 12;
@@ -189,7 +176,7 @@ export default function SubscriptionsPage() {
       activeCount: scheduledTransactions.length,
       upcomingWeek,
     };
-  }, [scheduledTransactions, currencyMap]);
+  }, [scheduledTransactions, currencies]);
 
   const sortedSubscriptions = useMemo(
     () =>
@@ -298,25 +285,11 @@ export default function SubscriptionsPage() {
               <SubscriptionCard
                 key={sub.id_schedule_transaction}
                 sub={sub}
-                categoryName={
-                  categoryMap[sub.Category_id_category]?.name || 'Subscription'
-                }
-                currencyCode={
-                  currencyMap[sub.Currency_id_currency]?.code || 'PLN'
-                }
-                accountName={
-                  accountMap[sub.Account_id_account]?.name || 'Unknown'
-                }
+                categoryName={sub.category_name || 'Subscription'}
+                currencyCode={sub.currency_code || 'PLN'}
+                accountName={sub.account_name || 'Unknown'}
                 onDelete={setDeletingSubscription}
-                onEdit={(sub) => {
-                  setEditingSubscription({
-                    ...sub,
-                    type: sub.amount < 0 ? 'EXPENSE' : 'INCOME',
-                    amount: Math.abs(sub.amount),
-                    date: sub.next_date,
-                    account_id: sub.Account_id_account,
-                  });
-                }}
+                onEdit={setEditingSubscription}
               />
             ))}
           </div>
@@ -335,7 +308,9 @@ export default function SubscriptionsPage() {
         onClose={() => setDeletingSubscription(null)}
         isDeleting={isDeleting}
         title="Delete subscription?"
-        description={`This will permanently remove the recurring payment for "${deletingSubscription?.description || 'this subscription'}".`}
+        description={`This will permanently remove the recurring payment for "${
+          deletingSubscription?.description || 'this subscription'
+        }".`}
         onConfirm={handleDelete}
       />
     </div>

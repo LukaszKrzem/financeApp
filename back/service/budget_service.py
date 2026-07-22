@@ -56,6 +56,43 @@ def get_calculated_budgets(
     )
 
 
+def update_user_budget(
+    db: sqlalchemy.orm.Session,
+    budget_id: int,
+    user_id: int,
+    data: budget_dto.BudgetUpdate,
+):
+    budget = (
+        db.query(structure.Budget)
+        .filter(
+            structure.Budget.id_budget == budget_id,
+            structure.Budget.user_id == user_id,
+        )
+        .first()
+    )
+    if not budget:
+        raise HTTPException(status_code=404, detail="Budget not found")
+
+    if data.limit is not None:
+        budget.limit = data.limit
+    if data.start_date is not None:
+        budget.start_date = data.start_date
+    if data.end is not None:
+        budget.end = data.end
+    if data.category_id is not None:
+        budget.category_id = data.category_id
+    if data.currency_id is not None:
+        budget.currency_id = data.currency_id
+
+    db.commit()
+
+    return (
+        db.query(structure.BudgetAnalytics)
+        .filter(structure.BudgetAnalytics.id_budget == budget_id)
+        .first()
+    )
+
+
 def delete_user_budget(db: sqlalchemy.orm.Session, budget_id: int, user_id: int):
     budget = (
         db.query(structure.Budget)
@@ -70,3 +107,4 @@ def delete_user_budget(db: sqlalchemy.orm.Session, budget_id: int, user_id: int)
     db.delete(budget)
     db.commit()
     return None
+

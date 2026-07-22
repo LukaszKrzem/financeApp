@@ -1,5 +1,6 @@
 from datetime import date
 from decimal import Decimal
+from typing import Optional
 
 import pydantic
 from pydantic import ConfigDict
@@ -18,6 +19,14 @@ class BudgetCreate(pydantic.BaseModel):
         if self.end < self.start_date:
             raise ValueError("End date cannot be earlier than start date!")
         return self
+
+
+class BudgetUpdate(pydantic.BaseModel):
+    limit: Optional[Decimal] = pydantic.Field(default=None, gt=0)
+    start_date: Optional[date] = None
+    end: Optional[date] = None
+    category_id: Optional[int] = None
+    currency_id: Optional[int] = None
 
 
 class BudgetOut(pydantic.BaseModel):

@@ -3,7 +3,13 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
-import { IconTrash } from '@tabler/icons-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { IconDotsVertical, IconPencil, IconTrash } from '@tabler/icons-react';
 import { formatMoney } from '@/lib/formatMoney';
 
 export function SavingsGoalCard({
@@ -11,6 +17,7 @@ export function SavingsGoalCard({
   contribution,
   onContributionChange,
   onAddContribution,
+  onEdit,
   onDelete,
   isAdding,
   isDeleting,
@@ -33,16 +40,34 @@ export function SavingsGoalCard({
               : 'No deadline'}
           </p>
         </div>
-        {onDelete && (
-          <Button
-            variant="ghost"
-            size="icon"
-            className="size-8 -mr-2 -mt-2 shrink-0 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity"
-            onClick={() => onDelete(goal.id_saving_goal)}
-            disabled={isDeleting}
-          >
-            <IconTrash className="size-4" />
-          </Button>
+        {(onEdit || onDelete) && (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="size-8 -mr-2 -mt-2 shrink-0 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity"
+              >
+                <IconDotsVertical className="size-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              {onEdit && (
+                <DropdownMenuItem onClick={() => onEdit(goal)}>
+                  <IconPencil className="size-4 mr-2" /> Edit
+                </DropdownMenuItem>
+              )}
+              {onDelete && (
+                <DropdownMenuItem
+                  onClick={() => onDelete(goal.id_saving_goal)}
+                  disabled={isDeleting}
+                  className="text-destructive focus:text-destructive"
+                >
+                  <IconTrash className="size-4 mr-2" /> Delete
+                </DropdownMenuItem>
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
         )}
       </div>
 

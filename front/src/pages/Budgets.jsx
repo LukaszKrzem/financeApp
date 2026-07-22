@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { AddBudgetDialog } from '@/components/AddBudgetDialog';
+import { EditBudgetDialog } from '@/components/EditBudgetDialog';
 import { BudgetCard } from '@/components/BudgetCard';
 import { useData } from '@/context/DataContext';
 import { useApi } from '@/hooks/useApi';
@@ -14,6 +15,7 @@ export default function BudgetsPage() {
   const { del } = useApi();
   const { loading: isDeleting, run: runDelete } = useAsyncAction();
   const [deletingBudget, setDeletingBudget] = useState(null);
+  const [editingBudget, setEditingBudget] = useState(null);
 
   const handleDeleteBudget = () => {
     if (!deletingBudget) return;
@@ -53,11 +55,21 @@ export default function BudgetsPage() {
             <BudgetCard
               key={budget.id_budget}
               budget={budget}
+              onEdit={(b) => setEditingBudget(b)}
               onDelete={(b) => setDeletingBudget(b)}
             />
           ))}
         </div>
       )}
+
+      <EditBudgetDialog
+        budget={editingBudget}
+        open={!!editingBudget}
+        onOpenChange={(open) => {
+          if (!open) setEditingBudget(null);
+        }}
+        onSuccess={() => setEditingBudget(null)}
+      />
 
       <ConfirmDeleteDialog
         open={!!deletingBudget}

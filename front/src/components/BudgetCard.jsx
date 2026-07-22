@@ -7,9 +7,9 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { IconDotsVertical, IconTrash } from '@tabler/icons-react';
+import { IconDotsVertical, IconPencil, IconTrash } from '@tabler/icons-react';
 
-export function BudgetCard({ budget, onDelete }) {
+export function BudgetCard({ budget, onEdit, onDelete }) {
   if (!budget) return null;
 
   const spent = Number(budget.current_spent) || 0;
@@ -33,7 +33,7 @@ export function BudgetCard({ budget, onDelete }) {
             {percentage.toFixed(0)}%
           </span>
 
-          {onDelete && (
+          {(onEdit || onDelete) && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
@@ -45,12 +45,19 @@ export function BudgetCard({ budget, onDelete }) {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem
-                  onClick={() => onDelete(budget)}
-                  className="text-destructive focus:text-destructive"
-                >
-                  <IconTrash className="size-4 mr-2" /> Delete
-                </DropdownMenuItem>
+                {onEdit && (
+                  <DropdownMenuItem onClick={() => onEdit(budget)}>
+                    <IconPencil className="size-4 mr-2" /> Edit
+                  </DropdownMenuItem>
+                )}
+                {onDelete && (
+                  <DropdownMenuItem
+                    onClick={() => onDelete(budget)}
+                    className="text-destructive focus:text-destructive"
+                  >
+                    <IconTrash className="size-4 mr-2" /> Delete
+                  </DropdownMenuItem>
+                )}
               </DropdownMenuContent>
             </DropdownMenu>
           )}

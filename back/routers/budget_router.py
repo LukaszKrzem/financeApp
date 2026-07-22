@@ -26,6 +26,18 @@ def get_budgets(
     return budget_service.get_calculated_budgets(db, current_user.id_user)
 
 
+@router.patch("/{budget_id}", response_model=budget_dto.BudgetOut)
+def update_budget(
+    budget_id: int,
+    data: budget_dto.BudgetUpdate,
+    db: sqlalchemy.orm.Session = Depends(get_db),
+    current_user=Depends(get_current_user),
+):
+    return budget_service.update_user_budget(
+        db, budget_id, current_user.id_user, data
+    )
+
+
 @router.delete("/{budget_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_budget(
     budget_id: int,
@@ -33,3 +45,4 @@ def delete_budget(
     current_user=Depends(get_current_user),
 ):
     return budget_service.delete_user_budget(db, budget_id, current_user.id_user)
+

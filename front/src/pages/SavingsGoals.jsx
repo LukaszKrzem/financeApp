@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useAsyncAction } from '@/hooks/useAsyncAction';
 import { AddSavingGoalDialog } from '@/components/AddSavingGoalDialog';
+import { EditSavingGoalDialog } from '@/components/EditSavingGoalDialog';
 import { SavingsGoalCard } from '@/components/SavingsGoalCard';
 import { useApi } from '@/hooks/useApi';
 import { useData } from '@/context/DataContext';
@@ -12,6 +13,7 @@ export default function SavingsGoals() {
   const { patch, del } = useApi();
 
   const [contributions, setContributions] = useState({});
+  const [editingGoal, setEditingGoal] = useState(null);
   const { loading: isAdding, run: runAdd } = useAsyncAction();
   const { loading: isDeleting, run: runDelete } = useAsyncAction();
 
@@ -73,6 +75,7 @@ export default function SavingsGoals() {
                 setContributions((prev) => ({ ...prev, [goalId]: val }))
               }
               onAddContribution={handleAddContribution}
+              onEdit={(g) => setEditingGoal(g)}
               onDelete={handleDeleteGoal}
               isAdding={isAdding}
               isDeleting={isDeleting}
@@ -80,6 +83,15 @@ export default function SavingsGoals() {
           ))}
         </div>
       )}
+
+      <EditSavingGoalDialog
+        goal={editingGoal}
+        open={!!editingGoal}
+        onOpenChange={(open) => {
+          if (!open) setEditingGoal(null);
+        }}
+        onSuccess={() => setEditingGoal(null)}
+      />
     </div>
   );
 }

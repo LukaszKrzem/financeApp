@@ -12,14 +12,15 @@ logger = logging.getLogger(__name__)
 
 def run_scheduled_transactions_catchup(db: sqlalchemy.orm.Session, user_id: int):
     try:
-        db.execute(
-            sqlalchemy.text("CALL catch_up_scheduled_transactions(:user_id)"),
-            {"user_id": user_id},
-        )
-        db.commit()
+        with db.begin_nested():
+            db.execute(
+                sqlalchemy.text("CALL catch_up_scheduled_transactions(:user_id)"),
+                {"user_id": user_id},
+            )
     except Exception as e:
-        db.rollback()
-        logger.error("Error running catch_up_scheduled_transactions: %s", e)
+        logger.debug(
+            "catch_up_scheduled_transactions procedure not supported or failed: %s", e
+        )
 
 
 def get_user_accounts(db: sqlalchemy.orm.Session, user_id: int) -> list[dict]:

@@ -34,6 +34,7 @@ import { useAsyncAction } from '@/hooks/useAsyncAction';
 import { ConfirmDeleteDialog } from '@/components/ConfirmDeleteDialog';
 import { CategoryBadge } from '@/lib/categoryBadge';
 import { formatMoney } from '@/lib/formatMoney';
+import { isExpense } from '@/lib/transactionHelpers';
 import { EmptyState } from '@/components/ui/empty-state';
 
 function SubscriptionCard({
@@ -147,7 +148,7 @@ export default function SubscriptionsPage() {
       const days = differenceInDays(parseISO(sub.next_date), new Date());
       if (days >= 0 && days <= 7) upcomingWeek++;
 
-      if (sub.type === 'INCOME') return;
+      if (!isExpense(sub)) return;
 
       const curr = currencies.find((c) => c.id_currency === sub.currency_id);
       const rate = curr ? Number(curr.exchange_rate) : 1;

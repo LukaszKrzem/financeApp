@@ -1,11 +1,8 @@
 import {
-  IconChartPie,
   IconCreditCard,
   IconCurrencyDollar,
-  IconHelp,
   IconLayoutDashboard,
   IconReceipt,
-  IconSearch,
   IconSettings,
   IconTags,
   IconTarget,

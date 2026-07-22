@@ -11,6 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       DATABASE_URL: "sqlite:///:memory:"
+      JWT_SECRET_KEY: "ci_secret_key_for_testing_123456789"
     defaults:
       run:
         working-directory: back

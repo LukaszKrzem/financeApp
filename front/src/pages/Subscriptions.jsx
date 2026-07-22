@@ -147,11 +147,11 @@ export default function SubscriptionsPage() {
       const days = differenceInDays(parseISO(sub.next_date), new Date());
       if (days >= 0 && days <= 7) upcomingWeek++;
 
-      if (sub.amount > 0) return;
+      if (sub.type === 'INCOME') return;
 
       const curr = currencies.find((c) => c.id_currency === sub.currency_id);
       const rate = curr ? Number(curr.exchange_rate) : 1;
-      const amountInBase = Math.abs(sub.amount) * rate;
+      const amountInBase = Number(sub.amount) * rate;
 
       switch (sub.frequency?.toUpperCase()) {
         case 'DAILY':

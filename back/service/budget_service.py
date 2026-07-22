@@ -12,14 +12,15 @@ def create_user_budget(
 ):
     category = (
         db.query(structure.Category)
-        .filter(structure.Category.id_category == data.Categories_id_category)
+        .filter(structure.Category.id_category == data.category_id)
         .first()
     )
     if not category:
         raise HTTPException(status_code=404, detail="Not found category for budget.")
+
     currency = (
         db.query(structure.Currency)
-        .filter(structure.Currency.id_currency == data.Currency_id_currency)
+        .filter(structure.Currency.id_currency == data.currency_id)
         .first()
     )
     if not currency:
@@ -29,9 +30,9 @@ def create_user_budget(
         limit=data.limit,
         start_date=data.start_date,
         end=data.end,
-        User_id_user=user_id,
-        Categories_id_category=data.Categories_id_category,
-        Currency_id_currency=data.Currency_id_currency,
+        user_id=user_id,
+        category_id=data.category_id,
+        currency_id=data.currency_id,
     )
     db.add(new_budget)
     db.commit()
@@ -50,7 +51,7 @@ def get_calculated_budgets(
     # To get all useful data from budget
     return (
         db.query(structure.BudgetAnalytics)
-        .filter(structure.BudgetAnalytics.user_id_user == user_id)
+        .filter(structure.BudgetAnalytics.user_id == user_id)
         .all()
     )
 
@@ -60,7 +61,7 @@ def delete_user_budget(db: sqlalchemy.orm.Session, budget_id: int, user_id: int)
         db.query(structure.Budget)
         .filter(
             structure.Budget.id_budget == budget_id,
-            structure.Budget.User_id_user == user_id,
+            structure.Budget.user_id == user_id,
         )
         .first()
     )

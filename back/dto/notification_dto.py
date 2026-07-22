@@ -8,7 +8,7 @@ class NotificationOut(pydantic.BaseModel):
     id_notification: int
     message: str
     date: datetime
-    is_read: str
-    User_id_user: int
+    is_read: bool
+    user_id: int
 
     model_config = ConfigDict(from_attributes=True)

@@ -44,8 +44,7 @@ export default function BudgetsPage() {
                 ? budget.percent_used
                 : Math.min((spent / limit) * 100, 100);
             const categoryName =
-              budget.category_name ||
-              `Category #${budget.categories_id_category}`;
+              budget.category_name || `Category #${budget.category_id}`;
 
             return (
               <div

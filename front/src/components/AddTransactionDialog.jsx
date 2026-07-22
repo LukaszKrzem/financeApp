@@ -60,20 +60,11 @@ export function AddTransactionDialog({
       setAmount(String(Math.abs(transaction.amount)));
       setType(transaction.type);
       setDescription(transaction.description || '');
-      setAccountId(
-        String(transaction.Account_id_account || transaction.account_id || '')
-      );
-      setCategoryId(
-        String(
-          transaction.Category_id_category || transaction.category_id || ''
-        )
-      );
-      setCurrencyId(
-        String(
-          transaction.Currency_id_currency || transaction.currency_id || ''
-        )
-      );
+      setAccountId(String(transaction.account_id || ''));
+      setCategoryId(String(transaction.category_id || ''));
+      setCurrencyId(String(transaction.currency_id || ''));
       setDate(transaction.date ? new Date(transaction.date) : new Date());
+
       if (transaction.frequency) {
         setTransactionFrequency(transaction.frequency);
       }
@@ -108,7 +99,7 @@ export function AddTransactionDialog({
       (acc) => acc.id_account.toString() === accountId
     );
     if (selectedAccount) {
-      setCurrencyId(selectedAccount.Currency_id_currency.toString());
+      setCurrencyId(selectedAccount.currency_id?.toString() || '');
     }
   }, [accountId, accounts, isEditing]);
 
@@ -126,9 +117,9 @@ export function AddTransactionDialog({
         amount: parsedAmount,
         type,
         description,
-        Account_id_account: parseInt(accountId),
-        Category_id_category: parseInt(categoryId),
-        Currency_id_currency: parseInt(currencyId),
+        account_id: parseInt(accountId),
+        category_id: parseInt(categoryId),
+        currency_id: parseInt(currencyId),
         date: format(date, 'yyyy-MM-dd'),
       };
 

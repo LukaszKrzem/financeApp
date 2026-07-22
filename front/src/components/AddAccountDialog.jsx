@@ -28,7 +28,7 @@ export function AddAccountDialog() {
       await post('/accounts/', {
         name: name,
         current_balance: parseFloat(balance),
-        Currency_id_currency: parseInt(currencyId),
+        currency_id: parseInt(currencyId),
       });
 
       setName('');

@@ -1,4 +1,4 @@
-from datetime import date, datetime
+from datetime import datetime
 from decimal import Decimal
 from typing import Optional
 
@@ -10,22 +10,22 @@ from back.structure import TransactionType
 
 class TransactionCreate(pydantic.BaseModel):
     amount: Decimal
-    date: date
+    date: datetime.date
     description: Optional[str] = None
     type: TransactionType
-    Account_id_account: int
-    Category_id_category: Optional[int] = None
-    Currency_id_currency: int = 1
+    account_id: int
+    category_id: Optional[int] = None
+    currency_id: int = 1
 
 
 class TransactionUpdate(pydantic.BaseModel):
-    amount: Decimal
-    date: date
+    amount: Optional[Decimal] = None
+    date: Optional[datetime.date] = None
     description: Optional[str] = None
-    type: TransactionType
-    Account_id_account: int
-    Category_id_category: Optional[int] = None
-    Currency_id_currency: int = 1
+    type: Optional[TransactionType] = None
+    account_id: Optional[int] = None
+    category_id: Optional[int] = None
+    currency_id: Optional[int] = None
 
 
 class TransactionOut(pydantic.BaseModel):
@@ -34,11 +34,12 @@ class TransactionOut(pydantic.BaseModel):
     date: datetime
     description: Optional[str]
     type: TransactionType
-    Category_id_category: Optional[int] = None
-    Currency_id_currency: Optional[int] = None
-    Account_id_account: int
+    exchange_rate_snapshot: Decimal
+    category_id: Optional[int] = None
+    currency_id: Optional[int] = None
+    account_id: int
+
     category_name: Optional[str] = None
-    exchange_rate: Optional[float] = None
     currency_code: Optional[str] = None
 
     model_config = ConfigDict(from_attributes=True)

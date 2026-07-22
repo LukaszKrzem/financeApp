@@ -33,7 +33,7 @@ export function AddSavingGoalDialog({ onGoalAdded }) {
         target: Number(target),
         current_amount: Number(currentAmount) || 0,
         time_limit: timeLimit || null,
-        Currency_id_currency: parseInt(currencyId),
+        currency_id: parseInt(currencyId),
       });
 
       setName('');

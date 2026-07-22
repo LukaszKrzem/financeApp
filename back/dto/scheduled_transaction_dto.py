@@ -5,29 +5,31 @@ from typing import Optional
 import pydantic
 from pydantic import ConfigDict
 
-from back.structure import TransactionType
+from back.structure import ScheduleFrequency, TransactionType
 
 
 class ScheduledTransactionCreate(pydantic.BaseModel):
-    frequency: str
+    frequency: ScheduleFrequency
     date: datetime.date
     amount: Decimal
     type: TransactionType
     description: Optional[str] = None
-    Account_id_account: int
-    Category_id_category: int
-    Currency_id_currency: int = 1
+    account_id: int
+    category_id: Optional[int] = None
+    currency_id: int = 1
 
 
 class ScheduledTransactionOut(pydantic.BaseModel):
     id_schedule_transaction: int
-    frequency: str
+    type: TransactionType
+    frequency: ScheduleFrequency
     next_date: datetime.date
     amount: Decimal
     description: Optional[str]
-    Account_id_account: int
-    Category_id_category: int
-    Currency_id_currency: int = 1
+    exchange_rate_snapshot: Decimal
+    account_id: int
+    category_id: Optional[int]
+    currency_id: int
 
     account_name: Optional[str] = None
     category_name: Optional[str] = None
@@ -37,11 +39,11 @@ class ScheduledTransactionOut(pydantic.BaseModel):
 
 
 class ScheduledTransactionUpdate(pydantic.BaseModel):
-    frequency: Optional[str] = None
+    frequency: Optional[ScheduleFrequency] = None
     date: Optional[datetime.date] = None
     amount: Optional[Decimal] = None
     type: Optional[TransactionType] = None
     description: Optional[str] = None
-    Account_id_account: Optional[int] = None
-    Category_id_category: Optional[int] = None
-    Currency_id_currency: Optional[int] = None
+    account_id: Optional[int] = None
+    category_id: Optional[int] = None
+    currency_id: Optional[int] = None

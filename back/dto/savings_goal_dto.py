@@ -11,7 +11,7 @@ class SavingsGoalCreate(pydantic.BaseModel):
     target: Decimal = pydantic.Field(gt=0)
     current_amount: Decimal = pydantic.Field(default=0, ge=0)
     time_limit: Optional[date] = None
-    Currency_id_currency: int = 1
+    currency_id: int = 1
 
 
 class SavingsGoalUpdate(pydantic.BaseModel):
@@ -19,7 +19,7 @@ class SavingsGoalUpdate(pydantic.BaseModel):
     target: Optional[Decimal] = pydantic.Field(default=None, gt=0)
     current_amount: Optional[Decimal] = pydantic.Field(default=None, ge=0)
     time_limit: Optional[date] = None
-    Currency_id_currency: Optional[int] = None
+    currency_id: Optional[int] = None
 
 
 class SavingsGoalContribution(pydantic.BaseModel):
@@ -33,8 +33,8 @@ class SavingsGoalOut(pydantic.BaseModel):
     current_amount: Decimal
     start_date: date
     time_limit: Optional[date]
-    User_id_user: int
-    Currency_id_currency: int
+    user_id: int
+    currency_id: int
     currency_code: str
     percent_complete: float
 

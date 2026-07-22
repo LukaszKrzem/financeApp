@@ -149,9 +149,7 @@ export default function SubscriptionsPage() {
 
       if (sub.amount > 0) return;
 
-      const curr = currencies.find(
-        (c) => c.id_currency === sub.Currency_id_currency
-      );
+      const curr = currencies.find((c) => c.id_currency === sub.currency_id);
       const rate = curr ? Number(curr.exchange_rate) : 1;
       const amountInBase = Math.abs(sub.amount) * rate;
 

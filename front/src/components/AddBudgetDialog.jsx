@@ -42,8 +42,8 @@ export function AddBudgetDialog() {
         limit: parseFloat(amount),
         start_date: today,
         end: endDate,
-        Categories_id_category: parseInt(category),
-        Currency_id_currency: parseInt(currencyId),
+        category_id: parseInt(category),
+        currency_id: parseInt(currencyId),
       });
 
       setAmount('');

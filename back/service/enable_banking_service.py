@@ -185,7 +185,7 @@ def sync_bank_transactions(
         db.query(structure.Account)
         .filter(
             structure.Account.id_account == request.account_id,
-            structure.Account.User_id_user == user_id,
+            structure.Account.user_id == user_id,
         )
         .first()
     )
@@ -214,7 +214,14 @@ def sync_bank_transactions(
             )
 
     account_id = account.id_account
-    currency_id = account.Currency_id_currency
+    currency_id = account.currency_id
+
+    db_currency = (
+        db.query(structure.Currency)
+        .filter(structure.Currency.id_currency == currency_id)
+        .first()
+    )
+    snapshot_rate = db_currency.exchange_rate if db_currency else 1.0
 
     raw_transactions = _fetch_bank_transactions(account.bank_account_uid)
 
@@ -222,7 +229,7 @@ def sync_bank_transactions(
         row[0]
         for row in db.query(structure.Transaction.external_id)
         .filter(
-            structure.Transaction.Account_id_account == account_id,
+            structure.Transaction.account_id == account_id,
             structure.Transaction.external_id.isnot(None),
         )
         .all()
@@ -260,12 +267,13 @@ def sync_bank_transactions(
             amount=abs(float(amount)) if amount else 0.0,
             date=tx.get("booking_date"),
             description=description.strip(),
-            Account_id_account=account_id,
-            Category_id_category=category_cache[tx_type],
-            Currency_id_currency=currency_id,
+            type=tx_type,
+            exchange_rate_snapshot=snapshot_rate,
+            account_id=account_id,
+            category_id=category_cache[tx_type],
+            currency_id=currency_id,
             external_id=external_id,
         )
-        new_transaction.type = tx_type
 
         db.add(new_transaction)
         imported += 1
@@ -388,7 +396,7 @@ def handle_bank_callback(
         valid_until = datetime.now(timezone.utc)
 
     new_connection = structure.BankConnection(
-        user_id_user=user_id,
+        user_id=user_id,
         bank_name=request.bank_name
         or session_data.get("aspsp", {}).get("name", "Unknown Bank"),
         session_id=session_id,
@@ -413,7 +421,7 @@ def handle_bank_callback(
 
         existing_acc = (
             db.query(structure.Account)
-            .filter_by(bank_account_uid=acc_uid, User_id_user=user_id)
+            .filter_by(bank_account_uid=acc_uid, user_id=user_id)
             .first()
         )
         if existing_acc:
@@ -428,8 +436,8 @@ def handle_bank_callback(
         new_account = structure.Account(
             name=f"Bank Account ({acc_uid[-4:]})",
             current_balance=balance,
-            Currency_id_currency=db_currency.id_currency,
-            User_id_user=user_id,
+            currency_id=db_currency.id_currency,
+            user_id=user_id,
             bank_connection_id=new_connection.id_connection,
             bank_account_uid=acc_uid,
         )

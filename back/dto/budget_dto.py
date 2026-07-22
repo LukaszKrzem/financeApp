@@ -9,8 +9,8 @@ class BudgetCreate(pydantic.BaseModel):
     limit: Decimal = pydantic.Field(gt=0)  # just assume that budgets must be positive
     start_date: date
     end: date
-    Categories_id_category: int
-    Currency_id_currency: int
+    category_id: int
+    currency_id: int
 
     # To validate dates corelation
     @pydantic.model_validator(mode="after")
@@ -25,9 +25,9 @@ class BudgetOut(pydantic.BaseModel):
     limit: Decimal
     start_date: date
     end: date
-    categories_id_category: int
+    category_id: int
     category_name: str
-    currency_id_currency: int
+    currency_id: int
     currency_code: str
     current_spent: Decimal
     percent_used: float

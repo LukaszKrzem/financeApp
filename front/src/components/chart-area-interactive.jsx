@@ -117,9 +117,8 @@ export function ChartAreaInteractive() {
 
   const chartData = React.useMemo(() => {
     const accountRate = selectedAccount
-      ? currencies.find(
-          (c) => c.id_currency === selectedAccount.Currency_id_currency
-        )?.exchange_rate
+      ? currencies.find((c) => c.id_currency === selectedAccount.currency_id)
+          ?.exchange_rate
       : 1;
 
     const endDate = new Date();
@@ -134,8 +133,7 @@ export function ChartAreaInteractive() {
 
     const grouped = {};
     transactions?.forEach((tx) => {
-      if (accountId !== 'ALL' && String(tx.Account_id_account) !== accountId)
-        return;
+      if (accountId !== 'ALL' && String(tx.account_id) !== accountId) return;
 
       const txDate = new Date(tx.date);
       if (txDate < startDate || txDate > endDate) return;
@@ -146,10 +144,12 @@ export function ChartAreaInteractive() {
         grouped[monthStr] = { date: monthStr, spending: 0, income: 0 };
 
       const amount = parseFloat(tx.amount) || 0;
-      const txRate = parseFloat(tx.exchange_rate) || 1;
+      const txRate = parseFloat(tx.exchange_rate_snapshot) || 1;
 
       const rate = txRate / (parseFloat(accountRate) || 1);
-      const transactionIsIncome = isIncome(tx);
+
+      const transactionIsIncome = tx.type === 'INCOME' || isIncome(tx);
+
       if (transactionIsIncome) grouped[monthStr].income += amount * rate;
       else grouped[monthStr].spending += amount * rate;
     });

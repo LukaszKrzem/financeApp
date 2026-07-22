@@ -138,7 +138,7 @@ export function SectionCards() {
   const baseRate = useMemo(() => {
     if (!baseAccount) return 1;
     const targetCurrency = currencies.find(
-      (c) => c.id_currency === baseAccount.Currency_id_currency
+      (c) => c.id_currency === baseAccount.currency_id
     );
     return parseFloat(targetCurrency?.exchange_rate) || 1;
   }, [baseAccount, currencies]);
@@ -156,10 +156,10 @@ export function SectionCards() {
 
     transactions.forEach((t) => {
       const date = new Date(t.date);
-      const txRate = parseFloat(t.exchange_rate) || 1;
+      const txRate = parseFloat(t.exchange_rate_snapshot) || 1;
       const amount = (Number(t.amount) || 0) * (txRate / baseRate);
 
-      const bucketKey = isIncome(t) ? 'income' : 'spent';
+      const bucketKey = t.type === 'INCOME' || isIncome(t) ? 'income' : 'spent';
 
       if (
         date.getFullYear() === currentYear &&
@@ -186,9 +186,8 @@ export function SectionCards() {
         const spent = Number(budget.current_spent) || 0;
         const budgetRate =
           parseFloat(
-            currencies.find(
-              (c) => c.id_currency === budget.Currency_id_currency
-            )?.exchange_rate
+            currencies.find((c) => c.id_currency === budget.currency_id)
+              ?.exchange_rate
           ) || 1;
 
         acc.totalLimit += limit * (budgetRate / baseRate);

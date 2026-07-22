@@ -13,28 +13,33 @@ def create_scheduled_transaction(
 
     account = (
         db.query(structure.Account)
-        .filter(structure.Account.id_account == data.Account_id_account)
+        .filter(structure.Account.id_account == data.account_id)
         .first()
     )
 
-    if not account or account.User_id_user != user_id:
+    if not account or account.user_id != user_id:
         raise HTTPException(
             status_code=403, detail="Account not accessible or does not exist"
         )
 
-    # Quirk handling: user sends amount in positive form, we adjust based on type
-    final_amount = abs(data.amount)
-    if data.type == structure.TransactionType.EXPENSE:
-        final_amount = -final_amount
+    currency = (
+        db.query(structure.Currency)
+        .filter(structure.Currency.id_currency == data.currency_id)
+        .first()
+    )
+    if not currency:
+        raise HTTPException(status_code=404, detail="Currency not found")
 
     new_scheduled = structure.ScheduledTransaction(
+        type=data.type,
         frequency=data.frequency,
         next_date=data.date,
-        amount=final_amount,
+        amount=data.amount,
         description=data.description,
-        Account_id_account=data.Account_id_account,
-        Category_id_category=data.Category_id_category,
-        Currency_id_currency=data.Currency_id_currency,
+        exchange_rate_snapshot=currency.exchange_rate,
+        account_id=data.account_id,
+        category_id=data.category_id,
+        currency_id=data.currency_id,
     )
 
     db.add(new_scheduled)
@@ -54,20 +59,19 @@ def get_user_scheduled_transactions(db: sqlalchemy.orm.Session, user_id: int):
         )
         .join(
             structure.Account,
-            structure.ScheduledTransaction.Account_id_account
-            == structure.Account.id_account,
+            structure.ScheduledTransaction.account_id == structure.Account.id_account,
         )
-        .join(
+        .outerjoin(
             structure.Category,
-            structure.ScheduledTransaction.Category_id_category
+            structure.ScheduledTransaction.category_id
             == structure.Category.id_category,
         )
         .join(
             structure.Currency,
-            structure.ScheduledTransaction.Currency_id_currency
+            structure.ScheduledTransaction.currency_id
             == structure.Currency.id_currency,
         )
-        .filter(structure.Account.User_id_user == user_id)
+        .filter(structure.Account.user_id == user_id)
         .all()
     )
 
@@ -93,12 +97,11 @@ def update_scheduled_transaction(
         db.query(structure.ScheduledTransaction)
         .join(
             structure.Account,
-            structure.ScheduledTransaction.Account_id_account
-            == structure.Account.id_account,
+            structure.ScheduledTransaction.account_id == structure.Account.id_account,
         )
         .filter(
             structure.ScheduledTransaction.id_schedule_transaction == transaction_id,
-            structure.Account.User_id_user == user_id,
+            structure.Account.user_id == user_id,
         )
         .first()
     )
@@ -108,41 +111,30 @@ def update_scheduled_transaction(
             status_code=404, detail="Transaction not found or access denied"
         )
 
-    if data.Account_id_account is not None:
+    if data.account_id is not None:
         new_account = (
             db.query(structure.Account)
-            .filter(structure.Account.id_account == data.Account_id_account)
+            .filter(structure.Account.id_account == data.account_id)
             .first()
         )
-        if not new_account or new_account.User_id_user != user_id:
+        if not new_account or new_account.user_id != user_id:
             raise HTTPException(
                 status_code=403, detail="New account not accessible or does not exist"
             )
 
     update_data = data.model_dump(exclude_unset=True)
 
-    if "amount" in update_data or "type" in update_data:
-        current_amount = update_data.get("amount", abs(db_transaction.amount))
-
-        current_type = update_data.get("type")
-        if not current_type:
-            current_type = (
-                structure.TransactionType.EXPENSE
-                if db_transaction.amount < 0
-                else structure.TransactionType.INCOME
-            )
-
-        final_amount = abs(current_amount)
-        if current_type == structure.TransactionType.EXPENSE:
-            final_amount = -final_amount
-
-        db_transaction.amount = final_amount
-
-        update_data.pop("amount", None)
-        update_data.pop("type", None)
-
     if "date" in update_data:
-        db_transaction.next_date = update_data.pop("date")
+        update_data["next_date"] = update_data.pop("date")
+
+    if "currency_id" in update_data:
+        new_currency = (
+            db.query(structure.Currency)
+            .filter(structure.Currency.id_currency == update_data["currency_id"])
+            .first()
+        )
+        if new_currency:
+            update_data["exchange_rate_snapshot"] = new_currency.exchange_rate
 
     for key, value in update_data.items():
         setattr(db_transaction, key, value)
@@ -160,12 +152,11 @@ def delete_scheduled_transaction(
         db.query(structure.ScheduledTransaction)
         .join(
             structure.Account,
-            structure.ScheduledTransaction.Account_id_account
-            == structure.Account.id_account,
+            structure.ScheduledTransaction.account_id == structure.Account.id_account,
         )
         .filter(
             structure.ScheduledTransaction.id_schedule_transaction == transaction_id,
-            structure.Account.User_id_user == user_id,
+            structure.Account.user_id == user_id,
         )
         .first()
     )

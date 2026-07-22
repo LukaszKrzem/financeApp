@@ -16,8 +16,8 @@ def _goal_to_response(goal: structure.SavingsGoal, currency_code: str):
         "current_amount": goal.current_amount,
         "start_date": goal.start_date,
         "time_limit": goal.time_limit,
-        "User_id_user": goal.User_id_user,
-        "Currency_id_currency": goal.Currency_id_currency,
+        "user_id": goal.user_id,
+        "currency_id": goal.currency_id,
         "currency_code": currency_code,
         "percent_complete": round((current_amount / target) * 100, 2)
         if target > 0
@@ -30,10 +30,9 @@ def get_user_savings_goals(db: sqlalchemy.orm.Session, user_id: int):
         db.query(structure.SavingsGoal, structure.Currency)
         .join(
             structure.Currency,
-            structure.SavingsGoal.Currency_id_currency
-            == structure.Currency.id_currency,
+            structure.SavingsGoal.currency_id == structure.Currency.id_currency,
         )
-        .filter(structure.SavingsGoal.User_id_user == user_id)
+        .filter(structure.SavingsGoal.user_id == user_id)
         .order_by(structure.SavingsGoal.id_saving_goal.desc())
         .all()
     )
@@ -46,7 +45,7 @@ def create_savings_goal(
 ):
     currency = (
         db.query(structure.Currency)
-        .filter(structure.Currency.id_currency == data.Currency_id_currency)
+        .filter(structure.Currency.id_currency == data.currency_id)
         .first()
     )
     if not currency:
@@ -57,8 +56,8 @@ def create_savings_goal(
         target=data.target,
         current_amount=data.current_amount,
         time_limit=data.time_limit,
-        User_id_user=user_id,
-        Currency_id_currency=data.Currency_id_currency,
+        user_id=user_id,
+        currency_id=data.currency_id,
     )
 
     db.add(new_goal)
@@ -78,22 +77,22 @@ def update_savings_goal(
         db.query(structure.SavingsGoal)
         .filter(
             structure.SavingsGoal.id_saving_goal == goal_id,
-            structure.SavingsGoal.User_id_user == user_id,
+            structure.SavingsGoal.user_id == user_id,
         )
         .first()
     )
     if not goal:
         raise HTTPException(status_code=404, detail="Savings goal not found.")
 
-    if data.Currency_id_currency is not None:
+    if data.currency_id is not None:
         currency = (
             db.query(structure.Currency)
-            .filter(structure.Currency.id_currency == data.Currency_id_currency)
+            .filter(structure.Currency.id_currency == data.currency_id)
             .first()
         )
         if not currency:
             raise HTTPException(status_code=404, detail="Selected currency not found.")
-        goal.Currency_id_currency = data.Currency_id_currency
+        goal.currency_id = data.currency_id
 
     if data.name is not None:
         goal.name = data.name
@@ -109,7 +108,7 @@ def update_savings_goal(
 
     currency = (
         db.query(structure.Currency)
-        .filter(structure.Currency.id_currency == goal.Currency_id_currency)
+        .filter(structure.Currency.id_currency == goal.currency_id)
         .first()
     )
 
@@ -126,7 +125,7 @@ def add_to_savings_goal(
         db.query(structure.SavingsGoal)
         .filter(
             structure.SavingsGoal.id_saving_goal == goal_id,
-            structure.SavingsGoal.User_id_user == user_id,
+            structure.SavingsGoal.user_id == user_id,
         )
         .first()
     )
@@ -140,7 +139,7 @@ def add_to_savings_goal(
 
     currency = (
         db.query(structure.Currency)
-        .filter(structure.Currency.id_currency == goal.Currency_id_currency)
+        .filter(structure.Currency.id_currency == goal.currency_id)
         .first()
     )
 
@@ -152,7 +151,7 @@ def delete_savings_goal(db: sqlalchemy.orm.Session, goal_id: int, user_id: int):
         db.query(structure.SavingsGoal)
         .filter(
             structure.SavingsGoal.id_saving_goal == goal_id,
-            structure.SavingsGoal.User_id_user == user_id,
+            structure.SavingsGoal.user_id == user_id,
         )
         .first()
     )

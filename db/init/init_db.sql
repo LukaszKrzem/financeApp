@@ -105,6 +105,13 @@ CREATE TABLE IF NOT EXISTS notification (
     user_id INTEGER NOT NULL REFERENCES "user"(id_user) ON DELETE CASCADE
 );
 
+CREATE TABLE IF NOT EXISTS currency_rate_history (
+    id_rate_history SERIAL PRIMARY KEY,
+    currency_id INTEGER NOT NULL REFERENCES currency(id_currency) ON DELETE CASCADE,
+    exchange_rate NUMERIC(10, 4) NOT NULL,
+    recorded_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL
+);
+
 
 CREATE INDEX IF NOT EXISTS ix_bank_connection_user_id ON bank_connection(user_id);
 
@@ -130,6 +137,8 @@ CREATE INDEX IF NOT EXISTS ix_savinggoal_user_id ON savinggoal(user_id);
 CREATE INDEX IF NOT EXISTS ix_savinggoal_currency_id ON savinggoal(currency_id);
 
 CREATE INDEX IF NOT EXISTS ix_notification_user_id ON notification(user_id);
+
+CREATE INDEX IF NOT EXISTS ix_currency_rate_history_currency_id ON currency_rate_history(currency_id);
 
 INSERT INTO currency (id_currency, code, "name", exchange_rate)
 VALUES (1, 'PLN', 'Złoty', 1.000)

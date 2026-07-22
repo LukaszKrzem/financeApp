@@ -1,5 +1,5 @@
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from decimal import Decimal
 from typing import List
 
@@ -19,7 +19,7 @@ CACHE_DURATION_HOURS = 12
 
 def update_rates_from_nbp_internal(db: sqlalchemy.orm.Session):
     global LAST_NBP_UPDATE
-    now = datetime.now()
+    now = datetime.now(timezone.utc)
 
     if LAST_NBP_UPDATE is not None:
         if now - LAST_NBP_UPDATE < timedelta(hours=CACHE_DURATION_HOURS):
@@ -45,11 +45,21 @@ def update_rates_from_nbp_internal(db: sqlalchemy.orm.Session):
 
                 if db_currency:
                     db_currency.exchange_rate = mid_rate
+                    target_id = db_currency.id_currency
                 else:
                     new_currency = structure.Currency(
                         code=currency_code, name=currency_name, exchange_rate=mid_rate
                     )
                     db.add(new_currency)
+                    db.flush()
+                    target_id = new_currency.id_currency
+
+                history_entry = structure.CurrencyRateHistory(
+                    currency_id=target_id,
+                    exchange_rate=mid_rate,
+                    recorded_at=now,
+                )
+                db.add(history_entry)
 
             db.commit()
             LAST_NBP_UPDATE = now

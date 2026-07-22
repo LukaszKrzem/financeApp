@@ -34,6 +34,9 @@ class Currency(back.database.Base):
     )
     budgets = relationship("Budget", back_populates="currency")
     savings_goals = relationship("SavingsGoal", back_populates="currency")
+    rate_history = relationship(
+        "CurrencyRateHistory", back_populates="currency", passive_deletes=True
+    )
 
 
 class User(back.database.Base):
@@ -322,3 +325,24 @@ class Notification(back.database.Base):
     )
 
     user = relationship("User", back_populates="notifications")
+
+
+class CurrencyRateHistory(back.database.Base):
+    __tablename__ = "currency_rate_history"
+    id_rate_history = sqlalchemy.Column(
+        sqlalchemy.Integer, primary_key=True, index=True
+    )
+    currency_id = sqlalchemy.Column(
+        sqlalchemy.Integer,
+        sqlalchemy.ForeignKey("currency.id_currency", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    exchange_rate = sqlalchemy.Column(sqlalchemy.Numeric(10, 4), nullable=False)
+    recorded_at = sqlalchemy.Column(
+        sqlalchemy.DateTime(timezone=True),
+        nullable=False,
+        default=lambda: datetime.now(timezone.utc),
+    )
+
+    currency = relationship("Currency", back_populates="rate_history")

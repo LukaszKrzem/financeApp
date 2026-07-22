@@ -33,9 +33,7 @@ def update_budget(
     db: sqlalchemy.orm.Session = Depends(get_db),
     current_user=Depends(get_current_user),
 ):
-    return budget_service.update_user_budget(
-        db, budget_id, current_user.id_user, data
-    )
+    return budget_service.update_user_budget(db, budget_id, current_user.id_user, data)
 
 
 @router.delete("/{budget_id}", status_code=status.HTTP_204_NO_CONTENT)
@@ -45,4 +43,3 @@ def delete_budget(
     current_user=Depends(get_current_user),
 ):
     return budget_service.delete_user_budget(db, budget_id, current_user.id_user)
-

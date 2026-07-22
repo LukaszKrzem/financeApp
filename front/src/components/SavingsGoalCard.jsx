@@ -31,7 +31,10 @@ export function SavingsGoalCard({
     <div className="rounded-xl border border-border/50 bg-card text-card-foreground p-5 flex flex-col gap-4 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md group relative">
       <div className="flex items-start justify-between gap-3 min-w-0">
         <div className="min-w-0 flex-1 pr-1">
-          <h3 className="font-semibold text-base sm:text-lg truncate" title={goal.name}>
+          <h3
+            className="font-semibold text-base sm:text-lg truncate"
+            title={goal.name}
+          >
             {goal.name}
           </h3>
           <p className="text-xs text-muted-foreground truncate">
@@ -74,12 +77,7 @@ export function SavingsGoalCard({
       <div>
         <div className="flex justify-between text-sm mb-2">
           <span>
-            {formatMoney(
-              goal.current_amount,
-              goal.currency_code,
-              false,
-              false
-            )}
+            {formatMoney(goal.current_amount, goal.currency_code, false, false)}
           </span>
           <span className="text-muted-foreground">
             {formatMoney(goal.target, goal.currency_code, false, false)}
@@ -109,7 +107,9 @@ export function SavingsGoalCard({
           placeholder="Amount to add"
           value={contribution || ''}
           disabled={isAdding}
-          onChange={(e) => onContributionChange(goal.id_saving_goal, e.target.value)}
+          onChange={(e) =>
+            onContributionChange(goal.id_saving_goal, e.target.value)
+          }
         />
         <Button
           type="button"

@@ -28,8 +28,12 @@ export function EditBudgetDialog({ budget, open, onOpenChange, onSuccess }) {
   useEffect(() => {
     if (budget) {
       setAmount(budget.limit !== undefined ? String(budget.limit) : '');
-      setCategory(budget.category_id !== undefined ? String(budget.category_id) : '');
-      setCurrencyId(budget.currency_id !== undefined ? String(budget.currency_id) : '');
+      setCategory(
+        budget.category_id !== undefined ? String(budget.category_id) : ''
+      );
+      setCurrencyId(
+        budget.currency_id !== undefined ? String(budget.currency_id) : ''
+      );
     }
   }, [budget]);
 

@@ -107,4 +107,3 @@ def delete_user_budget(db: sqlalchemy.orm.Session, budget_id: int, user_id: int)
     db.delete(budget)
     db.commit()
     return None
-

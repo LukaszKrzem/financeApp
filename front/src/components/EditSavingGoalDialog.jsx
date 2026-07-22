@@ -24,9 +24,15 @@ export function EditSavingGoalDialog({ goal, open, onOpenChange, onSuccess }) {
     if (goal) {
       setName(goal.name || '');
       setTarget(goal.target !== undefined ? String(goal.target) : '');
-      setCurrentAmount(goal.current_amount !== undefined ? String(goal.current_amount) : '');
-      setTimeLimit(goal.time_limit ? String(goal.time_limit).split('T')[0] : '');
-      setCurrencyId(goal.currency_id !== undefined ? String(goal.currency_id) : '');
+      setCurrentAmount(
+        goal.current_amount !== undefined ? String(goal.current_amount) : ''
+      );
+      setTimeLimit(
+        goal.time_limit ? String(goal.time_limit).split('T')[0] : ''
+      );
+      setCurrencyId(
+        goal.currency_id !== undefined ? String(goal.currency_id) : ''
+      );
     }
   }, [goal]);
 

@@ -48,7 +48,10 @@ export function SubscriptionCard({
       <CardHeader className="pb-3">
         <div className="flex justify-between items-start gap-2 min-w-0">
           <div className="flex-1 min-w-0 pr-1">
-            <CardTitle className="text-base sm:text-lg font-bold truncate" title={sub.description || categoryName}>
+            <CardTitle
+              className="text-base sm:text-lg font-bold truncate"
+              title={sub.description || categoryName}
+            >
               {sub.description || categoryName}
             </CardTitle>
             <p className="text-xs sm:text-sm text-muted-foreground flex items-center mt-1 truncate">
@@ -96,7 +99,10 @@ export function SubscriptionCard({
       <CardContent className="mt-auto">
         <div className="flex items-center justify-between border-t border-border/50 pt-4 gap-2 min-w-0">
           <div className="flex flex-col gap-0.5 min-w-0 flex-1 pr-1">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/70 flex items-center gap-1.5 truncate" title={`${sub.frequency?.toLowerCase()} • ${accountName}`}>
+            <span
+              className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/70 flex items-center gap-1.5 truncate"
+              title={`${sub.frequency?.toLowerCase()} • ${accountName}`}
+            >
               <span className="shrink-0">{sub.frequency?.toLowerCase()}</span>
               <span className="text-muted-foreground/30">•</span>
               <span className="truncate">{accountName}</span>

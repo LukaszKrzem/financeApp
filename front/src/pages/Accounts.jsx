@@ -13,6 +13,7 @@ import { IconWallet } from '@tabler/icons-react';
 import { EmptyState } from '@/components/ui/empty-state';
 
 import { useApi } from '@/hooks/useApi';
+import { PageHeader } from '@/components/PageHeader';
 
 export default function Accounts() {
   const { accounts, loading, refreshData } = useData();
@@ -64,50 +65,23 @@ export default function Accounts() {
     }
   };
 
-  const handleRename = () => {
-    if (!renamingAccount) return;
-    runRename(async () => {
-      await patch(`/accounts/${renamingAccount.id_account}`, {
-        name: renamingAccount.name,
-      });
-      setRenamingAccount(null);
-      refreshData();
-    });
-  };
-
-  const handleDelete = () => {
-    if (!deletingAccount) return;
-    runDelete(async () => {
-      await del(`/accounts/${deletingAccount.id_account}`);
-      setDeletingAccount(null);
-      refreshData();
-    });
-  };
-
   return (
     <div className="flex flex-1 flex-col p-4 lg:p-6 gap-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div>
-          <h2 className="text-xl sm:text-2xl font-semibold tracking-tight">
-            Your Financial Accounts
-          </h2>
-          <p className="text-xs sm:text-sm text-muted-foreground">
-            Monitor and manage your available wallets and balances
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setSelectBankOpen(true)}
-            disabled={connecting}
-            className="flex items-center gap-2"
-          >
-            {connecting ? 'Connecting...' : 'Connect bank'}
-          </Button>
-          <AddAccountDialog />
-        </div>
-      </div>
+      <PageHeader
+        title="Your Financial Accounts"
+        description="Monitor and manage your available wallets and balances"
+      >
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setSelectBankOpen(true)}
+          disabled={connecting}
+          className="flex items-center gap-2"
+        >
+          {connecting ? 'Connecting...' : 'Connect bank'}
+        </Button>
+        <AddAccountDialog />
+      </PageHeader>
 
       {loading ? (
         <CardSkeleton count={3} />

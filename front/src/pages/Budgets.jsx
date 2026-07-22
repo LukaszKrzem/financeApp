@@ -9,6 +9,7 @@ import { CardSkeleton } from '@/components/ui/card-skeleton';
 import { IconTargetArrow } from '@tabler/icons-react';
 import { EmptyState } from '@/components/ui/empty-state';
 import { ConfirmDeleteDialog } from '@/components/ConfirmDeleteDialog';
+import { PageHeader } from '@/components/PageHeader';
 
 export default function BudgetsPage() {
   const { budgets = [], loading, refreshData } = useData();
@@ -28,17 +29,12 @@ export default function BudgetsPage() {
 
   return (
     <div className="flex flex-1 flex-col p-4 lg:p-6 gap-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-semibold tracking-tight">
-            Your Budgets
-          </h2>
-          <p className="text-sm text-muted-foreground">
-            Manage your spending limits for each month
-          </p>
-        </div>
+      <PageHeader
+        title="Your Budgets"
+        description="Manage your spending limits for each month"
+      >
         <AddBudgetDialog />
-      </div>
+      </PageHeader>
 
       {loading ? (
         <CardSkeleton count={3} />

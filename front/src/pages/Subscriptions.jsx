@@ -20,6 +20,7 @@ import { ConfirmDeleteDialog } from '@/components/ConfirmDeleteDialog';
 import { formatMoney } from '@/lib/formatMoney';
 import { isExpense } from '@/lib/transactionHelpers';
 import { EmptyState } from '@/components/ui/empty-state';
+import { PageHeader } from '@/components/PageHeader';
 
 export default function SubscriptionsPage() {
   const { del } = useApi();
@@ -99,14 +100,10 @@ export default function SubscriptionsPage() {
 
   return (
     <div className="flex flex-1 flex-col p-4 md:p-6 gap-6 max-w-7xl mx-auto w-full">
-      <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">Fixed Costs</h1>
-          <p className="text-muted-foreground">
-            Manage recurring payments and subscriptions.
-          </p>
-        </div>
-
+      <PageHeader
+        title="Fixed Costs"
+        description="Manage recurring payments and subscriptions."
+      >
         <AddTransactionDialog
           defaultFrequency="MONTHLY"
           trigger={
@@ -115,7 +112,7 @@ export default function SubscriptionsPage() {
             </Button>
           }
         />
-      </header>
+      </PageHeader>
 
       <div className="grid gap-4 grid-cols-2 lg:grid-cols-3">
         <Card className="border-border/50 col-span-2 lg:col-span-1">

@@ -28,6 +28,7 @@ import {
 import { EmptyState } from '@/components/ui/empty-state';
 import { AddTransactionDialog } from '@/components/AddTransactionDialog';
 import { ConfirmDeleteDialog } from '@/components/ConfirmDeleteDialog';
+import { PageHeader } from '@/components/PageHeader';
 
 const FILTER_OPTIONS = [
   { value: 'ALL', label: 'All' },
@@ -150,14 +151,10 @@ export default function Transactions() {
 
   return (
     <div className="flex flex-1 flex-col p-4 md:p-6 gap-6">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">
-          Transaction history
-        </h1>
-        <p className="text-muted-foreground">
-          Review all your expenses and income.
-        </p>
-      </div>
+      <PageHeader
+        title="Transaction history"
+        description="Review all your expenses and income."
+      />
 
       <div className="bg-card border-border/50 border rounded-xl p-4">
         {(loading || transactions.length > 0) && (

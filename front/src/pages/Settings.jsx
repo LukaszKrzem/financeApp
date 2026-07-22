@@ -2,6 +2,7 @@ import { useTheme } from '@/components/theme-provider';
 import { Button } from '@/components/ui/button';
 import { IconSun, IconMoon, IconDeviceDesktop } from '@tabler/icons-react';
 import { useAuth } from '@/context/AuthContext';
+import { PageHeader } from '@/components/PageHeader';
 
 export default function Settings() {
   const { user, onLogout } = useAuth();
@@ -10,12 +11,10 @@ export default function Settings() {
 
   return (
     <div className="flex flex-1 flex-col p-4 md:p-6 gap-6">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">Settings</h1>
-        <p className="text-muted-foreground">
-          Manage your account settings and preferences.
-        </p>
-      </div>
+      <PageHeader
+        title="Settings"
+        description="Manage your account settings and preferences."
+      />
 
       <div className="grid gap-6">
         <div className="bg-card border-border/50 border rounded-xl p-6">

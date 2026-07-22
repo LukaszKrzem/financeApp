@@ -9,6 +9,8 @@ import { CardSkeleton } from '@/components/ui/card-skeleton';
 import { IconPigMoney } from '@tabler/icons-react';
 import { EmptyState } from '@/components/ui/empty-state';
 
+import { PageHeader } from '@/components/PageHeader';
+
 export default function SavingsGoals() {
   const { patch, del } = useApi();
 
@@ -42,18 +44,12 @@ export default function SavingsGoals() {
 
   return (
     <div className="flex flex-1 flex-col p-4 lg:p-6 gap-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-semibold tracking-tight">
-            Savings Goals
-          </h2>
-          <p className="text-sm text-muted-foreground">
-            Track progress towards your planned savings.
-          </p>
-        </div>
-
+      <PageHeader
+        title="Savings Goals"
+        description="Track progress towards your planned savings."
+      >
         <AddSavingGoalDialog onGoalAdded={refreshData} />
-      </div>
+      </PageHeader>
 
       {isFetching ? (
         <CardSkeleton count={3} />

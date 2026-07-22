@@ -1,9 +1,3 @@
-# IMPORTANT
-# I know it's fucked but unloko we need to have a meeting and decide how we want
-# Transaction type to work
-# IMPORTANT
-
-
 import enum
 from datetime import date, datetime, timezone
 
@@ -14,6 +8,18 @@ from sqlalchemy.orm import relationship
 import back.database
 
 
+class TransactionType(str, enum.Enum):
+    INCOME = "INCOME"
+    EXPENSE = "EXPENSE"
+
+
+class ScheduleFrequency(str, enum.Enum):
+    DAILY = "DAILY"
+    WEEKLY = "WEEKLY"
+    MONTHLY = "MONTHLY"
+    YEARLY = "YEARLY"
+
+
 class Currency(back.database.Base):
     __tablename__ = "currency"
     id_currency = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, index=True)
@@ -21,23 +27,43 @@ class Currency(back.database.Base):
     name = sqlalchemy.Column(sqlalchemy.String(100), nullable=False)
     exchange_rate = sqlalchemy.Column(sqlalchemy.Numeric(10, 4), nullable=False)
 
+    accounts = relationship("Account", back_populates="currency")
+    transactions = relationship("Transaction", back_populates="currency")
+    scheduled_transactions = relationship(
+        "ScheduledTransaction", back_populates="currency"
+    )
+    budgets = relationship("Budget", back_populates="currency")
+    savings_goals = relationship("SavingsGoal", back_populates="currency")
+
 
 class User(back.database.Base):
-    __tablename__ = "User"
+    __tablename__ = "user"
     id_user = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, index=True)
     email = sqlalchemy.Column(sqlalchemy.String(255), nullable=False, unique=True)
     password = sqlalchemy.Column(sqlalchemy.String(255), nullable=False)
     name = sqlalchemy.Column(sqlalchemy.String(255), nullable=False)
 
+    bank_connections = relationship(
+        "BankConnection", back_populates="user", passive_deletes=True
+    )
+    accounts = relationship("Account", back_populates="user", passive_deletes=True)
+    budgets = relationship("Budget", back_populates="user", passive_deletes=True)
+    savings_goals = relationship(
+        "SavingsGoal", back_populates="user", passive_deletes=True
+    )
+    notifications = relationship(
+        "Notification", back_populates="user", passive_deletes=True
+    )
+
 
 class BankConnection(back.database.Base):
     __tablename__ = "bank_connection"
-
     id_connection = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, index=True)
-    user_id_user = sqlalchemy.Column(
+    user_id = sqlalchemy.Column(
         sqlalchemy.Integer,
-        sqlalchemy.ForeignKey("User.id_user", ondelete="CASCADE"),
+        sqlalchemy.ForeignKey("user.id_user", ondelete="CASCADE"),
         nullable=False,
+        index=True,
     )
     bank_name = sqlalchemy.Column(sqlalchemy.String(100), nullable=True)
     session_id = sqlalchemy.Column(sqlalchemy.String(255), nullable=False)
@@ -48,7 +74,10 @@ class BankConnection(back.database.Base):
         sqlalchemy.DateTime, default=lambda: datetime.now(timezone.utc)
     )
 
-    user = relationship("User", backref="bank_connections")
+    user = relationship("User", back_populates="bank_connections")
+    accounts = relationship(
+        "Account", back_populates="bank_connection", passive_deletes=True
+    )
 
 
 class Account(back.database.Base):
@@ -60,48 +89,63 @@ class Account(back.database.Base):
     id_account = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, index=True)
     name = sqlalchemy.Column(sqlalchemy.String(255), nullable=False)
     current_balance = sqlalchemy.Column(sqlalchemy.Numeric(20, 2), nullable=False)
-    Currency_id_currency = sqlalchemy.Column(
-        "currency_id_currency",
+
+    currency_id = sqlalchemy.Column(
         sqlalchemy.Integer,
         sqlalchemy.ForeignKey("currency.id_currency"),
         nullable=False,
+        index=True,
     )
-    User_id_user = sqlalchemy.Column(
-        "user_id_user",
+    user_id = sqlalchemy.Column(
         sqlalchemy.Integer,
-        sqlalchemy.ForeignKey("User.id_user", ondelete="CASCADE"),
+        sqlalchemy.ForeignKey("user.id_user", ondelete="CASCADE"),
         nullable=False,
+        index=True,
     )
     bank_connection_id = sqlalchemy.Column(
-        "bank_connection_id",
         sqlalchemy.Integer,
         sqlalchemy.ForeignKey("bank_connection.id_connection", ondelete="SET NULL"),
         nullable=True,
+        index=True,
     )
-    bank_account_uid = sqlalchemy.Column(
-        "bank_account_uid",
-        sqlalchemy.String(255),
-        nullable=True,
+    bank_account_uid = sqlalchemy.Column(sqlalchemy.String(255), nullable=True)
+
+    currency = relationship("Currency", back_populates="accounts")
+    user = relationship("User", back_populates="accounts")
+    bank_connection = relationship("BankConnection", back_populates="accounts")
+    transactions = relationship(
+        "Transaction", back_populates="account", passive_deletes=True
     )
-
-    bank = relationship("BankConnection", backref="accounts")
-
-
-class TransactionType(enum.Enum):
-    INCOME = "INCOME"
-    EXPENSE = "EXPENSE"
+    scheduled_transactions = relationship(
+        "ScheduledTransaction", back_populates="account", passive_deletes=True
+    )
 
 
 class Category(back.database.Base):
     __tablename__ = "categories"
     id_category = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, index=True)
     name = sqlalchemy.Column(sqlalchemy.String(100), nullable=False)
-    type = sqlalchemy.Column("type", Enum(TransactionType), nullable=False)
+    type = sqlalchemy.Column(Enum(TransactionType), nullable=False)
+
+    transactions = relationship(
+        "Transaction", back_populates="category", passive_deletes=True
+    )
+    scheduled_transactions = relationship(
+        "ScheduledTransaction", back_populates="category", passive_deletes=True
+    )
+    budgets = relationship("Budget", back_populates="category", passive_deletes=True)
 
 
 class Transaction(back.database.Base):
     __tablename__ = "transaction"
+    __table_args__ = (
+        sqlalchemy.CheckConstraint(
+            "amount >= 0", name="ck_transaction_amount_positive"
+        ),
+    )
+
     id_transaction = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, index=True)
+    type = sqlalchemy.Column(Enum(TransactionType), nullable=False)
     amount = sqlalchemy.Column(sqlalchemy.Numeric(20, 2), nullable=False)
     date = sqlalchemy.Column(
         "transaction_date",
@@ -110,112 +154,110 @@ class Transaction(back.database.Base):
         nullable=False,
     )
     description = sqlalchemy.Column(sqlalchemy.String(255), nullable=True)
-    # type = sqlalchemy.Column("type", Enum(TransactionType), nullable=False)
-    is_income = sqlalchemy.Column("is_income", sqlalchemy.String(1), nullable=False)
-    Account_id_account = sqlalchemy.Column(
-        "account_id_account",
+    exchange_rate_snapshot = sqlalchemy.Column(
+        sqlalchemy.Numeric(10, 4), nullable=False
+    )
+    external_id = sqlalchemy.Column(sqlalchemy.String(255), nullable=True)
+
+    account_id = sqlalchemy.Column(
         sqlalchemy.Integer,
         sqlalchemy.ForeignKey("account.id_account", ondelete="CASCADE"),
         nullable=False,
+        index=True,
     )
-    Category_id_category = sqlalchemy.Column(
-        "categories_id_category",
+    category_id = sqlalchemy.Column(
         sqlalchemy.Integer,
         sqlalchemy.ForeignKey("categories.id_category", ondelete="SET NULL"),
         nullable=True,
+        index=True,
     )
-    Currency_id_currency = sqlalchemy.Column(
-        "currency_id_currency",
+    currency_id = sqlalchemy.Column(
         sqlalchemy.Integer,
         sqlalchemy.ForeignKey("currency.id_currency"),
         nullable=False,
+        index=True,
     )
-    external_id = sqlalchemy.Column(
-        sqlalchemy.String(255), nullable=True
-    )  # to store the external transaction ID from the bank API
 
-    # For now to avoid changing the existing code, we will use this column to determine
-    # if it's an income or expense transaction
-    # Not sure which option better so we need to debate later
-    @property
-    def type(self):
-        return (
-            TransactionType.INCOME
-            if self.is_income in ["T", "Y", "1"]
-            else TransactionType.EXPENSE
-        )
-
-    @type.setter
-    def type(self, value):
-        if isinstance(value, TransactionType):
-            self.is_income = "T" if value == TransactionType.INCOME else "F"
-        else:
-            self.is_income = "T" if value == "INCOME" else "F"
+    account = relationship("Account", back_populates="transactions")
+    category = relationship("Category", back_populates="transactions")
+    currency = relationship("Currency", back_populates="transactions")
 
 
 class ScheduledTransaction(back.database.Base):
     __tablename__ = "scheduled_transaction"
+    __table_args__ = (
+        sqlalchemy.CheckConstraint("amount >= 0", name="ck_scheduled_amount_positive"),
+    )
+
     id_schedule_transaction = sqlalchemy.Column(
         sqlalchemy.Integer, primary_key=True, index=True
     )
-    frequency = sqlalchemy.Column(
-        sqlalchemy.String(50), nullable=False
-    )  # set it to some values like lets have 4 options: DAILY, WEEKLY, MONTHLY, YEARLY
+    type = sqlalchemy.Column(Enum(TransactionType), nullable=False)
+    frequency = sqlalchemy.Column(Enum(ScheduleFrequency), nullable=False)
     next_date = sqlalchemy.Column(sqlalchemy.Date, nullable=False)
-    amount = sqlalchemy.Column(
-        sqlalchemy.Numeric(20, 2), nullable=False
-    )  # here it can be negative (idk)
+    amount = sqlalchemy.Column(sqlalchemy.Numeric(20, 2), nullable=False)
     description = sqlalchemy.Column(sqlalchemy.String(255), nullable=True)
-    Account_id_account = sqlalchemy.Column(
-        "account_id_account",
-        sqlalchemy.Integer,
-        sqlalchemy.ForeignKey("account.id_account"),
-        nullable=False,
+    exchange_rate_snapshot = sqlalchemy.Column(
+        sqlalchemy.Numeric(10, 4), nullable=False
     )
-    Currency_id_currency = sqlalchemy.Column(
-        "currency_id_currency",
+
+    account_id = sqlalchemy.Column(
+        sqlalchemy.Integer,
+        sqlalchemy.ForeignKey("account.id_account", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    currency_id = sqlalchemy.Column(
         sqlalchemy.Integer,
         sqlalchemy.ForeignKey("currency.id_currency"),
         nullable=False,
+        index=True,
     )
-    Category_id_category = sqlalchemy.Column(
-        "categories_id_category",
+    category_id = sqlalchemy.Column(
         sqlalchemy.Integer,
-        sqlalchemy.ForeignKey("categories.id_category"),
-        nullable=False,
+        sqlalchemy.ForeignKey("categories.id_category", ondelete="SET NULL"),
+        nullable=True,
+        index=True,
     )
+
+    account = relationship("Account", back_populates="scheduled_transactions")
+    currency = relationship("Currency", back_populates="scheduled_transactions")
+    category = relationship("Category", back_populates="scheduled_transactions")
 
 
 class Budget(back.database.Base):
     __tablename__ = "budget"
-
     id_budget = sqlalchemy.Column(
         sqlalchemy.Integer, primary_key=True, autoincrement=True
     )
     limit = sqlalchemy.Column(sqlalchemy.Numeric(20, 2), nullable=False)
     start_date = sqlalchemy.Column(sqlalchemy.Date, nullable=False)
     end = sqlalchemy.Column(sqlalchemy.Date, nullable=False)
-    User_id_user = sqlalchemy.Column(
-        "user_id_user",
+
+    user_id = sqlalchemy.Column(
         sqlalchemy.Integer,
-        sqlalchemy.ForeignKey("User.id_user"),
+        sqlalchemy.ForeignKey("user.id_user", ondelete="CASCADE"),
         nullable=False,
+        index=True,
     )
-    Categories_id_category = sqlalchemy.Column(
-        "categories_id_category",
+    category_id = sqlalchemy.Column(
         sqlalchemy.Integer,
-        sqlalchemy.ForeignKey("categories.id_category"),
+        sqlalchemy.ForeignKey("categories.id_category", ondelete="CASCADE"),
         nullable=False,
+        index=True,
     )
-    Currency_id_currency = sqlalchemy.Column(
-        "currency_id_currency",
+    currency_id = sqlalchemy.Column(
         sqlalchemy.Integer,
         sqlalchemy.ForeignKey("currency.id_currency"),
         nullable=False,
+        index=True,
     )
 
+    user = relationship("User", back_populates="budgets")
+    category = relationship("Category", back_populates="budgets")
+    currency = relationship("Currency", back_populates="budgets")
 
-# This is a view that we will pretty much exclusivly use for frontend to display budgets
+
 class BudgetAnalytics(back.database.Base):
     __tablename__ = "v_budget_analytics"
 
@@ -223,10 +265,10 @@ class BudgetAnalytics(back.database.Base):
     limit = sqlalchemy.Column(sqlalchemy.Numeric(20, 2))
     start_date = sqlalchemy.Column(sqlalchemy.Date)
     end = sqlalchemy.Column(sqlalchemy.Date)
-    user_id_user = sqlalchemy.Column(sqlalchemy.Integer)
-    categories_id_category = sqlalchemy.Column(sqlalchemy.Integer)
+    user_id = sqlalchemy.Column(sqlalchemy.Integer)
+    category_id = sqlalchemy.Column(sqlalchemy.Integer)
     category_name = sqlalchemy.Column(sqlalchemy.String)
-    currency_id_currency = sqlalchemy.Column(sqlalchemy.Integer)
+    currency_id = sqlalchemy.Column(sqlalchemy.Integer)
     currency_code = sqlalchemy.Column(sqlalchemy.String)
     current_spent = sqlalchemy.Column(sqlalchemy.Numeric(20, 2))
     percent_used = sqlalchemy.Column(sqlalchemy.Float)
@@ -234,30 +276,32 @@ class BudgetAnalytics(back.database.Base):
 
 class SavingsGoal(back.database.Base):
     __tablename__ = "savinggoal"
-
     id_saving_goal = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, index=True)
     name = sqlalchemy.Column(sqlalchemy.String(200), nullable=False)
     target = sqlalchemy.Column(sqlalchemy.Numeric(20, 2), nullable=False)
     current_amount = sqlalchemy.Column(sqlalchemy.Numeric(20, 2), nullable=False)
     start_date = sqlalchemy.Column(sqlalchemy.Date, nullable=False, default=date.today)
     time_limit = sqlalchemy.Column(sqlalchemy.Date, nullable=True)
-    User_id_user = sqlalchemy.Column(
-        "user_id_user",
+
+    user_id = sqlalchemy.Column(
         sqlalchemy.Integer,
-        sqlalchemy.ForeignKey("User.id_user", ondelete="CASCADE"),
+        sqlalchemy.ForeignKey("user.id_user", ondelete="CASCADE"),
         nullable=False,
+        index=True,
     )
-    Currency_id_currency = sqlalchemy.Column(
-        "currency_id_currency",
+    currency_id = sqlalchemy.Column(
         sqlalchemy.Integer,
         sqlalchemy.ForeignKey("currency.id_currency"),
         nullable=False,
+        index=True,
     )
+
+    user = relationship("User", back_populates="savings_goals")
+    currency = relationship("Currency", back_populates="savings_goals")
 
 
 class Notification(back.database.Base):
     __tablename__ = "notification"
-
     id_notification = sqlalchemy.Column(
         sqlalchemy.Integer, primary_key=True, index=True
     )
@@ -268,12 +312,13 @@ class Notification(back.database.Base):
         nullable=False,
         default=lambda: datetime.now(timezone.utc),
     )
-    is_read = sqlalchemy.Column(
-        "is_read", sqlalchemy.CHAR(1), nullable=False, default="F"
-    )
-    User_id_user = sqlalchemy.Column(
-        "user_id_user",
+    is_read = sqlalchemy.Column(sqlalchemy.Boolean, nullable=False, default=False)
+
+    user_id = sqlalchemy.Column(
         sqlalchemy.Integer,
-        sqlalchemy.ForeignKey("User.id_user", ondelete="CASCADE"),
+        sqlalchemy.ForeignKey("user.id_user", ondelete="CASCADE"),
         nullable=False,
+        index=True,
     )
+
+    user = relationship("User", back_populates="notifications")

@@ -9,7 +9,7 @@ def create_scheduled_transaction(
     db: sqlalchemy.orm.Session,
     data: scheduled_dto.ScheduledTransactionCreate,
     user_id: int,
-) -> structure.ScheduledTransaction:
+) -> dict:
 
     account = (
         db.query(structure.Account)
@@ -46,7 +46,31 @@ def create_scheduled_transaction(
     db.commit()
     db.refresh(new_scheduled)
 
-    return new_scheduled
+    category_name = None
+    if new_scheduled.category_id:
+        category = (
+            db.query(structure.Category)
+            .filter(structure.Category.id_category == new_scheduled.category_id)
+            .first()
+        )
+        if category:
+            category_name = category.name
+
+    return {
+        "id_schedule_transaction": new_scheduled.id_schedule_transaction,
+        "type": new_scheduled.type,
+        "frequency": new_scheduled.frequency,
+        "next_date": new_scheduled.next_date,
+        "amount": new_scheduled.amount,
+        "description": new_scheduled.description,
+        "exchange_rate_snapshot": new_scheduled.exchange_rate_snapshot,
+        "account_id": new_scheduled.account_id,
+        "category_id": new_scheduled.category_id,
+        "currency_id": new_scheduled.currency_id,
+        "account_name": account.name,
+        "category_name": category_name,
+        "currency_code": currency.code,
+    }
 
 
 def get_user_scheduled_transactions(db: sqlalchemy.orm.Session, user_id: int):
@@ -77,10 +101,21 @@ def get_user_scheduled_transactions(db: sqlalchemy.orm.Session, user_id: int):
 
     formatted_results = []
     for tx, acc_name, cat_name, cur_code in results:
-        tx_dict = tx.__dict__.copy()
-        tx_dict["account_name"] = acc_name
-        tx_dict["category_name"] = cat_name
-        tx_dict["currency_code"] = cur_code
+        tx_dict = {
+            "id_schedule_transaction": tx.id_schedule_transaction,
+            "type": tx.type,
+            "frequency": tx.frequency,
+            "next_date": tx.next_date,
+            "amount": tx.amount,
+            "description": tx.description,
+            "exchange_rate_snapshot": tx.exchange_rate_snapshot,
+            "account_id": tx.account_id,
+            "category_id": tx.category_id,
+            "currency_id": tx.currency_id,
+            "account_name": acc_name,
+            "category_name": cat_name,
+            "currency_code": cur_code,
+        }
         formatted_results.append(tx_dict)
 
     return formatted_results
@@ -91,7 +126,7 @@ def update_scheduled_transaction(
     transaction_id: int,
     data: scheduled_dto.ScheduledTransactionUpdate,
     user_id: int,
-) -> structure.ScheduledTransaction:
+) -> dict:
 
     db_transaction = (
         db.query(structure.ScheduledTransaction)
@@ -142,7 +177,41 @@ def update_scheduled_transaction(
     db.commit()
     db.refresh(db_transaction)
 
-    return db_transaction
+    account = (
+        db.query(structure.Account)
+        .filter(structure.Account.id_account == db_transaction.account_id)
+        .first()
+    )
+    currency = (
+        db.query(structure.Currency)
+        .filter(structure.Currency.id_currency == db_transaction.currency_id)
+        .first()
+    )
+    category_name = None
+    if db_transaction.category_id:
+        category = (
+            db.query(structure.Category)
+            .filter(structure.Category.id_category == db_transaction.category_id)
+            .first()
+        )
+        if category:
+            category_name = category.name
+
+    return {
+        "id_schedule_transaction": db_transaction.id_schedule_transaction,
+        "type": db_transaction.type,
+        "frequency": db_transaction.frequency,
+        "next_date": db_transaction.next_date,
+        "amount": db_transaction.amount,
+        "description": db_transaction.description,
+        "exchange_rate_snapshot": db_transaction.exchange_rate_snapshot,
+        "account_id": db_transaction.account_id,
+        "category_id": db_transaction.category_id,
+        "currency_id": db_transaction.currency_id,
+        "account_name": account.name if account else None,
+        "category_name": category_name,
+        "currency_code": currency.code if currency else None,
+    }
 
 
 def delete_scheduled_transaction(

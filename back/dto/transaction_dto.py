@@ -1,4 +1,4 @@
-from datetime import datetime
+import datetime
 from decimal import Decimal
 from typing import Optional
 
@@ -31,7 +31,7 @@ class TransactionUpdate(pydantic.BaseModel):
 class TransactionOut(pydantic.BaseModel):
     id_transaction: int
     amount: Decimal
-    date: datetime
+    date: datetime.datetime
     description: Optional[str]
     type: TransactionType
     exchange_rate_snapshot: Decimal

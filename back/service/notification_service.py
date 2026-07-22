@@ -13,7 +13,7 @@ def get_unread_notifications(
         db.query(structure.Notification)
         .filter(
             structure.Notification.user_id == user_id,
-            not structure.Notification.is_read,
+            structure.Notification.is_read.is_(False),
         )
         .order_by(structure.Notification.date.desc())
         .all()
@@ -41,7 +41,7 @@ def mark_notification_as_read(
 def mark_all_notifications_as_read(db: sqlalchemy.orm.Session, user_id: int):
     db.query(structure.Notification).filter(
         structure.Notification.user_id == user_id,
-        not structure.Notification.is_read,
+        structure.Notification.is_read.is_(False),
     ).update({"is_read": True})
 
     db.commit()

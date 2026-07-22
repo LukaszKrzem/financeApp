@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { format, parseISO } from 'date-fns';
 import { IconTrash } from '@tabler/icons-react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -83,7 +84,7 @@ export default function SavingsGoals() {
                     <h3 className="font-semibold text-lg">{goal.name}</h3>
                     <p className="text-xs text-muted-foreground">
                       {goal.time_limit
-                        ? `Deadline: ${new Date(goal.time_limit).toLocaleDateString()}`
+                        ? `Deadline: ${format(parseISO(goal.time_limit), 'PPP')}`
                         : 'No deadline'}
                     </p>
                   </div>

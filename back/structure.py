@@ -68,10 +68,10 @@ class BankConnection(back.database.Base):
     bank_name = sqlalchemy.Column(sqlalchemy.String(100), nullable=True)
     session_id = sqlalchemy.Column(sqlalchemy.String(255), nullable=False)
     valid_until = sqlalchemy.Column(
-        sqlalchemy.DateTime, default=lambda: datetime.now(timezone.utc)
+        sqlalchemy.DateTime(timezone=True), default=lambda: datetime.now(timezone.utc)
     )
     created_at = sqlalchemy.Column(
-        sqlalchemy.DateTime, default=lambda: datetime.now(timezone.utc)
+        sqlalchemy.DateTime(timezone=True), default=lambda: datetime.now(timezone.utc)
     )
 
     user = relationship("User", back_populates="bank_connections")
@@ -149,7 +149,7 @@ class Transaction(back.database.Base):
     amount = sqlalchemy.Column(sqlalchemy.Numeric(20, 2), nullable=False)
     date = sqlalchemy.Column(
         "transaction_date",
-        sqlalchemy.DateTime,
+        sqlalchemy.DateTime(timezone=True),
         default=lambda: datetime.now(timezone.utc),
         nullable=False,
     )
@@ -308,7 +308,7 @@ class Notification(back.database.Base):
     message = sqlalchemy.Column("message", sqlalchemy.String(400), nullable=False)
     date = sqlalchemy.Column(
         "date",
-        sqlalchemy.DateTime,
+        sqlalchemy.DateTime(timezone=True),
         nullable=False,
         default=lambda: datetime.now(timezone.utc),
     )

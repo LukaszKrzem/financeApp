@@ -1,20 +1,8 @@
 import { useState } from 'react';
 import { AddAccountDialog } from '@/components/AddAccountDialog';
+import { AccountCard } from '@/components/AccountCard';
 import { Button } from '@/components/ui/button';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import {
-  IconRefresh,
-  IconDotsVertical,
-  IconPencil,
-  IconTrash,
-} from '@tabler/icons-react';
 import { toast } from 'sonner';
-import { formatMoney } from '@/lib/formatMoney';
 import { SelectBankDialog } from '@/components/SelectBankDialog';
 import { useData } from '@/context/DataContext';
 import { useAsyncAction } from '@/hooks/useAsyncAction';
@@ -76,6 +64,26 @@ export default function Accounts() {
     }
   };
 
+  const handleRename = () => {
+    if (!renamingAccount) return;
+    runRename(async () => {
+      await patch(`/accounts/${renamingAccount.id_account}`, {
+        name: renamingAccount.name,
+      });
+      setRenamingAccount(null);
+      refreshData();
+    });
+  };
+
+  const handleDelete = () => {
+    if (!deletingAccount) return;
+    runDelete(async () => {
+      await del(`/accounts/${deletingAccount.id_account}`);
+      setDeletingAccount(null);
+      refreshData();
+    });
+  };
+
   return (
     <div className="flex flex-1 flex-col p-4 lg:p-6 gap-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -112,94 +120,16 @@ export default function Accounts() {
         />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {accounts.map((account) => {
-            if (!account) return null;
-            const compactNumber = formatMoney(
-              account.current_balance,
-              account.currency_code,
-              true
-            );
-            const isSyncing = syncingAccountId === account.id_account;
-
-            return (
-              <div
-                key={account.id_account}
-                className="rounded-xl border bg-card text-card-foreground shadow-sm p-4 sm:p-5 flex flex-col gap-2 duration-200 hover:shadow-md"
-              >
-                <div className="flex justify-between items-start sm:items-center gap-2">
-                  <span
-                    className="font-semibold text-base sm:text-lg text-foreground truncate"
-                    title={account.name}
-                  >
-                    {account.name}
-                  </span>
-
-                  <div className="flex items-center gap-1 shrink-0 flex-wrap justify-end">
-                    {isSyncing && (
-                      <IconRefresh className="size-4 animate-spin text-muted-foreground" />
-                    )}
-
-                    {account.bank_account_uid && (
-                      <span className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 rounded bg-emerald-100 text-emerald-700 dark:bg-emerald-900 dark:text-emerald-300 whitespace-nowrap">
-                        Connected
-                      </span>
-                    )}
-                    <span className="text-[10px] sm:text-xs font-mono px-1.5 sm:px-2 py-0.5 rounded bg-muted text-muted-foreground">
-                      {account.currency_code}
-                    </span>
-
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="size-7 sm:size-7"
-                        >
-                          <IconDotsVertical className="size-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        {account.bank_account_uid && (
-                          <DropdownMenuItem
-                            disabled={isSyncing}
-                            onClick={() =>
-                              handleSyncAccount(account.id_account)
-                            }
-                          >
-                            <IconRefresh
-                              className={`size-4 mr-2 ${isSyncing ? 'animate-spin' : ''}`}
-                            />
-                            {isSyncing ? 'Syncing...' : 'Sync now'}
-                          </DropdownMenuItem>
-                        )}
-                        <DropdownMenuItem
-                          onClick={() => setRenamingAccount(account)}
-                        >
-                          <IconPencil className="size-4 mr-2" />
-                          Rename
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onClick={() => setDeletingAccount(account)}
-                          className="text-destructive focus:text-destructive"
-                        >
-                          <IconTrash className="size-4 mr-2" />
-                          Delete
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </div>
-                </div>
-                <div className="mt-1 sm:mt-2">
-                  <span className="text-xs sm:text-sm text-muted-foreground block">
-                    Current Balance
-                  </span>
-                  <span className="text-2xl sm:text-3xl font-bold tracking-tight text-primary">
-                    {compactNumber}
-                  </span>
-                </div>
-              </div>
-            );
-          })}
+          {accounts.map((account) => (
+            <AccountCard
+              key={account.id_account}
+              account={account}
+              isSyncing={syncingAccountId === account.id_account}
+              onRename={(acc) => setRenamingAccount(acc)}
+              onDelete={(acc) => setDeletingAccount(acc)}
+              onSync={handleSyncAccount}
+            />
+          ))}
         </div>
       )}
 

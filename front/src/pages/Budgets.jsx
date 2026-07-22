@@ -1,13 +1,28 @@
-import { Progress } from '@/components/ui/progress';
+import { useState } from 'react';
 import { AddBudgetDialog } from '@/components/AddBudgetDialog';
+import { BudgetCard } from '@/components/BudgetCard';
 import { useData } from '@/context/DataContext';
-import { formatMoney } from '@/lib/formatMoney';
+import { useApi } from '@/hooks/useApi';
+import { useAsyncAction } from '@/hooks/useAsyncAction';
 import { CardSkeleton } from '@/components/ui/card-skeleton';
 import { IconTargetArrow } from '@tabler/icons-react';
 import { EmptyState } from '@/components/ui/empty-state';
+import { ConfirmDeleteDialog } from '@/components/ConfirmDeleteDialog';
 
 export default function BudgetsPage() {
-  const { budgets = [], loading } = useData();
+  const { budgets = [], loading, refreshData } = useData();
+  const { del } = useApi();
+  const { loading: isDeleting, run: runDelete } = useAsyncAction();
+  const [deletingBudget, setDeletingBudget] = useState(null);
+
+  const handleDeleteBudget = () => {
+    if (!deletingBudget) return;
+    runDelete(async () => {
+      await del(`/budgets/${deletingBudget.id_budget}`);
+      setDeletingBudget(null);
+      await refreshData();
+    });
+  };
 
   return (
     <div className="flex flex-1 flex-col p-4 lg:p-6 gap-6">
@@ -34,52 +49,24 @@ export default function BudgetsPage() {
         />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {budgets.map((budget) => {
-            if (!budget) return null;
-
-            const spent = Number(budget.current_spent) || 0;
-            const limit = Number(budget.limit) || 1;
-            const percentage =
-              budget.percent_used !== undefined
-                ? budget.percent_used
-                : Math.min((spent / limit) * 100, 100);
-            const categoryName =
-              budget.category_name || `Category #${budget.category_id}`;
-
-            return (
-              <div
-                key={budget.id_budget}
-                className="rounded-xl border bg-card text-card-foreground shadow-sm p-5 flex flex-col gap-3"
-              >
-                <div className="flex justify-between items-center">
-                  <span className="font-medium text-sm text-muted-foreground">
-                    {categoryName}
-                  </span>
-                  <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-muted">
-                    {percentage.toFixed(0)}%
-                  </span>
-                </div>
-                <div className="flex items-baseline gap-1">
-                  <span className="text-2xl font-bold">
-                    {formatMoney(spent, budget.currency_code, false, false)}
-                  </span>
-                  <span className="text-sm text-muted-foreground">
-                    / {formatMoney(limit, budget.currency_code, false, false)}
-                  </span>
-                </div>
-
-                <Progress value={percentage} className="h-2" />
-
-                <p className="text-[11px] text-muted-foreground mt-1">
-                  {limit - spent >= 0
-                    ? `You have ${formatMoney(limit - spent, budget.currency_code, false, false)} left`
-                    : `You have exceeded the limit by ${formatMoney(limit - spent, budget.currency_code, false, false)}!`}
-                </p>
-              </div>
-            );
-          })}
+          {budgets.map((budget) => (
+            <BudgetCard
+              key={budget.id_budget}
+              budget={budget}
+              onDelete={(b) => setDeletingBudget(b)}
+            />
+          ))}
         </div>
       )}
+
+      <ConfirmDeleteDialog
+        open={!!deletingBudget}
+        onClose={() => setDeletingBudget(null)}
+        isDeleting={isDeleting}
+        title="Delete budget?"
+        description={`This will permanently remove the budget limit for "${deletingBudget?.category_name || 'this category'}".`}
+        onConfirm={handleDeleteBudget}
+      />
     </div>
   );
 }

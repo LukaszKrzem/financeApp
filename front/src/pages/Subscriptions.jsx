@@ -1,12 +1,5 @@
 import { useState, useMemo, useCallback } from 'react';
-import {
-  format,
-  differenceInDays,
-  isToday,
-  isTomorrow,
-  parseISO,
-  compareAsc,
-} from 'date-fns';
+import { differenceInDays, parseISO, compareAsc } from 'date-fns';
 import { useApi } from '@/hooks/useApi';
 import { useData } from '@/context/DataContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -18,107 +11,15 @@ import {
   IconRepeat,
   IconCreditCard,
   IconPlus,
-  IconDotsVertical,
-  IconPencil,
-  IconTrash,
   IconTrendingDown,
 } from '@tabler/icons-react';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 import { AddTransactionDialog } from '@/components/AddTransactionDialog';
+import { SubscriptionCard } from '@/components/SubscriptionCard';
 import { useAsyncAction } from '@/hooks/useAsyncAction';
 import { ConfirmDeleteDialog } from '@/components/ConfirmDeleteDialog';
-import { CategoryBadge } from '@/lib/categoryBadge';
 import { formatMoney } from '@/lib/formatMoney';
 import { isExpense } from '@/lib/transactionHelpers';
 import { EmptyState } from '@/components/ui/empty-state';
-
-function SubscriptionCard({
-  sub,
-  categoryName,
-  accountName,
-  currencyCode,
-  onEdit,
-  onDelete,
-}) {
-  const nextDate = parseISO(sub.next_date);
-  const daysDiff = differenceInDays(nextDate, new Date());
-
-  let daysLeftText = `In ${daysDiff} days`;
-  if (isToday(nextDate)) daysLeftText = 'Today!';
-  else if (isTomorrow(nextDate)) daysLeftText = 'Tomorrow';
-  else if (daysDiff < 0) daysLeftText = 'Overdue';
-
-  const isUrgent = daysDiff <= 1;
-
-  return (
-    <Card className="bg-card border-border/50 flex flex-col relative overflow-hidden group transition-all hover:border-primary/30">
-      <CardHeader className="pb-3">
-        <div className="flex justify-between items-start">
-          <div className="min-w-0">
-            <CardTitle className="text-lg truncate pr-2">
-              {sub.description || categoryName}
-            </CardTitle>
-            <p className="text-sm text-muted-foreground flex items-center mt-1">
-              <IconCalendarEvent className="mr-1.5 size-3.5" />
-              {format(nextDate, 'PPP')}
-            </p>
-          </div>
-
-          <div className="flex flex-col items-end gap-2">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="size-8 -mr-2 -mt-2 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity"
-                >
-                  <IconDotsVertical className="size-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => onEdit(sub)}>
-                  <IconPencil className="size-4 mr-2" /> Edit
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() => onDelete(sub)}
-                  className="text-destructive focus:text-destructive"
-                >
-                  <IconTrash className="size-4 mr-2" /> Delete
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-            <Badge
-              variant={isUrgent ? 'destructive' : 'secondary'}
-              className="whitespace-nowrap"
-            >
-              {daysLeftText}
-            </Badge>
-          </div>
-        </div>
-      </CardHeader>
-      <CardContent className="mt-auto">
-        <div className="flex items-center justify-between border-t border-border/50 pt-4">
-          <div className="flex flex-col gap-0.5">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/70 flex items-center gap-2">
-              {sub.frequency?.toLowerCase()}
-              <span className="text-muted-foreground/30">•</span>
-              {accountName}
-            </span>
-            <CategoryBadge category={categoryName} className="mt-1" />
-          </div>
-          <div className="text-xl font-bold text-foreground tabular-nums">
-            {formatMoney(Math.abs(sub.amount), currencyCode, false, false)}
-          </div>
-        </div>
-      </CardContent>
-    </Card>
-  );
-}
 
 export default function SubscriptionsPage() {
   const { del } = useApi();

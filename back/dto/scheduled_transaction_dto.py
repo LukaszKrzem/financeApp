@@ -29,9 +29,9 @@ class ScheduledTransactionOut(pydantic.BaseModel):
     Category_id_category: int
     Currency_id_currency: int = 1
 
-    account_name: str
-    category_name: str
-    currency_code: str
+    account_name: Optional[str] = None
+    category_name: Optional[str] = None
+    currency_code: Optional[str] = None
 
     model_config = ConfigDict(from_attributes=True)
 

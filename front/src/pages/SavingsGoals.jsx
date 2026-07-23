@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useAsyncAction } from '@/hooks/useAsyncAction';
 import { AddSavingGoalDialog } from '@/components/AddSavingGoalDialog';
 import { EditSavingGoalDialog } from '@/components/EditSavingGoalDialog';
+import { ConfirmDeleteDialog } from '@/components/ConfirmDeleteDialog';
 import { SavingsGoalCard } from '@/components/SavingsGoalCard';
 import { useApi } from '@/hooks/useApi';
 import { useData } from '@/context/DataContext';
@@ -16,6 +17,7 @@ export default function SavingsGoals() {
 
   const [contributions, setContributions] = useState({});
   const [editingGoal, setEditingGoal] = useState(null);
+  const [deletingGoal, setDeletingGoal] = useState(null);
   const { loading: isAdding, run: runAdd } = useAsyncAction();
   const { loading: isDeleting, run: runDelete } = useAsyncAction();
 
@@ -33,11 +35,12 @@ export default function SavingsGoals() {
     });
   };
 
-  const handleDeleteGoal = (goalId) => {
-    if (isDeleting) return;
+  const handleDeleteGoal = () => {
+    if (!deletingGoal || isDeleting) return;
 
     runDelete(async () => {
-      await del(`/savings-goals/${goalId}`);
+      await del(`/savings-goals/${deletingGoal.id_saving_goal}`);
+      setDeletingGoal(null);
       await refreshData();
     });
   };
@@ -72,7 +75,7 @@ export default function SavingsGoals() {
               }
               onAddContribution={handleAddContribution}
               onEdit={(g) => setEditingGoal(g)}
-              onDelete={handleDeleteGoal}
+              onDelete={(g) => setDeletingGoal(g)}
               isAdding={isAdding}
               isDeleting={isDeleting}
             />
@@ -87,6 +90,17 @@ export default function SavingsGoals() {
           if (!open) setEditingGoal(null);
         }}
         onSuccess={() => setEditingGoal(null)}
+      />
+
+      <ConfirmDeleteDialog
+        open={!!deletingGoal}
+        onClose={() => setDeletingGoal(null)}
+        isDeleting={isDeleting}
+        title="Delete savings goal?"
+        description={`This will permanently remove the savings goal "${
+          deletingGoal?.name || 'this goal'
+        }". This cannot be undone.`}
+        onConfirm={handleDeleteGoal}
       />
     </div>
   );

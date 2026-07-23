@@ -62,7 +62,7 @@ export function SavingsGoalCard({
               )}
               {onDelete && (
                 <DropdownMenuItem
-                  onClick={() => onDelete(goal.id_saving_goal)}
+                  onClick={() => onDelete(goal)}
                   disabled={isDeleting}
                   className="text-destructive focus:text-destructive"
                 >

@@ -7,7 +7,10 @@ export function ConfirmDeleteDialog({
   onConfirm,
   title,
   description,
-  isDeleting,
+  isDeleting = false,
+  cancelText = 'Cancel',
+  confirmText = 'Delete',
+  deletingText = 'Deleting...',
 }) {
   return (
     <ResponsiveDialog
@@ -24,7 +27,7 @@ export function ConfirmDeleteDialog({
           onClick={onClose}
           disabled={isDeleting}
         >
-          Cancel
+          {cancelText}
         </Button>
         <Button
           variant="destructive"
@@ -32,7 +35,7 @@ export function ConfirmDeleteDialog({
           onClick={onConfirm}
           disabled={isDeleting}
         >
-          {isDeleting ? 'Deleting...' : 'Delete'}
+          {isDeleting ? deletingText : confirmText}
         </Button>
       </div>
     </ResponsiveDialog>

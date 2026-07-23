@@ -17,16 +17,35 @@ import { useAuth } from '@/context/AuthContext';
 import { useAsyncAction } from '@/hooks/useAsyncAction';
 import { toast } from 'sonner';
 import { useApi } from '@/hooks/useApi';
+import { isBiometricSupported, loginWithBiometrics } from '@/lib/webauthn';
+import { Fingerprint } from 'lucide-react';
 
 export function Login() {
-  const { onLogin, handleGoogleLogin, handleDemoLogin } = useAuth();
+  const { onLogin, handleGoogleLogin, handleDemoLogin, apiUrl } = useAuth();
   const { post } = useApi();
   const { loading, run } = useAsyncAction();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const biometricAvailable = isBiometricSupported();
 
   const handleDemo = () => run(handleDemoLogin);
+
+  const handleBiometricLogin = () => {
+    if (!email) {
+      toast.error('Enter your email', {
+        description: 'Please enter your email address to log in with biometrics.',
+      });
+      return;
+    }
+
+    run(async () => {
+      const data = await loginWithBiometrics(apiUrl, email);
+      if (!data?.token) throw new Error('No token received from server');
+      toast.success('Logged in with biometrics!');
+      onLogin(data.token);
+    });
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -94,6 +113,18 @@ export function Login() {
               <Button type="submit" className="w-full" disabled={loading}>
                 {loading ? 'Logging in...' : 'Login'}
               </Button>
+              {biometricAvailable && (
+                <Button
+                  type="button"
+                  onClick={handleBiometricLogin}
+                  className="w-full gap-2"
+                  variant="outline"
+                  disabled={loading}
+                >
+                  <Fingerprint className="h-4 w-4" />
+                  Login with Biometrics
+                </Button>
+              )}
               <Button
                 type="button"
                 onClick={handleDemo}

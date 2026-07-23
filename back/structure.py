@@ -46,6 +46,8 @@ class User(back.database.Base):
     password = sqlalchemy.Column(sqlalchemy.String(255), nullable=False)
     name = sqlalchemy.Column(sqlalchemy.String(255), nullable=False)
 
+    current_challenge = sqlalchemy.Column(sqlalchemy.String(255), nullable=True)
+
     bank_connections = relationship(
         "BankConnection", back_populates="user", passive_deletes=True
     )
@@ -57,6 +59,32 @@ class User(back.database.Base):
     notifications = relationship(
         "Notification", back_populates="user", passive_deletes=True
     )
+    webauthn_credentials = relationship(
+        "WebAuthnCredential", back_populates="user", passive_deletes=True
+    )
+
+
+class WebAuthnCredential(back.database.Base):
+    __tablename__ = "webauthn_credential"
+    id_credential = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, index=True)
+    user_id = sqlalchemy.Column(
+        sqlalchemy.Integer,
+        sqlalchemy.ForeignKey("user.id_user", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    credential_id = sqlalchemy.Column(
+        sqlalchemy.String(512), nullable=False, unique=True, index=True
+    )
+    public_key = sqlalchemy.Column(sqlalchemy.Text, nullable=False)
+    sign_count = sqlalchemy.Column(sqlalchemy.Integer, nullable=False, default=0)
+    device_name = sqlalchemy.Column(sqlalchemy.String(255), nullable=True)
+    transports = sqlalchemy.Column(sqlalchemy.String(255), nullable=True)
+    created_at = sqlalchemy.Column(
+        sqlalchemy.DateTime(timezone=True), default=lambda: datetime.now(timezone.utc)
+    )
+
+    user = relationship("User", back_populates="webauthn_credentials")
 
 
 class BankConnection(back.database.Base):

@@ -15,6 +15,7 @@ from back.routers import (
     scheduled_transaction_router,
     transaction_router,
     user_router,
+    webauthn_router,
 )
 
 # ! Important !
@@ -62,6 +63,7 @@ app.include_router(savings_goal_router.router)
 app.include_router(currency_router.router)
 app.include_router(enable_banking_router.router)
 app.include_router(auth_router.router)
+app.include_router(webauthn_router.router)
 
 
 # For testing if app is alive, can be removed later

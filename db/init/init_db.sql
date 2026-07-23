@@ -22,7 +22,8 @@ CREATE TABLE IF NOT EXISTS "user" (
     id_user SERIAL PRIMARY KEY,
     email VARCHAR(255) NOT NULL UNIQUE,
     "password" VARCHAR(255) NOT NULL,
-    "name" VARCHAR(255) NOT NULL
+    "name" VARCHAR(255) NOT NULL,
+    current_challenge VARCHAR(255)
 );
 
 CREATE TABLE IF NOT EXISTS bank_connection (
@@ -112,6 +113,17 @@ CREATE TABLE IF NOT EXISTS currency_rate_history (
     recorded_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS webauthn_credential (
+    id_credential SERIAL PRIMARY KEY,
+    user_id INTEGER NOT NULL REFERENCES "user"(id_user) ON DELETE CASCADE,
+    credential_id VARCHAR(512) NOT NULL UNIQUE,
+    public_key TEXT NOT NULL,
+    sign_count INTEGER NOT NULL DEFAULT 0,
+    device_name VARCHAR(255),
+    transports VARCHAR(255),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL
+);
+
 
 CREATE INDEX IF NOT EXISTS ix_bank_connection_user_id ON bank_connection(user_id);
 
@@ -139,6 +151,9 @@ CREATE INDEX IF NOT EXISTS ix_savinggoal_currency_id ON savinggoal(currency_id);
 CREATE INDEX IF NOT EXISTS ix_notification_user_id ON notification(user_id);
 
 CREATE INDEX IF NOT EXISTS ix_currency_rate_history_currency_id ON currency_rate_history(currency_id);
+
+CREATE INDEX IF NOT EXISTS ix_webauthn_credential_user_id ON webauthn_credential(user_id);
+CREATE INDEX IF NOT EXISTS ix_webauthn_credential_credential_id ON webauthn_credential(credential_id);
 
 INSERT INTO currency (id_currency, code, "name", exchange_rate)
 VALUES (1, 'PLN', 'Złoty', 1.000)

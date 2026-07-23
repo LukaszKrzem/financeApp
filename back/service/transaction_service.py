@@ -1,7 +1,6 @@
 import logging
 from datetime import datetime, timedelta, timezone
 from decimal import Decimal
-from typing import List
 
 import httpx
 import sqlalchemy.orm
@@ -170,63 +169,34 @@ def create_user_transaction(
     db.commit()
     db.refresh(new_transaction)
 
-    category = (
-        db.query(structure.Category)
-        .filter(structure.Category.id_category == new_transaction.category_id)
+    return (
+        db.query(structure.Transaction)
+        .options(
+            sqlalchemy.orm.joinedload(structure.Transaction.currency),
+            sqlalchemy.orm.joinedload(structure.Transaction.category),
+        )
+        .filter(structure.Transaction.id_transaction == new_transaction.id_transaction)
         .first()
     )
 
-    return {
-        "id_transaction": new_transaction.id_transaction,
-        "amount": new_transaction.amount,
-        "date": new_transaction.date,
-        "description": new_transaction.description,
-        "type": new_transaction.type,
-        "exchange_rate_snapshot": new_transaction.exchange_rate_snapshot,
-        "account_id": new_transaction.account_id,
-        "category_id": new_transaction.category_id,
-        "currency_id": new_transaction.currency_id,
-        "category_name": category.name if category else "Other",
-        "currency_code": currency_trans.code,
-    }
 
-
-def get_user_transactions(db: sqlalchemy.orm.Session, user_id: int) -> List[dict]:
-    results = (
-        db.query(structure.Transaction, structure.Category, structure.Currency)
+def get_user_transactions(
+    db: sqlalchemy.orm.Session, user_id: int
+) -> list[structure.Transaction]:
+    return (
+        db.query(structure.Transaction)
         .join(
             structure.Account,
             structure.Transaction.account_id == structure.Account.id_account,
         )
-        .outerjoin(
-            structure.Category,
-            structure.Transaction.category_id == structure.Category.id_category,
-        )
-        .join(
-            structure.Currency,
-            structure.Transaction.currency_id == structure.Currency.id_currency,
+        .options(
+            sqlalchemy.orm.joinedload(structure.Transaction.currency),
+            sqlalchemy.orm.joinedload(structure.Transaction.category),
         )
         .filter(structure.Account.user_id == user_id)
         .order_by(structure.Transaction.date.desc())
         .all()
     )
-
-    return [
-        {
-            "id_transaction": trans.id_transaction,
-            "amount": trans.amount,
-            "date": trans.date,
-            "description": trans.description,
-            "type": trans.type,
-            "exchange_rate_snapshot": trans.exchange_rate_snapshot,
-            "account_id": trans.account_id,
-            "category_id": trans.category_id,
-            "currency_id": trans.currency_id,
-            "category_name": cat.name if cat else "Other",
-            "currency_code": cur.code if cur else None,
-        }
-        for trans, cat, cur in results
-    ]
 
 
 def update_user_transaction(
@@ -234,7 +204,7 @@ def update_user_transaction(
     transaction_id: int,
     transaction_data: transaction_dto.TransactionUpdate,
     user_id: int,
-) -> dict:
+) -> structure.Transaction:
     tx, old_account = _get_owned_transaction(db, transaction_id, user_id)
 
     update_data = transaction_data.model_dump(exclude_unset=True)
@@ -283,31 +253,15 @@ def update_user_transaction(
     db.commit()
     db.refresh(tx)
 
-    category = (
-        db.query(structure.Category)
-        .filter(structure.Category.id_category == tx.category_id)
+    return (
+        db.query(structure.Transaction)
+        .options(
+            sqlalchemy.orm.joinedload(structure.Transaction.currency),
+            sqlalchemy.orm.joinedload(structure.Transaction.category),
+        )
+        .filter(structure.Transaction.id_transaction == tx.id_transaction)
         .first()
     )
-
-    currency_trans = (
-        db.query(structure.Currency)
-        .filter(structure.Currency.id_currency == tx.currency_id)
-        .first()
-    )
-
-    return {
-        "id_transaction": tx.id_transaction,
-        "amount": tx.amount,
-        "date": tx.date,
-        "description": tx.description,
-        "type": tx.type,
-        "exchange_rate_snapshot": tx.exchange_rate_snapshot,
-        "account_id": tx.account_id,
-        "category_id": tx.category_id,
-        "currency_id": tx.currency_id,
-        "category_name": category.name if category else "Other",
-        "currency_code": currency_trans.code if currency_trans else None,
-    }
 
 
 def delete_user_transaction(

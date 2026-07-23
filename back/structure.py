@@ -123,6 +123,10 @@ class Account(back.database.Base):
         "ScheduledTransaction", back_populates="account", passive_deletes=True
     )
 
+    @property
+    def currency_code(self) -> str:
+        return self.currency.code if self.currency else ""
+
 
 class Category(back.database.Base):
     __tablename__ = "categories"
@@ -185,6 +189,14 @@ class Transaction(back.database.Base):
     category = relationship("Category", back_populates="transactions")
     currency = relationship("Currency", back_populates="transactions")
 
+    @property
+    def currency_code(self) -> str | None:
+        return self.currency.code if self.currency else None
+
+    @property
+    def category_name(self) -> str | None:
+        return self.category.name if self.category else None
+
 
 class ScheduledTransaction(back.database.Base):
     __tablename__ = "scheduled_transaction"
@@ -226,6 +238,18 @@ class ScheduledTransaction(back.database.Base):
     account = relationship("Account", back_populates="scheduled_transactions")
     currency = relationship("Currency", back_populates="scheduled_transactions")
     category = relationship("Category", back_populates="scheduled_transactions")
+
+    @property
+    def currency_code(self) -> str | None:
+        return self.currency.code if self.currency else None
+
+    @property
+    def category_name(self) -> str | None:
+        return self.category.name if self.category else None
+
+    @property
+    def account_name(self) -> str | None:
+        return self.account.name if self.account else None
 
 
 class Budget(back.database.Base):
@@ -302,6 +326,16 @@ class SavingsGoal(back.database.Base):
     user = relationship("User", back_populates="savings_goals")
     currency = relationship("Currency", back_populates="savings_goals")
 
+    @property
+    def currency_code(self) -> str:
+        return self.currency.code if self.currency else ""
+
+    @property
+    def percent_complete(self) -> float:
+        if self.target and float(self.target) > 0:
+            return round((float(self.current_amount) / float(self.target)) * 100, 2)
+        return 0.0
+
 
 class Notification(back.database.Base):
     __tablename__ = "notification"
@@ -346,3 +380,7 @@ class CurrencyRateHistory(back.database.Base):
     )
 
     currency = relationship("Currency", back_populates="rate_history")
+
+    @property
+    def currency_code(self) -> str:
+        return self.currency.code if self.currency else ""

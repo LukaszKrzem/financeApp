@@ -23,35 +23,21 @@ def run_scheduled_transactions_catchup(db: sqlalchemy.orm.Session, user_id: int)
         )
 
 
-def get_user_accounts(db: sqlalchemy.orm.Session, user_id: int) -> list[dict]:
+def get_user_accounts(
+    db: sqlalchemy.orm.Session, user_id: int
+) -> list[structure.Account]:
     run_scheduled_transactions_catchup(db, user_id)
-    results = (
-        db.query(structure.Account, structure.Currency)
-        .join(
-            structure.Currency,
-            structure.Account.currency_id == structure.Currency.id_currency,
-        )
+    return (
+        db.query(structure.Account)
+        .options(sqlalchemy.orm.joinedload(structure.Account.currency))
         .filter(structure.Account.user_id == user_id)
         .all()
     )
 
-    return [
-        {
-            "id_account": account.id_account,
-            "name": account.name,
-            "current_balance": account.current_balance,
-            "currency_id": account.currency_id,
-            "currency_code": currency.code,
-            "bank_account_uid": account.bank_account_uid,
-            "bank_connection_id": account.bank_connection_id,
-        }
-        for account, currency in results
-    ]
-
 
 def create_user_account(
     db: sqlalchemy.orm.Session, account_data: account_dto.AccountCreate, user_id: int
-) -> dict:
+) -> structure.Account:
     currency = (
         db.query(structure.Currency)
         .filter(structure.Currency.id_currency == account_data.currency_id)
@@ -69,16 +55,7 @@ def create_user_account(
     db.add(new_account)
     db.commit()
     db.refresh(new_account)
-
-    return {
-        "id_account": new_account.id_account,
-        "name": new_account.name,
-        "current_balance": new_account.current_balance,
-        "currency_id": new_account.currency_id,
-        "currency_code": currency.code,
-        "bank_account_uid": new_account.bank_account_uid,
-        "bank_connection_id": new_account.bank_connection_id,
-    }
+    return new_account
 
 
 def update_user_account(
@@ -86,36 +63,23 @@ def update_user_account(
     account_id: int,
     account_data: account_dto.AccountUpdate,
     user_id: int,
-) -> dict:
-    result = (
-        db.query(structure.Account, structure.Currency)
-        .join(
-            structure.Currency,
-            structure.Account.currency_id == structure.Currency.id_currency,
-        )
+) -> structure.Account:
+    account = (
+        db.query(structure.Account)
+        .options(sqlalchemy.orm.joinedload(structure.Account.currency))
         .filter(
             structure.Account.id_account == account_id,
             structure.Account.user_id == user_id,
         )
         .first()
     )
-    if not result:
+    if not account:
         raise HTTPException(status_code=404, detail="Account not found.")
 
-    account, currency = result
     account.name = account_data.name
     db.commit()
     db.refresh(account)
-
-    return {
-        "id_account": account.id_account,
-        "name": account.name,
-        "current_balance": account.current_balance,
-        "currency_id": account.currency_id,
-        "currency_code": currency.code,
-        "bank_account_uid": account.bank_account_uid,
-        "bank_connection_id": account.bank_connection_id,
-    }
+    return account
 
 
 def delete_user_account(db: sqlalchemy.orm.Session, account_id: int, user_id: int):

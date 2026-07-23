@@ -54,7 +54,7 @@ def test_transaction_crud(db_session, test_user_and_setup):
         date=datetime.date.today(),
         description="Zakupy spożywcze",
         type=structure.TransactionType.EXPENSE,
-        account_id=acc["id_account"],
+        account_id=acc.id_account,
         category_id=category.id_category,
         currency_id=currency.id_currency,
     )
@@ -62,24 +62,22 @@ def test_transaction_crud(db_session, test_user_and_setup):
     tx_res = transaction_service.create_user_transaction(
         db_session, tx_create, user.id_user
     )
-    assert tx_res["amount"] == Decimal("150.00")
-    assert tx_res["type"] == structure.TransactionType.EXPENSE
-    assert tx_res["category_name"] == "Jedzenie"
-    assert tx_res["currency_code"] == "PLN"
-    assert tx_res["exchange_rate_snapshot"] == Decimal("1.0")
+    assert tx_res.amount == Decimal("150.00")
+    assert tx_res.type == structure.TransactionType.EXPENSE
+    assert tx_res.category_name == "Jedzenie"
+    assert tx_res.currency_code == "PLN"
+    assert tx_res.exchange_rate_snapshot == Decimal("1.0")
 
     # Verify Account Balance decreased
     acc_obj = (
-        db_session.query(structure.Account)
-        .filter_by(id_account=acc["id_account"])
-        .first()
+        db_session.query(structure.Account).filter_by(id_account=acc.id_account).first()
     )
     assert acc_obj.current_balance == Decimal("850.00")
 
     # Get Transactions
     tx_list = transaction_service.get_user_transactions(db_session, user.id_user)
     assert len(tx_list) == 1
-    assert tx_list[0]["id_transaction"] == tx_res["id_transaction"]
+    assert tx_list[0].id_transaction == tx_res.id_transaction
 
 
 def test_scheduled_transaction_crud(db_session, test_user_and_setup):
@@ -91,7 +89,7 @@ def test_scheduled_transaction_crud(db_session, test_user_and_setup):
         amount=Decimal("200.00"),
         type=structure.TransactionType.EXPENSE,
         description="Subskrypcja",
-        account_id=acc["id_account"],
+        account_id=acc.id_account,
         category_id=category.id_category,
         currency_id=currency.id_currency,
     )
@@ -99,17 +97,17 @@ def test_scheduled_transaction_crud(db_session, test_user_and_setup):
     st_res = scheduled_service.create_scheduled_transaction(
         db_session, st_create, user.id_user
     )
-    assert st_res["amount"] == Decimal("200.00")
-    assert st_res["frequency"] == structure.ScheduleFrequency.MONTHLY
-    assert st_res["account_name"] == "Main Bank Account"
-    assert st_res["category_name"] == "Jedzenie"
-    assert st_res["currency_code"] == "PLN"
+    assert st_res.amount == Decimal("200.00")
+    assert st_res.frequency == structure.ScheduleFrequency.MONTHLY
+    assert st_res.account_name == "Main Bank Account"
+    assert st_res.category_name == "Jedzenie"
+    assert st_res.currency_code == "PLN"
 
     st_list = scheduled_service.get_user_scheduled_transactions(
         db_session, user.id_user
     )
     assert len(st_list) == 1
-    assert st_list[0]["account_name"] == "Main Bank Account"
+    assert st_list[0].account_name == "Main Bank Account"
 
 
 def test_notification_service(db_session, test_user_and_setup):
@@ -149,12 +147,12 @@ def test_savings_goal_service(db_session, test_user_and_setup):
     goal_res = savings_goal_service.create_savings_goal(
         db_session, goal_dto, user.id_user
     )
-    assert goal_res["name"] == "Wakacje"
-    assert goal_res["percent_complete"] == 20.0
+    assert goal_res.name == "Wakacje"
+    assert goal_res.percent_complete == 20.0
 
     contrib = savings_goal_dto.SavingsGoalContribution(amount=Decimal("500.00"))
     updated = savings_goal_service.add_to_savings_goal(
-        db_session, goal_res["id_saving_goal"], contrib, user.id_user
+        db_session, goal_res.id_saving_goal, contrib, user.id_user
     )
-    assert updated["current_amount"] == Decimal("1500.00")
-    assert updated["percent_complete"] == 30.0
+    assert updated.current_amount == Decimal("1500.00")
+    assert updated.percent_complete == 30.0

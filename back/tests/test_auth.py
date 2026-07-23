@@ -32,7 +32,7 @@ def test_token_contains_original_data():
 def test_tampered_token_fails():
     data = {"sub": "alice@gmail.com"}
     token = auth_service.create_access_token(data)
-    tampered_token = token[:-1] + "a"
+    tampered_token = token[:-5] + "XXXXX"
     result = auth_service.verify_token(tampered_token)
 
     assert result is None

@@ -5,44 +5,21 @@ import back.dto.savings_goal_dto as savings_goal_dto
 import back.structure as structure
 
 
-def _goal_to_response(goal: structure.SavingsGoal, currency_code: str):
-    target = float(goal.target)
-    current_amount = float(goal.current_amount)
-
-    return {
-        "id_saving_goal": goal.id_saving_goal,
-        "name": goal.name,
-        "target": goal.target,
-        "current_amount": goal.current_amount,
-        "start_date": goal.start_date,
-        "time_limit": goal.time_limit,
-        "user_id": goal.user_id,
-        "currency_id": goal.currency_id,
-        "currency_code": currency_code,
-        "percent_complete": round((current_amount / target) * 100, 2)
-        if target > 0
-        else 0,
-    }
-
-
-def get_user_savings_goals(db: sqlalchemy.orm.Session, user_id: int):
-    results = (
-        db.query(structure.SavingsGoal, structure.Currency)
-        .join(
-            structure.Currency,
-            structure.SavingsGoal.currency_id == structure.Currency.id_currency,
-        )
+def get_user_savings_goals(
+    db: sqlalchemy.orm.Session, user_id: int
+) -> list[structure.SavingsGoal]:
+    return (
+        db.query(structure.SavingsGoal)
+        .options(sqlalchemy.orm.joinedload(structure.SavingsGoal.currency))
         .filter(structure.SavingsGoal.user_id == user_id)
         .order_by(structure.SavingsGoal.id_saving_goal.desc())
         .all()
     )
 
-    return [_goal_to_response(goal, currency.code) for goal, currency in results]
-
 
 def create_savings_goal(
     db: sqlalchemy.orm.Session, data: savings_goal_dto.SavingsGoalCreate, user_id: int
-):
+) -> structure.SavingsGoal:
     currency = (
         db.query(structure.Currency)
         .filter(structure.Currency.id_currency == data.currency_id)
@@ -64,7 +41,12 @@ def create_savings_goal(
     db.commit()
     db.refresh(new_goal)
 
-    return _goal_to_response(new_goal, currency.code)
+    return (
+        db.query(structure.SavingsGoal)
+        .options(sqlalchemy.orm.joinedload(structure.SavingsGoal.currency))
+        .filter(structure.SavingsGoal.id_saving_goal == new_goal.id_saving_goal)
+        .first()
+    )
 
 
 def update_savings_goal(
@@ -72,9 +54,10 @@ def update_savings_goal(
     goal_id: int,
     data: savings_goal_dto.SavingsGoalUpdate,
     user_id: int,
-):
+) -> structure.SavingsGoal:
     goal = (
         db.query(structure.SavingsGoal)
+        .options(sqlalchemy.orm.joinedload(structure.SavingsGoal.currency))
         .filter(
             structure.SavingsGoal.id_saving_goal == goal_id,
             structure.SavingsGoal.user_id == user_id,
@@ -106,13 +89,7 @@ def update_savings_goal(
     db.commit()
     db.refresh(goal)
 
-    currency = (
-        db.query(structure.Currency)
-        .filter(structure.Currency.id_currency == goal.currency_id)
-        .first()
-    )
-
-    return _goal_to_response(goal, currency.code)
+    return goal
 
 
 def add_to_savings_goal(
@@ -120,9 +97,10 @@ def add_to_savings_goal(
     goal_id: int,
     data: savings_goal_dto.SavingsGoalContribution,
     user_id: int,
-):
+) -> structure.SavingsGoal:
     goal = (
         db.query(structure.SavingsGoal)
+        .options(sqlalchemy.orm.joinedload(structure.SavingsGoal.currency))
         .filter(
             structure.SavingsGoal.id_saving_goal == goal_id,
             structure.SavingsGoal.user_id == user_id,
@@ -137,13 +115,7 @@ def add_to_savings_goal(
     db.commit()
     db.refresh(goal)
 
-    currency = (
-        db.query(structure.Currency)
-        .filter(structure.Currency.id_currency == goal.currency_id)
-        .first()
-    )
-
-    return _goal_to_response(goal, currency.code)
+    return goal
 
 
 def delete_savings_goal(db: sqlalchemy.orm.Session, goal_id: int, user_id: int):

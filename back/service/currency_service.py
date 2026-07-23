@@ -11,24 +11,14 @@ def get_all_currencies(db: sqlalchemy.orm.Session) -> List[structure.Currency]:
 
 def get_currency_rate_history(
     db: sqlalchemy.orm.Session, currency_code: str = None
-) -> list[dict]:
-    query = db.query(structure.CurrencyRateHistory, structure.Currency).join(
-        structure.Currency,
-        structure.CurrencyRateHistory.currency_id == structure.Currency.id_currency,
+) -> list[structure.CurrencyRateHistory]:
+    query = db.query(structure.CurrencyRateHistory).options(
+        sqlalchemy.orm.joinedload(structure.CurrencyRateHistory.currency)
     )
 
     if currency_code:
-        query = query.filter(structure.Currency.code == currency_code.upper())
+        query = query.join(structure.CurrencyRateHistory.currency).filter(
+            structure.Currency.code == currency_code.upper()
+        )
 
-    results = query.order_by(structure.CurrencyRateHistory.recorded_at.desc()).all()
-
-    return [
-        {
-            "id_rate_history": history.id_rate_history,
-            "currency_id": history.currency_id,
-            "currency_code": currency.code,
-            "exchange_rate": history.exchange_rate,
-            "recorded_at": history.recorded_at,
-        }
-        for history, currency in results
-    ]
+    return query.order_by(structure.CurrencyRateHistory.recorded_at.desc()).all()

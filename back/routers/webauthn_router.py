@@ -5,7 +5,7 @@ import back.dto.webauthn_dto as webauthn_dto
 import back.service.webauthn_service as webauthn_service
 import sqlalchemy.orm
 from back.database import get_db
-from back.dependencies import get_current_user
+from back.dependencies import get_current_user, prevent_demo_destruction
 from back.structure import User
 from fastapi import APIRouter, Depends, Request, status
 
@@ -66,7 +66,7 @@ def list_credentials(
 @router.delete("/credentials/{credential_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_credential(
     credential_id: int,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(prevent_demo_destruction),
     db: sqlalchemy.orm.Session = Depends(get_db),
 ):
     webauthn_service.delete_user_credential(db, current_user, credential_id)

@@ -3,7 +3,7 @@ from typing import List
 import back.dto.account_dto as account_dto
 import sqlalchemy.orm
 from back.database import get_db
-from back.dependencies import get_current_user
+from back.dependencies import get_current_user, prevent_demo_destruction
 from back.service import account_service
 from fastapi import APIRouter, Depends, status
 
@@ -42,6 +42,6 @@ def update_account(
 def delete_account(
     account_id: int,
     db: sqlalchemy.orm.Session = Depends(get_db),
-    current_user=Depends(get_current_user),
+    current_user=Depends(prevent_demo_destruction),
 ):
     return account_service.delete_user_account(db, account_id, current_user.id_user)

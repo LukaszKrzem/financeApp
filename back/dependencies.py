@@ -32,3 +32,20 @@ def get_current_user(
         raise credentials_exception
 
     return user
+
+
+def prevent_demo_destruction(
+    current_user: back.structure.User = Depends(get_current_user),
+):
+    """
+    Prevents destructive operations (e.g. account deletion, credential removal)
+    for the public demo account.
+    """
+    from back.config import DEMO_USER_EMAIL
+
+    if current_user and current_user.email.lower() == DEMO_USER_EMAIL.lower():
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=("DEMO MODE: THIS OPERATION IS DISABLED."),
+        )
+    return current_user

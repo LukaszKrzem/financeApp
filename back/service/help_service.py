@@ -89,22 +89,30 @@ def generate_presigned_url(file_type: str) -> dict:
 def process_feedback(
     db: Session, message: str, screenshot: str | None, user_id: int
 ) -> dict:
-    feedback_entry = Feedback(
-        user_id=user_id,
-        message=message,
-        screenshot_url=screenshot,
-    )
-    db.add(feedback_entry)
-    db.commit()
-    db.refresh(feedback_entry)
+    try:
+        feedback_entry = Feedback(
+            user_id=user_id,
+            message=message,
+            screenshot_url=screenshot,
+        )
+        db.add(feedback_entry)
+        db.commit()
+        db.refresh(feedback_entry)
 
-    logger.info(
-        "Saved feedback id=%s from user_id=%s",
-        feedback_entry.id_feedback,
-        user_id,
-    )
-    return {
-        "status": "success",
-        "message": "Feedback submitted successfully.",
-        "id_feedback": feedback_entry.id_feedback,
-    }
+        logger.info(
+            "Saved feedback id=%s from user_id=%s",
+            feedback_entry.id_feedback,
+            user_id,
+        )
+        return {
+            "status": "success",
+            "message": "Feedback submitted successfully.",
+            "id_feedback": feedback_entry.id_feedback,
+        }
+    except Exception as e:
+        db.rollback()
+        logger.error(f"Failed to save feedback in database: {e}")
+        raise HTTPException(
+            status_code=500,
+            detail="Failed to save feedback in database. Please check server logs.",
+        )

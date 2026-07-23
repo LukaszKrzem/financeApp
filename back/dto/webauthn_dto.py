@@ -14,11 +14,11 @@ class RegistrationVerifyRequest(BaseModel):
 
 
 class AuthenticationOptionsRequest(BaseModel):
-    email: EmailStr
+    email: Optional[EmailStr] = None
 
 
 class AuthenticationVerifyRequest(BaseModel):
-    email: EmailStr
+    email: Optional[EmailStr] = None
     response: Dict[str, Any]
 
 

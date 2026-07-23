@@ -32,16 +32,8 @@ export function Login() {
   const handleDemo = () => run(handleDemoLogin);
 
   const handleBiometricLogin = () => {
-    if (!email) {
-      toast.error('Enter your email', {
-        description:
-          'Please enter your email address to log in with biometrics.',
-      });
-      return;
-    }
-
     run(async () => {
-      const data = await loginWithBiometrics(apiUrl, email);
+      const data = await loginWithBiometrics(apiUrl, email || null);
       if (!data?.token) throw new Error('No token received from server');
       toast.success('Logged in with biometrics!');
       onLogin(data.token);

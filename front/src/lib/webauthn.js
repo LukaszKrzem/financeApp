@@ -41,16 +41,10 @@ export async function registerBiometricDevice(apiUrl, token, deviceName) {
   return verifiedCredential;
 }
 
-export async function loginWithBiometrics(apiUrl, email) {
+export async function loginWithBiometrics(apiUrl, email = null) {
   if (!browserSupportsWebAuthn()) {
     throw new Error(
       'Your browser or device does not support WebAuthn / biometrics.'
-    );
-  }
-
-  if (!email) {
-    throw new Error(
-      'Please enter your email address to log in with biometrics.'
     );
   }
 
@@ -59,7 +53,7 @@ export async function loginWithBiometrics(apiUrl, email) {
     null,
     {
       method: 'POST',
-      body: JSON.stringify({ email }),
+      body: JSON.stringify({ email: email || null }),
     }
   );
 
@@ -71,7 +65,7 @@ export async function loginWithBiometrics(apiUrl, email) {
     {
       method: 'POST',
       body: JSON.stringify({
-        email,
+        email: email || null,
         response: authResponse,
       }),
     }

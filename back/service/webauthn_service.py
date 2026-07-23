@@ -1,7 +1,7 @@
 import json
 import logging
 import os
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 from urllib.parse import urlparse
 
 import sqlalchemy.orm
@@ -17,6 +17,7 @@ from webauthn.helpers import base64url_to_bytes, bytes_to_base64url
 from webauthn.helpers.structs import (
     AuthenticatorSelectionCriteria,
     PublicKeyCredentialDescriptor,
+    ResidentKeyRequirement,
     UserVerificationRequirement,
 )
 
@@ -24,7 +25,7 @@ import back.dto.user_dto as user_dto
 import back.dto.webauthn_dto as webauthn_dto
 import back.service.auth_service as auth_service
 import back.service.user_service as user_service
-from back.structure import User, WebAuthnCredential
+from back.structure import User, WebAuthnChallenge, WebAuthnCredential
 
 logger = logging.getLogger(__name__)
 
@@ -37,7 +38,7 @@ DEFAULT_ORIGINS = [
 ]
 
 
-def extract_domain_from_url(url_str: str) -> str | None:
+def extract_domain_from_url(url_str: str) -> Optional[str]:
     if not url_str:
         return None
     try:
@@ -52,21 +53,18 @@ def get_rp_id(http_request: Request) -> str:
     if env_rp_id:
         return env_rp_id
 
-    # 1. Sprawdzamy domenkę frontendu z nagłówka Origin
     origin = http_request.headers.get("origin")
     if origin:
         domain = extract_domain_from_url(origin)
         if domain:
             return domain
 
-    # 2. Rezerwowo z nagłówka Referer
     referer = http_request.headers.get("referer")
     if referer:
         domain = extract_domain_from_url(referer)
         if domain:
             return domain
 
-    # 3. Rezerwowo z nagłówków serwera backendowego
     forwarded_host = http_request.headers.get("x-forwarded-host")
     if forwarded_host:
         host = forwarded_host.split(",")[0].split(":")[0].strip()
@@ -127,12 +125,15 @@ def get_registration_options(
         user_display_name=user.name or user.email,
         exclude_credentials=exclude_credentials,
         authenticator_selection=AuthenticatorSelectionCriteria(
-            user_verification=UserVerificationRequirement.PREFERRED
+            resident_key=ResidentKeyRequirement.REQUIRED,
+            user_verification=UserVerificationRequirement.PREFERRED,
         ),
     )
 
-    # Save challenge in database
-    user.current_challenge = bytes_to_base64url(options.challenge)
+    # Save challenge in database for user
+    challenge_str = bytes_to_base64url(options.challenge)
+    user.current_challenge = challenge_str
+    db.add(WebAuthnChallenge(challenge=challenge_str))
     db.commit()
 
     return json.loads(options_to_json(options))
@@ -169,6 +170,10 @@ def verify_registration(
             detail=f"Biometric verification failed: {str(e)}",
         )
     finally:
+        if user.current_challenge:
+            db.query(WebAuthnChallenge).filter(
+                WebAuthnChallenge.challenge == user.current_challenge
+            ).delete()
         user.current_challenge = None
         db.commit()
 
@@ -190,33 +195,35 @@ def verify_registration(
 
 
 def get_authentication_options(
-    db: sqlalchemy.orm.Session, email: str, http_request: Request
+    db: sqlalchemy.orm.Session, email: Optional[str], http_request: Request
 ) -> Dict[str, Any]:
-    user = user_service.get_user_by_email(db, email)
-    if not user:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="User with this email address does not exist",
-        )
-
-    credentials = (
-        db.query(WebAuthnCredential)
-        .filter(WebAuthnCredential.user_id == user.id_user)
-        .all()
-    )
-
-    if not credentials:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="No registered biometric devices for this account",
-        )
-
     rp_id = get_rp_id(http_request)
+    allow_credentials = None
 
-    allow_credentials = [
-        PublicKeyCredentialDescriptor(id=base64url_to_bytes(cred.credential_id))
-        for cred in credentials
-    ]
+    if email:
+        user = user_service.get_user_by_email(db, email)
+        if not user:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="User with this email address does not exist",
+            )
+
+        credentials = (
+            db.query(WebAuthnCredential)
+            .filter(WebAuthnCredential.user_id == user.id_user)
+            .all()
+        )
+
+        if not credentials:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="No registered biometric devices for this account",
+            )
+
+        allow_credentials = [
+            PublicKeyCredentialDescriptor(id=base64url_to_bytes(cred.credential_id))
+            for cred in credentials
+        ]
 
     options = generate_authentication_options(
         rp_id=rp_id,
@@ -224,7 +231,11 @@ def get_authentication_options(
         user_verification=UserVerificationRequirement.PREFERRED,
     )
 
-    user.current_challenge = bytes_to_base64url(options.challenge)
+    challenge_str = bytes_to_base64url(options.challenge)
+    if email and user:
+        user.current_challenge = challenge_str
+
+    db.add(WebAuthnChallenge(challenge=challenge_str))
     db.commit()
 
     return json.loads(options_to_json(options))
@@ -235,13 +246,6 @@ def verify_authentication(
     request: webauthn_dto.AuthenticationVerifyRequest,
     http_request: Request,
 ) -> user_dto.TokenResponse:
-    user = user_service.get_user_by_email(db, request.email)
-    if not user or not user.current_challenge:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="No active biometric login challenge",
-        )
-
     raw_cred_id = request.response.get("id")
     if not raw_cred_id:
         raise HTTPException(
@@ -251,10 +255,7 @@ def verify_authentication(
 
     credential = (
         db.query(WebAuthnCredential)
-        .filter(
-            WebAuthnCredential.user_id == user.id_user,
-            WebAuthnCredential.credential_id == raw_cred_id,
-        )
+        .filter(WebAuthnCredential.credential_id == raw_cred_id)
         .first()
     )
 
@@ -264,11 +265,29 @@ def verify_authentication(
             detail="Registered device not found",
         )
 
+    user = credential.user
     rp_id = get_rp_id(http_request)
     origins = get_origins(http_request)
 
+    # Search for active challenge
+    challenge_record = (
+        db.query(WebAuthnChallenge)
+        .order_by(WebAuthnChallenge.id_challenge.desc())
+        .first()
+    )
+
+    if not challenge_record and not user.current_challenge:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="No active biometric login challenge",
+        )
+
+    challenge_str = (
+        challenge_record.challenge if challenge_record else user.current_challenge
+    )
+
     try:
-        expected_challenge = base64url_to_bytes(user.current_challenge)
+        expected_challenge = base64url_to_bytes(challenge_str)
         public_key_bytes = base64url_to_bytes(credential.public_key)
 
         verification = verify_authentication_response(
@@ -287,6 +306,8 @@ def verify_authentication(
             detail=f"Biometric login failed: {str(e)}",
         )
     finally:
+        if challenge_record:
+            db.delete(challenge_record)
         user.current_challenge = None
         db.commit()
 

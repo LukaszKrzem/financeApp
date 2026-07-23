@@ -124,6 +124,12 @@ CREATE TABLE IF NOT EXISTS webauthn_credential (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS webauthn_challenge (
+    id_challenge SERIAL PRIMARY KEY,
+    challenge VARCHAR(255) NOT NULL UNIQUE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL
+);
+
 
 CREATE INDEX IF NOT EXISTS ix_bank_connection_user_id ON bank_connection(user_id);
 

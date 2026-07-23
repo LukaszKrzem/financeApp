@@ -87,6 +87,17 @@ class WebAuthnCredential(back.database.Base):
     user = relationship("User", back_populates="webauthn_credentials")
 
 
+class WebAuthnChallenge(back.database.Base):
+    __tablename__ = "webauthn_challenge"
+    id_challenge = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, index=True)
+    challenge = sqlalchemy.Column(
+        sqlalchemy.String(255), nullable=False, unique=True, index=True
+    )
+    created_at = sqlalchemy.Column(
+        sqlalchemy.DateTime(timezone=True), default=lambda: datetime.now(timezone.utc)
+    )
+
+
 class BankConnection(back.database.Base):
     __tablename__ = "bank_connection"
     id_connection = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, index=True)

@@ -2,6 +2,7 @@ import json
 import logging
 import os
 from typing import Any, Dict, List
+from urllib.parse import urlparse
 
 import sqlalchemy.orm
 from fastapi import HTTPException, Request, status
@@ -36,11 +37,36 @@ DEFAULT_ORIGINS = [
 ]
 
 
+def extract_domain_from_url(url_str: str) -> str | None:
+    if not url_str:
+        return None
+    try:
+        parsed = urlparse(url_str)
+        return parsed.hostname
+    except Exception:
+        return None
+
+
 def get_rp_id(http_request: Request) -> str:
     env_rp_id = os.getenv("WEBAUTHN_RP_ID")
     if env_rp_id:
         return env_rp_id
 
+    # 1. Sprawdzamy domenkę frontendu z nagłówka Origin
+    origin = http_request.headers.get("origin")
+    if origin:
+        domain = extract_domain_from_url(origin)
+        if domain:
+            return domain
+
+    # 2. Rezerwowo z nagłówka Referer
+    referer = http_request.headers.get("referer")
+    if referer:
+        domain = extract_domain_from_url(referer)
+        if domain:
+            return domain
+
+    # 3. Rezerwowo z nagłówków serwera backendowego
     forwarded_host = http_request.headers.get("x-forwarded-host")
     if forwarded_host:
         host = forwarded_host.split(",")[0].split(":")[0].strip()
@@ -56,7 +82,15 @@ def get_origins(http_request: Request) -> List[str]:
 
     origin_header = http_request.headers.get("origin")
     if origin_header:
-        origins.add(origin_header)
+        origins.add(origin_header.rstrip("/"))
+
+    referer_header = http_request.headers.get("referer")
+    if referer_header:
+        try:
+            parsed = urlparse(referer_header)
+            origins.add(f"{parsed.scheme}://{parsed.netloc}")
+        except Exception:
+            pass
 
     scheme = http_request.headers.get("x-forwarded-proto", http_request.url.scheme)
     host = http_request.headers.get(

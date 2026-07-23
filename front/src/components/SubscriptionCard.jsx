@@ -1,5 +1,4 @@
 import {
-  format,
   differenceInDays,
   isToday,
   isTomorrow,
@@ -22,6 +21,7 @@ import {
 } from '@tabler/icons-react';
 import { CategoryBadge } from '@/lib/categoryBadge';
 import { formatMoney } from '@/lib/formatMoney';
+import { formatDatePattern } from '@/lib/formatDate';
 
 export function SubscriptionCard({
   sub,
@@ -56,7 +56,7 @@ export function SubscriptionCard({
             </CardTitle>
             <p className="text-xs sm:text-sm text-muted-foreground flex items-center mt-1 truncate">
               <IconCalendarEvent className="mr-1.5 size-3.5 shrink-0" />
-              <span className="truncate">{format(nextDate, 'PPP')}</span>
+              <span className="truncate">{formatDatePattern(nextDate, 'PPP')}</span>
             </p>
           </div>
 

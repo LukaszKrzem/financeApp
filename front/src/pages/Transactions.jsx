@@ -17,6 +17,7 @@ import { useAsyncAction } from '@/hooks/useAsyncAction';
 import { DatePicker } from '@/components/ui/date-picker';
 import { SegmentedControl } from '@/components/ui/segmented-control';
 import { isExpense, getSignedAmount } from '@/lib/transactionHelpers';
+import { formatDate } from '@/lib/formatDate';
 import { RowSkeleton } from '@/components/ui/row-skeleton';
 import {
   IconReceipt,
@@ -79,10 +80,7 @@ export default function Transactions() {
     {
       accessorKey: 'date',
       header: 'Date',
-      cell: ({ row }) => {
-        const date = new Date(row.getValue('date'));
-        return date.toLocaleDateString('pl-PL');
-      },
+      cell: ({ row }) => formatDate(row.getValue('date')),
     },
     {
       accessorKey: 'description',
@@ -274,7 +272,7 @@ export default function Transactions() {
                           •
                         </span>
                         <span className="whitespace-nowrap">
-                          {new Date(t.date).toLocaleDateString('pl-PL')}
+                          {formatDate(t.date)}
                         </span>
                       </div>
                     </div>

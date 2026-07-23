@@ -8,6 +8,7 @@ import {
 } from '@/components/ui/popover';
 import { useAsyncAction } from '@/hooks/useAsyncAction';
 import { useApi } from '@/hooks/useApi';
+import { formatDateTime } from '@/lib/formatDate';
 
 export function NotificationsPopover() {
   const { get, patch } = useApi();
@@ -90,11 +91,7 @@ export function NotificationsPopover() {
                       {item.message}
                     </p>
                     <span className="text-[10px] text-muted-foreground">
-                      {new Date(item.date).toLocaleTimeString('pl-PL', {
-                        hour: '2-digit',
-                        minute: '2-digit',
-                      })}{' '}
-                      - {new Date(item.date).toLocaleDateString('pl-PL')}
+                      {formatDateTime(item.date)}
                     </span>
                   </div>
                   <Button

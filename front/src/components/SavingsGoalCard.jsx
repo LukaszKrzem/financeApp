@@ -1,4 +1,3 @@
-import { format, parseISO } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -11,6 +10,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { IconDotsVertical, IconPencil, IconTrash } from '@tabler/icons-react';
 import { formatMoney } from '@/lib/formatMoney';
+import { formatDatePattern } from '@/lib/formatDate';
 
 export function SavingsGoalCard({
   goal,
@@ -39,7 +39,7 @@ export function SavingsGoalCard({
           </h3>
           <p className="text-xs text-muted-foreground truncate">
             {goal.time_limit
-              ? `Deadline: ${format(parseISO(goal.time_limit), 'PPP')}`
+              ? `Deadline: ${formatDatePattern(goal.time_limit, 'PPP')}`
               : 'No deadline'}
           </p>
         </div>

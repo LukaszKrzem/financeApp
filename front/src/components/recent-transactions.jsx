@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { formatMoney } from '@/lib/formatMoney';
 import { useData } from '@/context/DataContext';
 import { isIncome } from '@/lib/transactionHelpers';
+import { formatDate } from '@/lib/formatDate';
 import { RowSkeleton } from '@/components/ui/row-skeleton';
 import { EmptyState } from '@/components/ui/empty-state';
 import { IconReceipt2 } from '@tabler/icons-react';
@@ -43,9 +44,7 @@ export function RecentTransactions() {
               const catName = transaction.category_name || 'Other';
               const Icon = getIconForCategory(catName, typeLower);
               const displayName = transaction.description || catName;
-              const displayDate = new Date(
-                transaction.date
-              ).toLocaleDateString();
+              const displayDate = formatDate(transaction.date);
 
               return (
                 <div

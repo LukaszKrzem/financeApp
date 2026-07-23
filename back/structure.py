@@ -62,6 +62,7 @@ class User(back.database.Base):
     webauthn_credentials = relationship(
         "WebAuthnCredential", back_populates="user", passive_deletes=True
     )
+    feedbacks = relationship("Feedback", back_populates="user", passive_deletes=True)
 
 
 class WebAuthnCredential(back.database.Base):
@@ -423,3 +424,23 @@ class CurrencyRateHistory(back.database.Base):
     @property
     def currency_code(self) -> str:
         return self.currency.code if self.currency else ""
+
+
+class Feedback(back.database.Base):
+    __tablename__ = "feedback"
+    id_feedback = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, index=True)
+    user_id = sqlalchemy.Column(
+        sqlalchemy.Integer,
+        sqlalchemy.ForeignKey("user.id_user", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    message = sqlalchemy.Column(sqlalchemy.Text, nullable=False)
+    screenshot_url = sqlalchemy.Column(sqlalchemy.String(1024), nullable=True)
+    created_at = sqlalchemy.Column(
+        sqlalchemy.DateTime(timezone=True),
+        nullable=False,
+        default=lambda: datetime.now(timezone.utc),
+    )
+
+    user = relationship("User", back_populates="feedbacks")

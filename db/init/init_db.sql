@@ -360,3 +360,13 @@ SELECT
 FROM budget b
 JOIN categories c ON b.category_id = c.id_category
 JOIN currency curr ON b.currency_id = curr.id_currency;
+
+CREATE TABLE IF NOT EXISTS feedback (
+    id_feedback SERIAL PRIMARY KEY,
+    user_id INT NOT NULL REFERENCES "user"(id_user) ON DELETE CASCADE,
+    message TEXT NOT NULL,
+    screenshot_url VARCHAR(1024),
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_feedback_user_id ON feedback(user_id);

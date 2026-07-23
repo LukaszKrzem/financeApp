@@ -1,6 +1,7 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useRef } from 'react';
 import { PageHeader } from '@/components/PageHeader';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -24,8 +25,13 @@ import {
   IconHelpCircle,
   IconSend,
   IconCheck,
+  IconPaperclip,
+  IconX,
+  IconLoader2,
+  IconPhoto,
 } from '@tabler/icons-react';
 import { toast } from 'sonner';
+import { useApi } from '@/hooks/useApi';
 
 const FAQ_ITEMS = [
   {
@@ -108,9 +114,17 @@ const TOPIC_CARDS = [
 ];
 
 export default function Help() {
+  const { get, post } = useApi();
+  const fileInputRef = useRef(null);
+
   const [searchQuery, setSearchQuery] = useState('');
   const [feedback, setFeedback] = useState('');
   const [submitted, setSubmitted] = useState(false);
+
+  const [screenshot, setScreenshot] = useState(null);
+  const [screenshotName, setScreenshotName] = useState('');
+  const [screenshotFile, setScreenshotFile] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const filteredFaqs = useMemo(() => {
     const query = searchQuery.toLowerCase().trim();
@@ -124,20 +138,126 @@ export default function Help() {
     );
   }, [searchQuery]);
 
-  const handleFeedbackSubmit = (e) => {
+  const processFile = (file) => {
+    if (!file) return;
+
+    const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp'];
+    if (!allowedTypes.includes(file.type)) {
+      toast.error('Invalid image type', {
+        description: 'Please upload a PNG, JPG, or WEBP image.',
+      });
+      return;
+    }
+
+    const maxBytes = 5 * 1024 * 1024; // 5MB
+    if (file.size > maxBytes) {
+      toast.error('File too large', {
+        description: 'Image size must be smaller than 5MB.',
+      });
+      return;
+    }
+
+    setScreenshotFile(file);
+    setScreenshotName(file.name || 'clipboard-screenshot.png');
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      setScreenshot(e.target.result);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleFileSelect = (e) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      processFile(file);
+    }
+  };
+
+  const handlePaste = (e) => {
+    const items = e.clipboardData?.items;
+    if (!items) return;
+
+    for (const item of items) {
+      if (item.kind === 'file' && item.type.startsWith('image/')) {
+        const file = item.getAsFile();
+        if (file) {
+          processFile(file);
+          toast.info('Image attached from clipboard', {
+            description: 'Screenshot added to your feedback submission.',
+          });
+          break;
+        }
+      }
+    }
+  };
+
+  const handleRemoveScreenshot = () => {
+    setScreenshot(null);
+    setScreenshotName('');
+    setScreenshotFile(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  const handleFeedbackSubmit = async (e) => {
     e.preventDefault();
     if (!feedback.trim()) return;
 
-    setSubmitted(true);
-    setFeedback('');
+    setIsSubmitting(true);
+    try {
+      let finalImageUrl = null;
 
-    toast.success('Thank you for your feedback!', {
-      description: 'We have received your message and will review it promptly.',
-    });
+      if (screenshotFile) {
+        const mimeType = screenshotFile.type || 'image/png';
 
-    setTimeout(() => {
-      setSubmitted(false);
-    }, 3000);
+        // 1. Get presigned URL from backend
+        const { upload_url, file_url } = await get(
+          `/help/presigned-url?file_type=${encodeURIComponent(mimeType)}`
+        );
+
+        // 2. Upload file directly to S3
+        const uploadResponse = await fetch(upload_url, {
+          method: 'PUT',
+          body: screenshotFile,
+          headers: {
+            'Content-Type': mimeType,
+          },
+        });
+
+        if (!uploadResponse.ok) {
+          throw new Error('Failed to upload image to S3 storage');
+        }
+
+        finalImageUrl = file_url;
+      }
+
+      // 3. Submit feedback to backend
+      await post('/help/feedback', {
+        message: feedback,
+        screenshot: finalImageUrl,
+      });
+
+      setSubmitted(true);
+      setFeedback('');
+      handleRemoveScreenshot();
+
+      toast.success('Thank you for your feedback!', {
+        description: 'We have received your message and will review it promptly.',
+      });
+
+      setTimeout(() => {
+        setSubmitted(false);
+      }, 3000);
+    } catch (error) {
+      console.error('Error submitting feedback:', error);
+      toast.error(
+        error.message || 'An error occurred while submitting your feedback.'
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -245,34 +365,96 @@ export default function Help() {
             Need more help or have feedback?
           </CardTitle>
           <CardDescription>
-            Send a message to our support team and we will get back to you.
+            Send a message to our support team. You can attach or paste (Ctrl+V) a screenshot directly.
           </CardDescription>
         </CardHeader>
-        <CardContent>
-          <form
-            onSubmit={handleFeedbackSubmit}
-            className="flex flex-col sm:flex-row gap-3"
-          >
-            <Input
+        <CardContent className="flex flex-col gap-4">
+          <form onSubmit={handleFeedbackSubmit} className="flex flex-col gap-4">
+            <Textarea
               aria-label="Describe your issue or suggestion"
-              type="text"
-              placeholder="Describe your issue or suggestion..."
+              placeholder="Describe your issue or suggestion... (you can also paste screenshots directly from your clipboard)"
               value={feedback}
               onChange={(e) => setFeedback(e.target.value)}
-              disabled={submitted}
-              className="flex-1"
+              onPaste={handlePaste}
+              disabled={submitted || isSubmitting}
+              rows={3}
+              className="w-full min-h-[100px] resize-y bg-background"
             />
-            <Button type="submit" disabled={submitted || !feedback.trim()}>
-              {submitted ? (
-                <>
-                  <IconCheck className="mr-2 size-4" /> Sent
-                </>
-              ) : (
-                <>
-                  <IconSend className="mr-2 size-4" /> Send Feedback
-                </>
-              )}
-            </Button>
+
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/png,image/jpeg,image/webp"
+              className="hidden"
+              onChange={handleFileSelect}
+              disabled={submitted || isSubmitting}
+            />
+
+            {screenshot && (
+              <div className="flex items-center gap-3 p-2.5 border rounded-lg bg-muted/30 border-border/60 max-w-md">
+                {screenshot.startsWith('data:image') ? (
+                  <img
+                    src={screenshot}
+                    alt="Screenshot preview"
+                    className="size-12 object-cover rounded-md border border-border"
+                  />
+                ) : (
+                  <div className="size-12 rounded-md bg-primary/10 flex items-center justify-center text-primary">
+                    <IconPhoto className="size-6" />
+                  </div>
+                )}
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-medium truncate">{screenshotName}</p>
+                  <p className="text-[11px] text-muted-foreground">
+                    Ready to upload to storage
+                  </p>
+                </div>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  onClick={handleRemoveScreenshot}
+                  disabled={isSubmitting}
+                  className="size-7 text-muted-foreground hover:text-destructive"
+                  title="Remove screenshot"
+                >
+                  <IconX className="size-4" />
+                </Button>
+              </div>
+            )}
+
+            <div className="flex flex-wrap items-center justify-end gap-3 pt-1">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={submitted || isSubmitting}
+                className="shrink-0"
+              >
+                <IconPaperclip className="mr-2 size-4" />
+                {screenshotFile ? 'Change Screenshot' : 'Attach Screenshot'}
+              </Button>
+
+              <Button
+                type="submit"
+                disabled={submitted || isSubmitting || !feedback.trim()}
+                className="shrink-0"
+              >
+                {isSubmitting ? (
+                  <>
+                    <IconLoader2 className="mr-2 size-4 animate-spin" /> Uploading...
+                  </>
+                ) : submitted ? (
+                  <>
+                    <IconCheck className="mr-2 size-4" /> Sent
+                  </>
+                ) : (
+                  <>
+                    <IconSend className="mr-2 size-4" /> Send Feedback
+                  </>
+                )}
+              </Button>
+            </div>
           </form>
         </CardContent>
       </Card>

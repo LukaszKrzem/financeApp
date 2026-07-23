@@ -1,9 +1,4 @@
-import {
-  differenceInDays,
-  isToday,
-  isTomorrow,
-  parseISO,
-} from 'date-fns';
+import { differenceInDays, isToday, isTomorrow, parseISO } from 'date-fns';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -56,7 +51,9 @@ export function SubscriptionCard({
             </CardTitle>
             <p className="text-xs sm:text-sm text-muted-foreground flex items-center mt-1 truncate">
               <IconCalendarEvent className="mr-1.5 size-3.5 shrink-0" />
-              <span className="truncate">{formatDatePattern(nextDate, 'PPP')}</span>
+              <span className="truncate">
+                {formatDatePattern(nextDate, 'PPP')}
+              </span>
             </p>
           </div>
 

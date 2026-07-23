@@ -7,17 +7,18 @@ import sqlalchemy.orm
 from back.database import get_db
 from back.dependencies import get_current_user
 from back.structure import User
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, Request, status
 
 router = APIRouter(prefix="/auth/webauthn", tags=["WebAuthn"])
 
 
 @router.post("/register/options")
 def get_register_options(
+    http_request: Request,
     current_user: User = Depends(get_current_user),
     db: sqlalchemy.orm.Session = Depends(get_db),
 ):
-    return webauthn_service.get_registration_options(db, current_user)
+    return webauthn_service.get_registration_options(db, current_user, http_request)
 
 
 @router.post(
@@ -27,26 +28,29 @@ def get_register_options(
 )
 def verify_registration(
     request: webauthn_dto.RegistrationVerifyRequest,
+    http_request: Request,
     current_user: User = Depends(get_current_user),
     db: sqlalchemy.orm.Session = Depends(get_db),
 ):
-    return webauthn_service.verify_registration(db, current_user, request)
+    return webauthn_service.verify_registration(db, current_user, request, http_request)
 
 
 @router.post("/login/options")
 def get_login_options(
     request: webauthn_dto.AuthenticationOptionsRequest,
+    http_request: Request,
     db: sqlalchemy.orm.Session = Depends(get_db),
 ):
-    return webauthn_service.get_authentication_options(db, request.email)
+    return webauthn_service.get_authentication_options(db, request.email, http_request)
 
 
 @router.post("/login/verify", response_model=user_dto.TokenResponse)
 def verify_login(
     request: webauthn_dto.AuthenticationVerifyRequest,
+    http_request: Request,
     db: sqlalchemy.orm.Session = Depends(get_db),
 ):
-    return webauthn_service.verify_authentication(db, request)
+    return webauthn_service.verify_authentication(db, request, http_request)
 
 
 @router.get(

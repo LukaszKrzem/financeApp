@@ -34,7 +34,8 @@ export function Login() {
   const handleBiometricLogin = () => {
     if (!email) {
       toast.error('Enter your email', {
-        description: 'Please enter your email address to log in with biometrics.',
+        description:
+          'Please enter your email address to log in with biometrics.',
       });
       return;
     }

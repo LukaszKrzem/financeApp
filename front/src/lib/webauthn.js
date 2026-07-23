@@ -49,7 +49,9 @@ export async function loginWithBiometrics(apiUrl, email) {
   }
 
   if (!email) {
-    throw new Error('Please enter your email address to log in with biometrics.');
+    throw new Error(
+      'Please enter your email address to log in with biometrics.'
+    );
   }
 
   const optionsJSON = await apiFetch(

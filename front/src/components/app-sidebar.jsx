@@ -8,6 +8,7 @@ import {
   IconTarget,
   IconWallet,
   IconCalendarEvent,
+  IconHelp,
 } from '@tabler/icons-react';
 import { Link } from 'react-router-dom';
 
@@ -34,7 +35,10 @@ const data = {
     { title: 'Accounts', url: '/accounts', icon: IconCreditCard },
     { title: 'Subscriptions', url: '/subscriptions', icon: IconCalendarEvent },
   ],
-  navSecondary: [{ title: 'Settings', url: '/settings', icon: IconSettings }],
+  navSecondary: [
+    { title: 'Settings', url: '/settings', icon: IconSettings },
+    { title: 'Help', url: '/help', icon: IconHelp },
+  ],
   documents: [
     { name: 'Categories', url: '#', icon: IconTags },
     { name: 'Wallets', url: '#', icon: IconWallet },

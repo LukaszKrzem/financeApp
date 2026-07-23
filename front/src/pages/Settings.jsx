@@ -9,6 +9,8 @@ import {
   IconFingerprint,
   IconTrash,
   IconPlus,
+  IconPalette,
+  IconUser,
 } from '@tabler/icons-react';
 import { useAuth } from '@/context/AuthContext';
 import { PageHeader } from '@/components/PageHeader';
@@ -103,8 +105,11 @@ export default function Settings() {
 
       <div className="grid gap-6">
         <div className="bg-card border-border/50 border rounded-xl p-6">
-          <h2 className="text-lg font-semibold mb-4">Appearance</h2>
-          <p className="text-sm text-muted-foreground mb-4">
+          <div className="flex items-center gap-3 mb-2">
+            <IconPalette className="size-6 text-primary" />
+            <h2 className="text-lg font-semibold">Appearance</h2>
+          </div>
+          <p className="text-sm text-muted-foreground mb-6">
             Customize how SmartBudget looks on your device.
           </p>
 
@@ -224,12 +229,15 @@ export default function Settings() {
         </div>
 
         <div className="bg-card border-border/50 border rounded-xl p-6">
-          <h2 className="text-lg font-semibold mb-4">Account</h2>
+          <div className="flex items-center gap-3 mb-2">
+            <IconUser className="size-6 text-primary" />
+            <h2 className="text-lg font-semibold">Account</h2>
+          </div>
           <p className="text-sm text-muted-foreground mb-1">
             Logged in as{' '}
             <span className="font-medium text-foreground">{user?.name}</span>
           </p>
-          <p className="text-sm text-muted-foreground mb-4">{user?.email}</p>
+          <p className="text-sm text-muted-foreground mb-6">{user?.email}</p>
           <Button variant="destructive" onClick={onLogout}>
             Log out
           </Button>

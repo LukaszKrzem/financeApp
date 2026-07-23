@@ -64,12 +64,7 @@ def generate_presigned_url(file_type: str) -> dict:
 
         if public_prefix:
             clean_prefix = public_prefix.rstrip("/")
-            if clean_prefix.endswith(f"/{bucket_name}") and file_name.startswith(
-                f"{bucket_name}/"
-            ):
-                file_url = f"{clean_prefix}/{file_name[len(bucket_name) + 1 :]}"
-            else:
-                file_url = f"{clean_prefix}/{file_name}"
+            file_url = f"{clean_prefix}/{file_name}"
         elif endpoint_url:
             file_url = f"{endpoint_url.rstrip('/')}/{bucket_name}/{file_name}"
         else:

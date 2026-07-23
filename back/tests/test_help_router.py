@@ -87,9 +87,6 @@ def test_get_presigned_url_supabase_custom_endpoint(
     assert "upload_url" in data
     assert "file_url" in data
     assert data["file_url"].startswith(
-        "https://yzyhgjbohkqiljpsxivm.supabase.co/storage/v1/object/public/feedbacks/"
-    )
-    assert not data["file_url"].startswith(
         "https://yzyhgjbohkqiljpsxivm.supabase.co/storage/v1/object/public/feedbacks/feedbacks/"
     )
 

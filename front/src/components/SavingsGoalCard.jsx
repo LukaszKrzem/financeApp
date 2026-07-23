@@ -49,7 +49,7 @@ export function SavingsGoalCard({
               <Button
                 variant="ghost"
                 size="icon"
-                className="size-8 -mr-2 -mt-2 shrink-0 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity"
+                className="size-9 -mr-2 -mt-2 shrink-0 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity"
               >
                 <IconDotsVertical className="size-4" />
               </Button>
@@ -102,6 +102,7 @@ export function SavingsGoalCard({
         <Input
           id={`contribution-${goal.id_saving_goal}`}
           type="number"
+          inputMode="decimal"
           min="0"
           step="0.01"
           placeholder="Amount to add"

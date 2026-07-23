@@ -2,12 +2,21 @@ import * as React from 'react';
 import { useState } from 'react';
 import { SimpleDataTable } from '@/components/simple-data-table';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import {
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerDescription,
+} from '@/components/ui/drawer';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { CategoryBadge } from '@/lib/categoryBadge';
 import { formatMoney } from '@/lib/formatMoney';
@@ -25,6 +34,8 @@ import {
   IconPencil,
   IconTrash,
   IconDotsVertical,
+  IconSearch,
+  IconFilter,
 } from '@tabler/icons-react';
 import { EmptyState } from '@/components/ui/empty-state';
 import { AddTransactionDialog } from '@/components/AddTransactionDialog';
@@ -45,6 +56,8 @@ export default function Transactions() {
   const [typeFilter, setTypeFilter] = useState('ALL');
   const [dateFrom, setDateFrom] = useState(null);
   const [dateTo, setDateTo] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filterDrawerOpen, setFilterDrawerOpen] = useState(false);
 
   const [editingTransaction, setEditingTransaction] = useState(null);
   const [deletingTransaction, setDeletingTransaction] = useState(null);
@@ -52,9 +65,21 @@ export default function Transactions() {
 
   const isMobile = useIsMobile();
 
-  const hasActiveFilters = typeFilter !== 'ALL' || dateFrom || dateTo;
+  const hasActiveFilters =
+    typeFilter !== 'ALL' || dateFrom || dateTo || searchQuery.trim() !== '';
+
+  const activeFilterCount =
+    (typeFilter !== 'ALL' ? 1 : 0) + (dateFrom ? 1 : 0) + (dateTo ? 1 : 0);
+
+  const handleClearFilters = () => {
+    setTypeFilter('ALL');
+    setDateFrom(null);
+    setDateTo(null);
+    setSearchQuery('');
+  };
 
   const filteredTransactions = React.useMemo(() => {
+    const query = searchQuery.toLowerCase().trim();
     return transactions.filter((t) => {
       if (typeFilter !== 'ALL' && t.type !== typeFilter) return false;
       const txDate = new Date(t.date);
@@ -64,9 +89,15 @@ export default function Transactions() {
         end.setHours(23, 59, 59, 999);
         if (txDate > end) return false;
       }
+      if (query) {
+        const matchDesc = (t.description || '').toLowerCase().includes(query);
+        const matchCat = (t.category_name || '').toLowerCase().includes(query);
+        const matchAmt = String(t.amount || '').includes(query);
+        if (!matchDesc && !matchCat && !matchAmt) return false;
+      }
       return true;
     });
-  }, [transactions, typeFilter, dateFrom, dateTo]);
+  }, [transactions, typeFilter, dateFrom, dateTo, searchQuery]);
 
   const handleDelete = () => {
     runDelete(async () => {
@@ -123,7 +154,7 @@ export default function Transactions() {
       cell: ({ row }) => (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" className="size-7">
+            <Button variant="ghost" size="icon" className="size-8">
               <IconDotsVertical className="size-4" />
             </Button>
           </DropdownMenuTrigger>
@@ -156,55 +187,87 @@ export default function Transactions() {
 
       <div className="bg-card border-border/50 border rounded-xl p-4">
         {(loading || transactions.length > 0) && (
-          <div
-            className={`flex flex-col md:flex-row gap-4 mb-6 md:items-center ${
-              loading ? 'pointer-events-none opacity-50' : ''
-            }`}
-          >
-            <div className="flex gap-2">
-              <SegmentedControl
-                options={FILTER_OPTIONS}
-                value={typeFilter}
-                onChange={setTypeFilter}
-              />
+          isMobile ? (
+            <div
+              className={`flex items-center gap-2 mb-4 ${
+                loading ? 'pointer-events-none opacity-50' : ''
+              }`}
+            >
+              <div className="relative flex-1">
+                <IconSearch className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+                <Input
+                  type="text"
+                  placeholder="Search transactions..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-9 h-10 bg-background text-base sm:text-sm"
+                />
+              </div>
+              <Button
+                variant="outline"
+                size="default"
+                onClick={() => setFilterDrawerOpen(true)}
+                className="h-10 px-3 flex items-center gap-1.5 shrink-0"
+              >
+                <IconFilter className="size-4" />
+                <span className="text-xs font-medium">Filter</span>
+                {activeFilterCount > 0 && (
+                  <Badge variant="secondary" className="px-1.5 py-0 text-[10px] ml-0.5">
+                    {activeFilterCount}
+                  </Badge>
+                )}
+              </Button>
             </div>
+          ) : (
+            <div
+              className={`flex flex-col md:flex-row gap-4 mb-6 md:items-center justify-between ${
+                loading ? 'pointer-events-none opacity-50' : ''
+              }`}
+            >
+              <div className="relative w-full md:w-72">
+                <IconSearch className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+                <Input
+                  type="text"
+                  placeholder="Search transactions..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-9 h-9 text-base sm:text-sm"
+                />
+              </div>
 
-            <div className="flex flex-col sm:flex-row items-center gap-2 md:ml-auto w-full md:w-auto">
-              <div className="flex items-center gap-2 w-full">
-                <div className="flex-1 min-w-0">
+              <div className="flex flex-wrap items-center gap-3">
+                <SegmentedControl
+                  options={FILTER_OPTIONS}
+                  value={typeFilter}
+                  onChange={setTypeFilter}
+                />
+
+                <div className="flex items-center gap-2">
                   <DatePicker
                     date={dateFrom}
                     setDate={setDateFrom}
                     placeholder="From"
                   />
-                </div>
-                <span className="text-muted-foreground text-sm flex-shrink-0">
-                  —
-                </span>
-                <div className="flex-1 min-w-0">
+                  <span className="text-muted-foreground text-sm">—</span>
                   <DatePicker
                     date={dateTo}
                     setDate={setDateTo}
                     placeholder="To"
                   />
                 </div>
-              </div>
 
-              {(dateFrom || dateTo) && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="w-full sm:w-auto mt-2 sm:mt-0"
-                  onClick={() => {
-                    setDateFrom(null);
-                    setDateTo(null);
-                  }}
-                >
-                  Clear
-                </Button>
-              )}
+                {hasActiveFilters && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleClearFilters}
+                  >
+                    Clear
+                  </Button>
+                )}
+              </div>
             </div>
-          </div>
+          )
         )}
 
         {loading ? (
@@ -214,16 +277,12 @@ export default function Transactions() {
             <EmptyState
               icon={IconFilterOff}
               title="No matching transactions"
-              description="Try adjusting your filters to see more results."
+              description="Try adjusting your filters or search query to see more results."
               action={
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => {
-                    setTypeFilter('ALL');
-                    setDateFrom(null);
-                    setDateTo(null);
-                  }}
+                  onClick={handleClearFilters}
                 >
                   Clear filters
                 </Button>
@@ -299,7 +358,7 @@ export default function Transactions() {
                           <Button
                             variant="ghost"
                             size="icon"
-                            className="size-7"
+                            className="size-8"
                             onPointerDown={(e) => {
                               if (e.pointerType === 'touch') {
                                 e.stopPropagation();
@@ -340,9 +399,72 @@ export default function Transactions() {
             })}
           </div>
         ) : (
-          <SimpleDataTable columns={columns} data={filteredTransactions} />
+          <SimpleDataTable
+            columns={columns}
+            data={filteredTransactions}
+            showSearch={false}
+          />
         )}
       </div>
+
+      <Drawer open={filterDrawerOpen} onOpenChange={setFilterDrawerOpen}>
+        <DrawerContent>
+          <DrawerHeader className="text-left">
+            <DrawerTitle>Filter Transactions</DrawerTitle>
+            <DrawerDescription>
+              Filter your transactions by category type or date range.
+            </DrawerDescription>
+          </DrawerHeader>
+          <div className="flex flex-col gap-5 p-4 pb-8 max-h-[75vh] overflow-y-auto">
+            <div className="space-y-2">
+              <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                Transaction Type
+              </label>
+              <SegmentedControl
+                options={FILTER_OPTIONS}
+                value={typeFilter}
+                onChange={setTypeFilter}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                Date Range
+              </label>
+              <div className="flex flex-col gap-2">
+                <DatePicker
+                  date={dateFrom}
+                  setDate={setDateFrom}
+                  placeholder="From Date"
+                />
+                <DatePicker
+                  date={dateTo}
+                  setDate={setDateTo}
+                  placeholder="To Date"
+                />
+              </div>
+            </div>
+
+            <div className="flex gap-2 pt-2">
+              {hasActiveFilters && (
+                <Button
+                  variant="outline"
+                  className="flex-1"
+                  onClick={handleClearFilters}
+                >
+                  Reset
+                </Button>
+              )}
+              <Button
+                className="flex-1"
+                onClick={() => setFilterDrawerOpen(false)}
+              >
+                Apply Filters
+              </Button>
+            </div>
+          </div>
+        </DrawerContent>
+      </Drawer>
 
       <AddTransactionDialog
         transaction={editingTransaction}

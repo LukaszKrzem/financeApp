@@ -392,8 +392,8 @@ export function ChartAreaInteractive() {
                   axisLine={false}
                   tickMargin={isMobile ? 2 : 8}
                   tickFormatter={(val) => formatMoney(val, currency)}
-                  width={isMobile ? 30 : 65}
-                  fontSize={isMobile ? 8 : 12}
+                  width={isMobile ? 48 : 65}
+                  fontSize={isMobile ? 9 : 12}
                 />
                 <ChartTooltip
                   cursor={false}

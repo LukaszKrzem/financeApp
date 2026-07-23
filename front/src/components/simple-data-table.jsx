@@ -20,7 +20,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 
-export function SimpleDataTable({ columns, data }) {
+export function SimpleDataTable({ columns, data, showSearch = true }) {
   const [sorting, setSorting] = React.useState([]);
   const [globalFilter, setGlobalFilter] = React.useState('');
 
@@ -41,14 +41,16 @@ export function SimpleDataTable({ columns, data }) {
 
   return (
     <div className="w-full">
-      <div className="flex items-center pb-4">
-        <Input
-          placeholder="Search..."
-          value={globalFilter}
-          onChange={(event) => setGlobalFilter(event.target.value)}
-          className="max-w-sm"
-        />
-      </div>
+      {showSearch && (
+        <div className="flex items-center pb-4">
+          <Input
+            placeholder="Search..."
+            value={globalFilter}
+            onChange={(event) => setGlobalFilter(event.target.value)}
+            className="max-w-sm"
+          />
+        </div>
+      )}
 
       <div className="rounded-md border bg-card">
         <Table>

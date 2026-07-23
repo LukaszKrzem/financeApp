@@ -39,7 +39,7 @@ export function Register() {
   };
 
   return (
-    <div className="flex h-screen items-center justify-center">
+    <div className="flex min-h-dvh p-4 items-center justify-center">
       <Card className="w-full max-w-sm">
         <CardHeader>
           <CardTitle>Create a new account</CardTitle>

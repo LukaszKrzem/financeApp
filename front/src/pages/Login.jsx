@@ -50,7 +50,7 @@ export function Login() {
   };
 
   return (
-    <div className="flex h-screen items-center justify-center">
+    <div className="flex min-h-dvh p-4 items-center justify-center">
       <Card className="w-full max-w-sm">
         <CardHeader>
           <CardTitle>Login to your account</CardTitle>

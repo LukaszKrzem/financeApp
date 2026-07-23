@@ -59,7 +59,7 @@ export function ResponsiveDialog({
             <DrawerDescription>{description}</DrawerDescription>
           )}
         </DrawerHeader>
-        <div className="px-4 pb-8">{children}</div>
+        <div className="px-4 pb-8 max-h-[80vh] overflow-y-auto">{children}</div>
       </DrawerContent>
     </Drawer>
   );

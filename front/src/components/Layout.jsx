@@ -18,7 +18,7 @@ export default function Layout() {
       <SidebarInset>
         <SiteHeader />
 
-        <div className="flex flex-1 flex-col pb-24 md:pb-0">
+        <div className="flex flex-1 flex-col pb-[calc(5.5rem+env(safe-area-inset-bottom,0px))] md:pb-0">
           <Outlet />
         </div>
       </SidebarInset>

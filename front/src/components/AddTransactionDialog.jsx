@@ -189,6 +189,7 @@ export function AddTransactionDialog({
               id="amount"
               placeholder="e.g. 100.00"
               type="number"
+              inputMode="decimal"
               step="0.01"
               min="0.01"
               value={amount}

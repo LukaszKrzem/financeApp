@@ -33,7 +33,9 @@ export function PageHeader({
           ))}
       </div>
       {rightContent && (
-        <div className="flex flex-wrap items-center gap-2 shrink-0">{rightContent}</div>
+        <div className="flex flex-wrap items-center gap-2 shrink-0">
+          {rightContent}
+        </div>
       )}
     </header>
   );

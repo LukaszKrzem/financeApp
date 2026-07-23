@@ -186,8 +186,8 @@ export default function Transactions() {
       />
 
       <div className="bg-card border-border/50 border rounded-xl p-4">
-        {(loading || transactions.length > 0) && (
-          isMobile ? (
+        {(loading || transactions.length > 0) &&
+          (isMobile ? (
             <div
               className={`flex items-center gap-2 mb-4 ${
                 loading ? 'pointer-events-none opacity-50' : ''
@@ -212,7 +212,10 @@ export default function Transactions() {
                 <IconFilter className="size-4" />
                 <span className="text-xs font-medium">Filter</span>
                 {activeFilterCount > 0 && (
-                  <Badge variant="secondary" className="px-1.5 py-0 text-[10px] ml-0.5">
+                  <Badge
+                    variant="secondary"
+                    className="px-1.5 py-0 text-[10px] ml-0.5"
+                  >
                     {activeFilterCount}
                   </Badge>
                 )}
@@ -267,8 +270,7 @@ export default function Transactions() {
                 )}
               </div>
             </div>
-          )
-        )}
+          ))}
 
         {loading ? (
           <RowSkeleton count={6} />

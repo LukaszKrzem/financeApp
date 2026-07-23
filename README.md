@@ -6,7 +6,7 @@ A personal finance management web application for tracking expenses, managing bu
 
 🔗 **Live demo**: [finance-app-lukaszkrzem.vercel.app](https://finance-app-lukaszkrzem.vercel.app)
 
-> **🚀 Try it out!** > Use the **"Try demo"** button on the login page, or use the test credentials:
+> **🚀 Try it out!** Use the **"Try demo"** button on the login page, or use the test credentials:
 > **Email:** `demo@demo.com`
 > **Password:** `haslo`
 
@@ -16,7 +16,7 @@ A personal finance management web application for tracking expenses, managing bu
 
 ## Screenshots
 
-![Dashboard](./assets/budgets.png)
+![Accounts](./assets/accounts.png)
 ![Transactions](./assets/charts.png)
 ![Mobile](./assets/mobile.png)
 
@@ -24,13 +24,16 @@ A personal finance management web application for tracking expenses, managing bu
 
 ## Features
 
-- **Transaction tracking** — add income and expenses with category, currency, and description
-- **Multi-currency support** — exchange rates fetched automatically from the NBP API
-- **Scheduled transactions** — set up recurring payments (daily, weekly, monthly, yearly)
+- **Transaction tracking** — add income and expenses with categories, multi-currency support, and descriptions
+- **Multi-currency & NBP Sync** — exchange rates fetched automatically with historical rate tracking via NBP API
+- **Passkeys & Biometric Auth** — passwordless sign-in supporting WebAuthn (Touch ID, Face ID, YubiKey)
+- **PWA Ready** — installable Progressive Web App with mobile-responsive design
+- **Scheduled transactions** — automated recurring payments (daily, weekly, monthly, yearly)
 - **Budget management** — define spending limits per category with real-time progress tracking
-- **Savings goals** — create goals with target amounts, deadlines, and track contributions
-- **Notifications** — automatic alerts when a budget limit is exceeded
-- **Google OAuth** — sign in with Google or register with email and password
+- **Savings goals** — create target-based goals with deadlines and track progress
+- **Google OAuth & JWT** — sign in with Google or standard email/password authentication
+- **Demo Account Guard** — built-in protection ensuring live demo safety without restricting functionality
+- **Dark / Light Theme** — full theme customizability
 
 ---
 
@@ -38,18 +41,19 @@ A personal finance management web application for tracking expenses, managing bu
 
 **Frontend**
 
-- React + Vite
-- React Router
-- Tailwind CSS + shadcn/ui
-- Recharts
+- React 19 + Vite
+- Tailwind CSS v4 + shadcn/ui
+- @simplewebauthn (Passkeys / WebAuthn)
+- Recharts (Interactive visual data)
+- Vite PWA
 
 **Backend**
 
-- Python + FastAPI
-- SQLAlchemy
-- PostgreSQL (Neon)
-- JWT authentication
-- Google OAuth2
+- Python 3.10+ + FastAPI
+- SQLAlchemy 2.0 (PostgreSQL)
+- WebAuthn (PyWebAuthn)
+- Pytest (Automated test suite)
+- JWT & Google OAuth2 Authentication
 
 ---
 
@@ -57,7 +61,7 @@ A personal finance management web application for tracking expenses, managing bu
 
 ### Prerequisites
 
-- Node.js
+- Node.js (v18+)
 - Python 3.10+
 - PostgreSQL (or a Neon account)
 
@@ -76,10 +80,16 @@ SECRET_KEY=your_secret_key
 GOOGLE_CLIENT_ID=your_google_client_id
 ```
 
-Run the server:
+Run the API server:
 
 ```bash
 uvicorn back.main:app --reload
+```
+
+Run backend tests:
+
+```bash
+pytest
 ```
 
 ### Frontend
@@ -96,7 +106,7 @@ VITE_API_URL=http://localhost:8000
 VITE_GOOGLE_CLIENT_ID=your_google_client_id
 ```
 
-Run the dev server:
+Run the development server:
 
 ```bash
 npm run dev
@@ -110,23 +120,20 @@ npm run dev
 financeApp/
 ├── back/                   # FastAPI backend
 │   ├── dto/                # Pydantic schemas
-│   ├── routers/            # API endpoints
-│   ├── service/            # Business logic
-│   ├── tests/              # Unit tests
-│   ├── database.py         # Database connection
-│   ├── dependencies.py     # Shared dependencies (auth)
-│   ├── main.py             # App entry point
+│   ├── routers/            # API endpoints (Auth, WebAuthn, Transactions, Budgets, etc.)
+│   ├── service/            # Core business logic (NBP sync, WebAuthn, Demo Guard)
+│   ├── tests/              # Pytest integration & unit tests
+│   ├── database.py         # DB connection & session management
+│   ├── main.py             # FastAPI entry point
 │   └── structure.py        # SQLAlchemy models
 ├── front/                  # React frontend
 │   └── src/
-│       ├── app/            # App-level setup
-│       ├── components/     # Reusable UI components
-│       │   └── ui/         # shadcn/ui primitives
+│       ├── components/     # Reusable UI components & shadcn primitives
+│       ├── context/        # React Context providers (Auth, Data, Theme)
 │       ├── hooks/          # Custom React hooks
-│       ├── lib/            # Utilities (e.g. category icons)
-│       └── pages/          # Page components
-└── db/
-    └── init/               # Database initialization scripts
+│       └── pages/          # Application views & pages
+├── db/                     # DB initialization scripts
+└── docker-compose.yml      # Local PostgreSQL container configuration
 ```
 
 ---

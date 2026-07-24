@@ -244,7 +244,8 @@ export default function Help() {
       handleRemoveScreenshot();
 
       toast.success('Thank you for your feedback!', {
-        description: 'We have received your message and will review it promptly.',
+        description:
+          'We have received your message and will review it promptly.',
       });
 
       setTimeout(() => {
@@ -365,7 +366,8 @@ export default function Help() {
             Need more help or have feedback?
           </CardTitle>
           <CardDescription>
-            Send a message to our support team. You can attach or paste (Ctrl+V) a screenshot directly.
+            Send a message to our support team. You can attach or paste (Ctrl+V)
+            a screenshot directly.
           </CardDescription>
         </CardHeader>
         <CardContent className="flex flex-col gap-4">
@@ -404,7 +406,9 @@ export default function Help() {
                   </div>
                 )}
                 <div className="flex-1 min-w-0">
-                  <p className="text-xs font-medium truncate">{screenshotName}</p>
+                  <p className="text-xs font-medium truncate">
+                    {screenshotName}
+                  </p>
                   <p className="text-[11px] text-muted-foreground">
                     Ready to upload to storage
                   </p>
@@ -442,7 +446,8 @@ export default function Help() {
               >
                 {isSubmitting ? (
                   <>
-                    <IconLoader2 className="mr-2 size-4 animate-spin" /> Uploading...
+                    <IconLoader2 className="mr-2 size-4 animate-spin" />{' '}
+                    Uploading...
                   </>
                 ) : submitted ? (
                   <>

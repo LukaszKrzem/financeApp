@@ -7,8 +7,10 @@ import { SpeedInsights } from '@vercel/speed-insights/react';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 
 window.addEventListener('vite:preloadError', () => {
-  if (!sessionStorage.getItem('vite-reload-attempted')) {
-    sessionStorage.setItem('vite-reload-attempted', '1');
+  const lastReload = sessionStorage.getItem('vite-reload-timestamp');
+  const now = Date.now();
+  if (!lastReload || now - parseInt(lastReload, 10) > 10000) {
+    sessionStorage.setItem('vite-reload-timestamp', now.toString());
     window.location.reload();
   }
 });

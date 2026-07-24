@@ -8,6 +8,7 @@ import ProtectedRoute from '@/components/ProtectedRoute';
 import PublicRoute from '@/components/PublicRoute';
 import Layout from './components/Layout';
 import { PageSkeleton } from './components/page-skeleton';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
 import './App.css';
 
 const Home = lazy(() => import('./pages/Home'));
@@ -46,40 +47,45 @@ function App() {
   }, []);
 
   return (
-    <TooltipProvider>
-      <AuthProvider>
-        <DataProvider>
-          <BrowserRouter>
-            <Suspense fallback={<PageSkeleton />}>
-              <Routes>
-                <Route element={<PublicRoute />}>
-                  <Route path="/" element={<Home />} />
-                  <Route path="/login" element={<Login />} />
-                  <Route path="/register" element={<Register />} />
-                </Route>
-
-                <Route element={<ProtectedRoute />}>
-                  <Route element={<Layout />}>
-                    <Route path="/dashboard" element={<Dashboard />} />
-                    <Route path="/budgets" element={<Budgets />} />
-                    <Route path="/accounts" element={<Accounts />} />
-                    <Route path="/transactions" element={<Transactions />} />
-                    <Route path="/savings-goals" element={<SavingsGoals />} />
-                    <Route path="/settings" element={<Settings />} />
-                    <Route path="/bank-callback" element={<BankCallback />} />
-                    <Route path="/subscriptions" element={<Subscriptions />} />
-                    <Route path="/help" element={<Help />} />
+    <ErrorBoundary>
+      <TooltipProvider>
+        <AuthProvider>
+          <DataProvider>
+            <BrowserRouter>
+              <Suspense fallback={<PageSkeleton />}>
+                <Routes>
+                  <Route element={<PublicRoute />}>
+                    <Route path="/" element={<Home />} />
+                    <Route path="/login" element={<Login />} />
+                    <Route path="/register" element={<Register />} />
                   </Route>
-                </Route>
 
-                <Route path="*" element={<Navigate to="/" replace />} />
-              </Routes>
-            </Suspense>
-          </BrowserRouter>
-        </DataProvider>
-      </AuthProvider>
-      <Toaster position="top-center" richColors pauseOnHover />
-    </TooltipProvider>
+                  <Route element={<ProtectedRoute />}>
+                    <Route element={<Layout />}>
+                      <Route path="/dashboard" element={<Dashboard />} />
+                      <Route path="/budgets" element={<Budgets />} />
+                      <Route path="/accounts" element={<Accounts />} />
+                      <Route path="/transactions" element={<Transactions />} />
+                      <Route path="/savings-goals" element={<SavingsGoals />} />
+                      <Route path="/settings" element={<Settings />} />
+                      <Route path="/bank-callback" element={<BankCallback />} />
+                      <Route
+                        path="/subscriptions"
+                        element={<Subscriptions />}
+                      />
+                      <Route path="/help" element={<Help />} />
+                    </Route>
+                  </Route>
+
+                  <Route path="*" element={<Navigate to="/" replace />} />
+                </Routes>
+              </Suspense>
+            </BrowserRouter>
+          </DataProvider>
+        </AuthProvider>
+        <Toaster position="top-center" richColors pauseOnHover />
+      </TooltipProvider>
+    </ErrorBoundary>
   );
 }
 
